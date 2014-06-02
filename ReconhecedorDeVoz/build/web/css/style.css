@@ -1,0 +1,43 @@
+body {
+	font-family: Helvetica, sans-serif;
+	font-size: 11pt;
+	padding: 5px;
+	margin-left: 150px;
+	margin-right: 150px;
+        color: red;
+}
+
+h2 {
+	font-weight: normal;
+	font-size: 24pt;
+}
+
+#controls {
+	text-align: center;
+}
+
+#start_button {
+	font-size: 16pt;
+}
+
+#transcript {
+	color: darkred;
+	font-size: 16pt;
+	border: 1px solid #ccc;
+	padding: 5px;
+}
+
+#instructions {
+	color: darkblue;
+	font-size: 14pt;
+	text-align: center;
+}
+
+#canvas {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	background-color: black;
+}
+
+
