@@ -324,9 +324,11 @@
                 voices = window.speechSynthesis.getVoices();
                 
                 console.log('Get voices ' + voices.length.toString());
+                
                 for (var i = 0; i < voices.length; i++) {
                     
                     console.log("Voice " + i.toString() + ' ' + voices[i].name);
+                    
                 }
                 
 
