@@ -8,9 +8,9 @@ if('POST' == $_SERVER['REQUEST_METHOD'])
     try 
     {
         //Client ID of the application.
-        $clientID = "DeAstisMicrosoftTraduttore2014";
+        $clientID = "";
         //Client Secret key of the application.
-        $clientSecret = "Vfx6Ihf8PoK8OEFx0ZFPgChvTR+N5pD2BLqWSe+Fp7k=";
+        $clientSecret = "";
         //OAuth Url.
         $authUrl = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/";
         //Application Scope Url
