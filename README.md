@@ -3,7 +3,7 @@ speech-translation-tools
 
 A collection of several instruments to collect data in experiments about speech translation. Each branch refers to a different technology.
 
-## Goolgle Translate Web Speech API *branch*
+## *'Goolgle Translate Web Speech API'* branch
 
 ### Configuration
 In this first prototype we are developing the application in NetBeans IDE 8.0. The application server in GlassFish Server 4 and the java version is the "1.7.0_55". The compilation used is the Java EE 6 Web.
