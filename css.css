@@ -35,7 +35,7 @@ img.logo
 }
 
 
-/* Setting for Iitle paragraph */
+/* Setting for Title paragraph */
 p.titolo
 {
     position: absolute;
@@ -52,6 +52,7 @@ select.source_lang
 {
 	position:absolute;
 	top: 23%;
+    width: 146px;
 }
 
 select.dest_lang
@@ -59,6 +60,7 @@ select.dest_lang
 	position:absolute;
 	top: 23%;
 	left: 50%;
+    width: 146px;
 }
 
 /* Setting style select form */
@@ -78,6 +80,7 @@ button.reset
 {
 	position: absolute;
 	top: 65%;
+    left: 8px;
 	font-size: 14px;
 	color: #333;
 	background: #CCC;
@@ -87,7 +90,7 @@ button.reset
 }
 
 /* Setting Submit button */
-input.submit
+input.traduci_sub
 {
     position: absolute;
     top: 23%;
@@ -100,6 +103,37 @@ input.submit
 	border: solid 2px;
 	border-color:#0082ff;
 }
+
+input.ascolta_sub
+{
+    position: absolute;
+    top: 23%;
+    left: 75%;
+    width: 26px;
+    height: 26px;
+	font-size: 14px;
+	/*color: #fff;
+	background: #CCC;*/
+	font-family: Segoe UI;
+	border: solid 2px;
+	border-color:#999;
+    background-image: url('image/speech1.png');
+    background-color: transparent;
+}
+/*
+button.text2speech:active
+{
+    position: absolute;
+    top: 19%;
+    left: 75%;
+    width: 50px;
+    height: 50px;
+    background-image: url('image/speech1.png');
+    border:  solid 2px;
+    border-color: #CCC; 
+     
+}*/
+
 
 
 /* Setting position of textarea */
@@ -147,4 +181,10 @@ img.credit
     position: absolute;
     bottom: 16px;
     left: 80%;
+}
+
+audio
+{
+    position: absolute;
+    top:  75%;
 }
