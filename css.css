@@ -2,7 +2,7 @@
 /* CSS Document */
 
 
-/* Setting font of the page 
+/* Setting font of the page */
 @font-face 
 {
     font-family: 'Segoe UI Light';
@@ -13,7 +13,7 @@
     url('font/segoe_ui_light.ttf') format('truetype'); 
     font-weight: normal; 
     font-style: normal;
-}*/
+}
 
 /* Setting for Intestazione */
 div.intestazione
@@ -120,6 +120,7 @@ textarea.source_text
 {
 	position:absolute;
 	top: 30%;
+    font-family: 'Segoe UI';
 }
 
 textarea.transl_text
@@ -127,6 +128,7 @@ textarea.transl_text
 	position:absolute;
 	top: 30%;
 	left: 50%;
+    font-family: 'Segoe UI';
 }
 
 
