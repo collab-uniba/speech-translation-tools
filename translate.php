@@ -175,7 +175,7 @@ if (isset($_POST['traduci_sub']))
             </select>
            
             <!-- Insert text to translate. -->
-           	<textarea id = "source_text" class = "source_text" name = "source_text" onclick = "javascript:select(source_text)" onkeypress = "javascript:send(this, event);"><?php echo($inputStr); ?></textarea>
+           	<textarea id = "source_text" class = "source_text" name = "source_text" onclick = "javascript:select(source_text)" onkeypress = "javascript:send('traduci_sub', event);"><?php if (isset($inputStr)== true){echo $inputStr;}else{echo '';} ?></textarea>
            
             <!-- Select destination language. -->
             <select id = "dest_lang" class = "dest_lang" name = "dest_lang">
@@ -207,13 +207,13 @@ if (isset($_POST['traduci_sub']))
             
             
             <!-- Traduci button. -->  
-            <input class = "traduci_sub" name ="traduci_sub" type = "submit" value = "Traduci">
+            <input id = "traduci_sub" class = "traduci_sub" name ="traduci_sub" type = "submit" value = "Traduci">
         
         </form>
 
             
         <!-- View the text translated. -->
-        <textarea id = "transl_text" class = "transl_text" name = "transl_text" onclick = "javascript:select(transl_text)"><?php echo $translatedStr; ?></textarea>
+        <textarea id = "transl_text" class = "transl_text" name = "transl_text" onclick = "javascript:select(transl_text)"><?php if (isset($inputStr)== true){echo $translatedStr;}else{echo '';} ?></textarea>
            
         
         
