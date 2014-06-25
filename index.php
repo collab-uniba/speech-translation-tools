@@ -22,7 +22,7 @@ if (glob('./speech_file/*.mp3'))
 
 include 'HttpTranslator.php';
 include 'AccessTokenAuthentication.php';
-require 'credential.php';
+require 'Credentials.php';
 
 if (isset($_POST['traduci_sub']))
 {
