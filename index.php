@@ -125,12 +125,12 @@ if (isset($_POST['traduci_sub']))
 
 <body>
 
-    <!-- Declaration and sort of the array that contains the language of the translation. --> 
+    <!-- Declaration and sorting of the array that contains the source and target language for translation. --> 
     <?php
-        $languages = array("a"=>"**Select language**", "it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
+        $languages = array("a"=>"Select language", "it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
         "zh-CHS"=>"Simplified Chinese", "zh-CHT"=>"Traditional Chinese", "de"=>"German", "fr"=>"French",);
         
-        // Sorts array by key without change them.
+        // Sorts array by key without changing them.
         Ksort($languages);        
     ?>
     
@@ -149,7 +149,7 @@ if (isset($_POST['traduci_sub']))
             <!-- Select of the source language. -->
             <select class = "source_lang" name = "source_lang">
                 
-                <!-- PHP's function to view the languages available for translate. -->
+                <!-- PHP function to view the languages available for translation -->
                 <?php if ($_SESSION['source_lang'] == NULL) 
                       {
                           foreach($languages as $code => $lang) 
@@ -174,13 +174,13 @@ if (isset($_POST['traduci_sub']))
      
             </select>
            
-            <!-- Insert text to translate. -->
+            <!-- Enter text to translate. -->
            	<textarea id = "source_text" class = "source_text" name = "source_text" onclick = "javascript:select(source_text)" onkeypress = "javascript:send('traduci_sub', event);"><?php if (isset($inputStr)== true){echo $inputStr;}else{echo '';} ?></textarea>
            
             <!-- Select destination language. -->
             <select id = "dest_lang" class = "dest_lang" name = "dest_lang">
 
-                <!-- PHP's foreach to view the languages available for translate. -->
+                <!-- PHP foreach to view the languages available for translate. -->
                 <?php if ($_SESSION['source_lang'] == NULL) 
                       {
                           foreach($languages as $code => $lang) 
