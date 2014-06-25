@@ -131,7 +131,7 @@ if (isset($_POST['traduci_sub']))
         "zh-CHS"=>"Simplified Chinese", "zh-CHT"=>"Traditional Chinese", "de"=>"German", "fr"=>"French",);
         
         // Sorts array by key without changing them.
-        Ksort($languages);        
+        Ksort($languages);     
     ?>
     
     <div class = "body">
@@ -139,9 +139,6 @@ if (isset($_POST['traduci_sub']))
         <div class = "intestazione">
            <img class = "logo" src = "image/logo.png" width = "300" height = "47" alt = "logo"/>
         </div>
-
-        <!-- The name of web page. -->
-        <p class = "titolo">Translator</p>
 
         <!-- All content is send in POST request. -->
         <form id ="trad" name = 'trad' action = "index.php" method = "POST">
