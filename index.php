@@ -127,7 +127,7 @@ if (isset($_POST['traduci_sub']))
 
     <!-- Declaration and sort of the array that contains the language of the translation. --> 
     <?php
-        $languages = array("a"=>" Select language", "it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
+        $languages = array("a"=>"**Select language**", "it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
         "zh-CHS"=>"Simplified Chinese", "zh-CHT"=>"Traditional Chinese", "de"=>"German", "fr"=>"French",);
         
         // Sorts array by key without change them.
