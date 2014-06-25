@@ -144,12 +144,12 @@ if (isset($_POST['traduci_sub']))
         <p class = "titolo">Traduttore</p>
 
         <!-- All content is send in POST request. -->
-        <form id ="trad" name = 'trad' action = "translate.php" method = "POST">
+        <form id ="trad" name = 'trad' action = "index.php" method = "POST">
 
             <!-- Select of the source language. -->
             <select class = "source_lang" name = "source_lang">
                 
-                <!-- PHP's function to view the languages aviable for translate. -->
+                <!-- PHP's function to view the languages available for translate. -->
                 <?php if ($_SESSION['source_lang'] == NULL) 
                       {
                           foreach($languages as $code => $lang) 
