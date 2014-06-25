@@ -127,8 +127,8 @@ if (isset($_POST['traduci_sub']))
 
     <!-- Declaration and sort of the array that contains the language of the translation. --> 
     <?php
-        $languages = array("a"=>"Seleziona lingua", "it"=>"Italiano", "en"=>"Inglese", "ja"=>"Giapponese", "pt"=>"Portoghese", "es"=>"Spagnolo", "tr"=>"Turco",
-        "zh-CHS"=>"Cinese Semplificato", "zh-CHT"=>"Cinese Tradizionale", "de"=>"Tedesco", "fr"=>"Francese",);
+        $languages = array("a"=>"Select language", "it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
+        "zh-CHS"=>"Simplified Chinese", "zh-CHT"=>"Traditional Chinese", "de"=>"German", "fr"=>"French",);
         
         // Sorts array by key without change them.
         Ksort($languages);        
@@ -141,7 +141,7 @@ if (isset($_POST['traduci_sub']))
         </div>
 
         <!-- The name of web page. -->
-        <p class = "titolo">Traduttore</p>
+        <p class = "titolo">Translator</p>
 
         <!-- All content is send in POST request. -->
         <form id ="trad" name = 'trad' action = "index.php" method = "POST">
@@ -180,7 +180,7 @@ if (isset($_POST['traduci_sub']))
             <!-- Select destination language. -->
             <select id = "dest_lang" class = "dest_lang" name = "dest_lang">
 
-                <!-- PHP's foreach to view the languages aviable for translate. -->
+                <!-- PHP's foreach to view the languages available for translate. -->
                 <?php if ($_SESSION['source_lang'] == NULL) 
                       {
                           foreach($languages as $code => $lang) 
@@ -206,8 +206,8 @@ if (isset($_POST['traduci_sub']))
             </select>
             
             
-            <!-- Traduci button. -->  
-            <input id = "traduci_sub" class = "traduci_sub" name ="traduci_sub" type = "submit" value = "Traduci">
+            <!-- Translate button. -->  
+            <input id = "traduci_sub" class = "traduci_sub" name ="traduci_sub" type = "submit" value = "Translate">
         
         </form>
 
