@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html">
     <head>
-        <title>Reconhecedor de Voz</title>
+        <title>Voice Translator</title>
 
         <script type="text/javascript" src="javascript/jquery-1.11.0.js"></script>
         <script type="text/javascript" src="javascript/chroma.js"></script>
@@ -11,33 +11,35 @@
 
     <body>
        
-        <h2>Reconhecimento de Voz, Transcricao e Fala</h2>
+        <h2>Voice Recognition - Transcription - Voice Synthesis</h2>
 
         <div id="instructions"></div>
 
         <input type="button" id="EscolherIngles" value="Speak in English" onclick="mudarLinguaParaInglesUS();">
         <input type="button" id="EscolherPortugues" value="Speak in Brazilian Portuguese" onclick="mudarLinguaParaPortugues();">
-        <input type="button" id="EscolherItaliano" value="Reproduzir Italian" onclick="mudarLinguaParaItaliano();">
+        <input type="button" id="EscolherItaliano" value="Speak in Italian" onclick="mudarLinguaParaItaliano();">
         
         <p id="controls">
-            <button id="start_button">Iniciar</button>
+            <button id="start_button">Start</button>
         </p>
 
         <canvas id="canvas" width="800" height="120" ></canvas>
 
-        <h3>Texto gerado a partir do reconhecimento da voz.</h3>
+        <h3>Text generated through the voice recognition:</h3>
 
         <div id="transcript" style="height: 100px"></div>
 
-        <input type="button" id="traduzir" value="Traduzir" onclick="enviarDadosParaTraducaoEN_PT();">
-        <input type="button" id="traduzir" value="Traduzir" onclick="enviarDadosParaTraducaoEN_IT();">
+        <input type="button" id="traduzirEnPt" value="Translate from EN to PT" onclick="enviarDadosParaTraducaoEN_PT();">
+        
+        <input type="button" id="traduzirEnIt" value="Translate from EN to IT" onclick="enviarDadosParaTraducaoEN_IT();">
+        <input type="button" id="traduzirEnIt" value="Translate from IT to EN" onclick="enviarDadosParaTraducaoIT_PT();">
         
         
         <div id="translation" style="height: 100px; border: solid 1px"></div>
 
-        <input type="button" id="ReproduzirIngles" value="Reproduzir Inglês">
-        <input type="button" id="ReproduzirPortugues" value="Reproduzir Português">
-        <input type="button" id="ReproduzirItaliano" value="Reproduzir Italiano">
+        <input type="button" id="ReproduzirIngles" value="Speak in English">
+        <input type="button" id="ReproduzirPortugues" value="Speak in Portuguese">
+        <input type="button" id="ReproduzirItaliano" value="Speak in Italian">
         
         <script type="text/javascript">
 
@@ -125,7 +127,8 @@
 
                         recognition.lang = language;
                         
-                        //alert(recognition.lang);
+                        alert("Língua escolhida para reconhecer: " + recognition.lang);
+                        
                         recognizing = true;
                         $('#instructions').html('Fale calmamente e em voz alta.');
                         $('#start_button').html('Parar');
@@ -136,15 +139,17 @@
                             analyser.getByteFrequencyData(array);
                             requestAnimFrame(drawSpectrogram);
                         };
-
                     };
+                    
                     recognition.onerror = function(event) {
                         console.log("There was a recognition error...");
                     };
+                    
                     recognition.onend = function() {
                         recognizing = false;
                         $('#instructions').html('Completo');
                     };
+                    
                     recognition.onresult = function(event) {
                         var interim_transcript = '';
                         // Assemble the transcript from the array of results
@@ -163,13 +168,16 @@
                             $('#transcript').html(final_transcript);
                         }
                     };
+                    
                     $("#start_button").click(function(e) {
                         
                         if(language === '') {
                             alert("You must pick a language first");
                             return;
                         }
-                        //alert(recognition.lang);
+                        
+                        alert("Língua escolhida para reconhecer: " + recognition.lang);
+                        
                         e.preventDefault();
                         if (recognizing) {
                             // button currently shows 'click to stop'
@@ -416,6 +424,23 @@
             // Restrict your key to designated domains or use a proxy to hide your key
             // to avoid misuage by other party.
             var source = 'https://www.googleapis.com/language/translate/v2?key=AIzaSyCq1JQCESjgNTc4iM1tXMzEo9d2uVf3IP8&source=en&target=it&callback=translateText&q=' + sourceText;
+            
+            //alert(source);    
+            newScript.src = source;
+
+            // When we add this script to the head, the request is sent off.
+            document.getElementsByTagName('head')[0].appendChild(newScript);
+        }
+        
+        function enviarDadosParaTraducaoIT_PT() {
+            var newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            var sourceText = escape(document.getElementById("transcript").innerHTML);
+            //alert(sourceText);
+            // WARNING: be aware that YOUR-API-KEY inside html is viewable by all your users.
+            // Restrict your key to designated domains or use a proxy to hide your key
+            // to avoid misuage by other party.
+            var source = 'https://www.googleapis.com/language/translate/v2?key=AIzaSyCq1JQCESjgNTc4iM1tXMzEo9d2uVf3IP8&source=it&target=en&callback=translateText&q=' + sourceText;
             
             //alert(source);    
             newScript.src = source;
