@@ -24,7 +24,7 @@ include 'HttpTranslator.php';
 include 'AccessTokenAuthentication.php';
 require 'Credentials.php';
 
-if (isset($_POST['traduci_sub']))
+if (isset($_POST['translate_sub']))
 {
     // Session variable for keep the languages selected
     // Sets session variable for source_lang
@@ -97,14 +97,15 @@ if (isset($_POST['traduci_sub']))
         
         //Create the name of speech file.
         $var = uniqid('SPC_').".mp3";
+		$var1 = urlencode($var);
 
         //Save file into server directory.
-        file_put_contents('./speech_file/'.$var, $strResponse);
+        file_put_contents('./speech_file/'.$var1, $strResponse);
 
 
     } catch (Exception $e) 
       {
-          echo "Exception: " . $e->getMessage() . PHP_EOL;
+          echo "Exception: ".$e->getMessage().PHP_EOL;
       }
 }
 
@@ -113,7 +114,7 @@ if (isset($_POST['traduci_sub']))
 
 
 <!DOCTYPE html>
-<html lang = "it">
+<html lang = "en">
 
 <head>
     <meta charset="utf-8" />
@@ -127,16 +128,16 @@ if (isset($_POST['traduci_sub']))
 
     <!-- Declaration and sorting of the array that contains the source and target language for translation. --> 
     <?php
-        $languages = array("a"=>"Select language", "it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
+        $languages = array("it"=>"Italian", "en"=>"English", "ja"=>"Japanese", "pt"=>"Portuguese", "es"=>"Spanish", "tr"=>"Turkish",
         "zh-CHS"=>"Simplified Chinese", "zh-CHT"=>"Traditional Chinese", "de"=>"German", "fr"=>"French",);
         
         // Sorts array by key without changing them.
-        Ksort($languages);     
+        asort($languages);     
     ?>
     
     <div class = "body">
 
-        <div class = "intestazione">
+        <div class = "header">
            <img class = "logo" src = "image/logo.png" width = "300" height = "47" alt = "logo"/>
         </div>
 
@@ -147,9 +148,10 @@ if (isset($_POST['traduci_sub']))
             <select class = "source_lang" name = "source_lang">
                 
                 <!-- PHP function to view the languages available for translation -->
-                <?php if ($_SESSION['source_lang'] == NULL) 
-                      {
-                          foreach($languages as $code => $lang) 
+                <?php if (isset($_SESSION['source_lang']) == false) 
+                      {?>
+						  <option value = "Select_lang">Select language</option>
+                    <?php foreach($languages as $code => $lang) 
                           { ?>
                               <option value = "<?php echo $code; ?>"> <?php echo $lang; ?> </option>
                     <?php }
@@ -172,15 +174,16 @@ if (isset($_POST['traduci_sub']))
             </select>
            
             <!-- Enter text to translate. -->
-           	<textarea id = "source_text" class = "source_text" name = "source_text" onclick = "javascript:select(source_text)" onkeypress = "javascript:send('traduci_sub', event);"><?php if (isset($inputStr)== true){echo $inputStr;}else{echo '';} ?></textarea>
+           	<textarea id = "source_text" class = "source_text" name = "source_text" onclick = "javascript:select(source_text)" onkeypress = "javascript:send('translate_sub', event);"><?php if (isset($inputStr)== true){echo $inputStr;}else{echo '';} ?></textarea>
            
             <!-- Select destination language. -->
             <select id = "dest_lang" class = "dest_lang" name = "dest_lang">
 
                 <!-- PHP foreach to view the languages available for translate. -->
-                <?php if ($_SESSION['source_lang'] == NULL) 
-                      {
-                          foreach($languages as $code => $lang) 
+                <?php if (isset($_SESSION['source_lang']) == false) 
+                      {?>
+						  <option value = "Select_lang">Select language</option>
+                    <?php foreach($languages as $code => $lang) 
                           { ?>
                               <option value = "<?php echo $code; ?>"> <?php echo $lang; ?> </option>
                     <?php }
@@ -204,7 +207,7 @@ if (isset($_POST['traduci_sub']))
             
             
             <!-- Translate button. -->  
-            <input id = "traduci_sub" class = "traduci_sub" name ="traduci_sub" type = "submit" value = "Translate">
+            <input id = "translate_sub" class = "translate_sub" name ="translate_sub" type = "submit" value = "Translate">
         
         </form>
 
@@ -227,11 +230,12 @@ if (isset($_POST['traduci_sub']))
         ?>
 
         <!-- Player for listen the text-to-speech. -->
-        <audio id = "t2s" controls = "controls" >
-            <source src = "<?php echo $speech; ?>" type = "audio/mpeg" />
+        <audio id = "play_speech">
+        	<source src = "<?php echo $speech; ?>" type = "audio/mp3" />
         </audio>
 
-
+        <!-- Text-to-speech's button. -->
+        <button id = "t2s" class = "t2s" type = "button"  onclick = "speech_play()"></button>
 
         <!-- Page footer. -->
         <div class = "pagef">
