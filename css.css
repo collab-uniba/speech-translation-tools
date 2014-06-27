@@ -16,7 +16,7 @@
 }
 
 /* Setting for Intestazione */
-div.intestazione
+div.header
 {
 	position: absolute;
 	width: 100%;
@@ -31,18 +31,6 @@ img.logo
 {
   position: absolute;
   top: 6px; 
-}
-
-
-/* Setting for Title paragraph */
-p.titolo
-{
-    position: absolute;
-    top: 10%;
-    font-family: Segoe UI;
-    font-size: 25px;
-    font-style: normal;
-    color: #f00;
 }
 
 
@@ -91,7 +79,7 @@ button.reset
 
 
 /* Setting Submit button */
-input.traduci_sub
+input.translate_sub
 {
     position: absolute;
     top: 23%;
@@ -106,12 +94,35 @@ input.traduci_sub
 }
 
 
-/* Setting position of the text-to-speech player */
-audio
+/* Setting position of the text-to-speech player 
+audio.t2s
 {
     position: absolute;
     top: 57%;
     left: 50.5%;
+}*/
+
+/* Setting the graphical properties of text-to-speech button */
+button.t2s
+{
+    width: 26px;
+    height: 26px;
+    display: inline-block;
+    top: 23%;
+    left: 75%;
+    position: absolute;
+    cursor:  pointer;
+    border: none;
+    background: transparent;
+    background-image: url("./image/speech.png");
+    box-shadow: initial ;
+}
+            
+            
+button.t2s:active
+{
+    top: 22%;
+    box-shadow: initial;
 }
 
 

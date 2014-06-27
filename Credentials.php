@@ -1,8 +1,18 @@
 <?php
-		// get free and proper ID and Secret from https://datamarket.azure.com
-        $clientID = "Replace me!";
-        $clientSecret = "Replace me!";
-        $authUrl = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/";
-        $scopeUrl = "http://api.microsofttranslator.com";
-        $grantType = "client_credentials";
+    
+    //Client ID of the application.
+    $clientID = "Change me!";
+
+    //Client Secret key of the application.
+    $clientSecret = "Change me!";
+
+    //OAuth Url.
+    $authUrl = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/";
+
+    //Application Scope Url
+    $scopeUrl = "http://api.microsofttranslator.com";
+
+    //Application grant type
+    $grantType = "client_credentials";
+
 ?>

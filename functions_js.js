@@ -18,3 +18,17 @@ function send(t, e)
 		return true;
 	}
 }
+
+/* Function to listen text-to-speech file */
+ function speech_play()
+ {
+     var play_speech = document.getElementById("play_speech");
+     if (play_speech.paused) 
+     {
+         play_speech.play();
+     }
+     else 
+     {
+         play_speech.pause();
+     }
+ }
