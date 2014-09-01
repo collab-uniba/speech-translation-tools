@@ -1,0 +1,69 @@
+package it.uniba.di;
+
+import com.skype.Call;
+import com.skype.CallListener;
+import com.skype.Chat;
+import com.skype.ChatMessage;
+import com.skype.ChatMessageListener;
+import com.skype.Skype;
+import com.skype.SkypeException;
+import com.skype.connector.Connector;
+import com.skype.connector.ConnectorException;
+
+
+public class SkypeSpike {
+
+	static {
+		Connector.useJNIConnector(true);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		SkypeSpike test = new SkypeSpike();
+		test.connect();
+		test.sendMessage();
+	}
+
+	private void sendMessage() throws SkypeException {		
+		Chat chat = Skype.chat("harunicole");
+		chat.
+	}
+
+	public void connect() throws Exception {
+		Connector.Status status = null;
+		Connector conn = Connector.getInstance();
+
+		try {
+			status = conn.connect();
+		} catch (ConnectorException e1) {
+			e1.printStackTrace();
+			throw new Exception(e1.getMessage());
+		}
+
+		if (status != Connector.Status.ATTACHED)
+			throw new Exception(
+					new Exception(
+							"Please install Skype from www.skype.com and run it."));
+							
+		// add Skype4Java listeners
+		try {
+			Skype.addChatMessageListener(chatMessageListener);
+		} catch (SkypeException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(Skype.getVersion());
+	}
+
+	private ChatMessageListener chatMessageListener = new ChatMessageListener() {
+
+		@Override
+		public void chatMessageSent(ChatMessage arg0) throws SkypeException {
+		}
+
+		@Override
+		public void chatMessageReceived(ChatMessage chatMessage)
+				throws SkypeException {
+			System.out.println(chatMessage.getContent() + " " +	chatMessage.getSenderId() + " "	+ chatMessage.getSenderDisplayName() + " " + chatMessage.getChat());
+		}
+	};
+}

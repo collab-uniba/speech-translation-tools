@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;it.uniba.di.SendChatMessage.java&apos; to &apos;SkypeSpike.java&apos;&#x0D;&#x0A;- Original project: &apos;skype4java-example&apos;&#x0D;&#x0A;- Original element: &apos;it.uniba.di.SendChatMessage.java&apos;&#x0D;&#x0A;- Renamed element: &apos;it.uniba.di.SkypeSpike.java&apos;" description="Rename compilation unit &apos;SendChatMessage.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;it.uniba.di{SendChatMessage.java" name="SkypeSpike.java" references="false" stamp="1409581844671" version="1.0"/>
+</session>

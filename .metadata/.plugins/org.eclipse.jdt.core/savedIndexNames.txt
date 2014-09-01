@@ -1,0 +1,15 @@
+INDEX VERSION 1.126+D:\Documenti\gitrepos\speech-translation-tools\.metadata\.plugins\org.eclipse.jdt.core
+1730542152.index
+484451248.index
+1873850507.index
+2346216906.index
+3168462315.index
+1197536835.index
+2863764745.index
+965877771.index
+160879281.index
+2521205452.index
+2330863617.index
+947297101.index
+4042844324.index
+2807578366.index
