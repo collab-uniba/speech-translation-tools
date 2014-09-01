@@ -24,9 +24,11 @@ public class SkypeSpike {
 		SkypeSpike test = new SkypeSpike();
 		test.connect();
 		String text = "";
-		String id = "harunicole"; // enter a skype id here to test the messaging
-									// function
+		String id = "";
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Enter a valid skype id to test the 1-1 messaging feature: ");
+		id = br.readLine();
+		System.out.print("> ");
 		while (true) {
 			text = br.readLine();
 			test.sendMessage(id, text);
@@ -60,7 +62,7 @@ public class SkypeSpike {
 			e.printStackTrace();
 		}
 
-		System.out.println(Skype.getVersion());
+		System.out.println("Connected, Skype ver. " + Skype.getVersion());
 	}
 
 	private ChatMessageListener chatMessageListener = new ChatMessageListener() {
