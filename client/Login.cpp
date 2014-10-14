@@ -10,6 +10,7 @@
 
 #include "Login.h"
 #include "ClientTsFrm.h"
+#include "utility.h"
 
 FILE*config=fopen("config.txt","w");
 //Do not add custom headers
@@ -87,14 +88,19 @@ void Login::OnClose(wxCloseEvent& /*event*/)
 void Login::btnloginClick(wxCommandEvent& event)
 {
 	// insert your code here
+	//wxMessageBox(ip);
 	char server[20];
 	char nick[50];
 	char lingua[20];
+	
     strncpy(server, (const char*)txtserver->GetValue().mb_str(wxConvUTF8), 20);
     strncpy(nick, (const char*)txtnick->GetValue().mb_str(wxConvUTF8), 50);
     strncpy(lingua, (const char*)cmblingua->GetStringSelection().mb_str(wxConvUTF8), 20);    
     
-	fprintf(config,"%s\n",server);
+    char ip[100];
+	hostname_to_ip(server , ip);
+	
+	fprintf(config,"%s\n",ip);
 	fprintf(config,"%s\n",nick);
 	fprintf(config,"%s",lingua);
 	fflush(config);

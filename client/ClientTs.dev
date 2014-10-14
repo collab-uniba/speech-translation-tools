@@ -1,7 +1,7 @@
 [Project]
 FileName=ClientTs.dev
 Name=ClientTs
-UnitCount=9
+UnitCount=10
 PchHead=-1
 PchSource=-1
 Ver=3
@@ -86,7 +86,7 @@ ProductName=
 ProductVersion=
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
-UnitCount=9
+UnitCount=10
 
 [Profile1]
 ProfileName=MingW gcc
@@ -169,6 +169,16 @@ FileName=Login.wxform
 Folder=ClientTs
 Compile=0
 Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit10]
+FileName=utility.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

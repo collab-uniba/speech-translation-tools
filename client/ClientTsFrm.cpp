@@ -37,14 +37,17 @@
 #else
 #define SLEEP(x) usleep(x*1000)
 #endif
-DWORD myThreadID;
-DWORD myThreadID2;
+
+    DWORD myThreadID;
+    DWORD myThreadID2;
 	WSADATA wsadata;
 	SOCKET sock;
 	SOCKADDR_IN client_addr;
+	
 	int iresult;
 	int numero;
 	int max;
+	
 	wxString strGlobale="";
 	wxString oldstrGlobale="";
 	wxString strNick="";
@@ -52,11 +55,12 @@ DWORD myThreadID2;
 	wxString nomeClient[MAX];
 	wxDateTime data;
 	char **nomeclient;
-	 char SERVER_ADDRESS[20];
+	char SERVER_ADDRESS[20];
     char NICK[50];
     char LINGUA[20];
     int PORT=9987;
-struct WaveHeader {
+    
+    struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];
 	unsigned int len;
@@ -920,10 +924,6 @@ void showHelp() {
 unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID,  const char *message,
 anyID targetChannelID, const char *returnCode);
 
-/*void  onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char *fromUniqueIdentifier, const char *message)
-{
-    printf("Ricevuto il messaggio: %s",message);
-}*/
 
 //Do not add custom headers between
 //Header Include Start and Header Include End
