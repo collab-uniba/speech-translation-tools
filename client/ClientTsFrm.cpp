@@ -1318,8 +1318,8 @@ void ClientTsFrm::RefreshChat()
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%d-%m-%Y.%X", &tstruct);
     int coloreA=tstruct.tm_sec;
-	int coloreB=0;
-	int coloreC=0;
+	int coloreB=tstruct.tm_min;
+	int coloreC=tstruct.tm_hour;
     showClients(DEFAULT_VIRTUAL_SERVER);
     txtclient->Clear();
     for (i=0;i<MAX;i++)

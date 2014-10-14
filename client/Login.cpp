@@ -65,7 +65,7 @@ void Login::CreateGUIControls()
 
 	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci un nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
 
-	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("127.0.0.1"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
+	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("neo.di.uniba.it"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
 
 	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci l'indirizzo del server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
 
