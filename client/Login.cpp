@@ -12,7 +12,11 @@
 #include "ClientTsFrm.h"
 #include "utility.h"
 
-FILE*config=fopen("config.txt","w");
+FILE*config;
+char StringLoginServer[20];
+char StringLoginNick[50];
+char StringLoginLingua[20];
+int  cmbelement=0;
 //Do not add custom headers
 //wxDev-C++ designer will remove them
 ////Header Include Start
@@ -74,6 +78,20 @@ void Login::CreateGUIControls()
 	SetSize(8,8,640,480);
 	Center();
 	
+	if (config = fopen("config.txt", "r"))
+    {
+        fscanf(config,"%s",&StringLoginServer);
+        txtserver->SetValue(StringLoginServer);
+        fscanf(config,"%s",&StringLoginNick);
+        txtnick->SetValue(StringLoginNick);
+        fscanf(config,"%d",&cmbelement);
+        cmblingua->SetSelection(cmbelement);
+        fscanf(config,"%s",&StringLoginLingua);
+        cmblingua->SetValue(StringLoginLingua);
+        fclose(config);
+    }
+    cmblingua->SetSelection(cmbelement);
+	
 	////GUI Items Creation End
 }
 
@@ -89,22 +107,24 @@ void Login::btnloginClick(wxCommandEvent& event)
 {
 	// insert your code here
 	//wxMessageBox(ip);
-	char server[20];
-	char nick[50];
-	char lingua[20];
 	
-    strncpy(server, (const char*)txtserver->GetValue().mb_str(wxConvUTF8), 20);
-    strncpy(nick, (const char*)txtnick->GetValue().mb_str(wxConvUTF8), 50);
-    strncpy(lingua, (const char*)cmblingua->GetStringSelection().mb_str(wxConvUTF8), 20);    
+    strncpy(StringLoginServer, (const char*)txtserver->GetValue().mb_str(wxConvUTF8), 20);
+    strncpy(StringLoginNick, (const char*)txtnick->GetValue().mb_str(wxConvUTF8), 50);
+    strncpy(StringLoginLingua, (const char*)cmblingua->GetStringSelection().mb_str(wxConvUTF8), 20);    
     
     char ip[100];
-	hostname_to_ip(server , ip);
+	hostname_to_ip(StringLoginServer , ip);
 	
-	fprintf(config,"%s\n",ip);
-	fprintf(config,"%s\n",nick);
-	fprintf(config,"%s",lingua);
-	fflush(config);
-	fclose(config);
+	if ( (config = fopen("config.txt", "r"))==NULL)
+    {
+        config=fopen("config.txt","w");
+    	fprintf(config,"%s\n",ip);
+    	fprintf(config,"%s\n",StringLoginNick);
+    	fprintf(config,"%d\n",cmblingua->GetSelection());
+    	fprintf(config,"%s",StringLoginLingua);
+    	fflush(config);
+    	fclose(config);
+    }
 	ClientTsFrm* frame = new ClientTsFrm(NULL);
     frame->Show();
 	this->Close();

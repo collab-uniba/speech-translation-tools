@@ -1,0 +1,13 @@
+2014-10-15 03:12:33.284164|INFO    |              |   | TeamSpeak 3 Client 3.0.2 (2012-07-19 10:50:53) SDK
+2014-10-15 03:12:33.317166|DEBUG   |Direct Sound  |   | setting timer resolution to 1ms
+2014-10-15 03:12:33.394170|DEBUG   |Windows Audio Session|   | WAS::openDevice-enter
+2014-10-15 03:12:33.420172|DEBUG   |Windows Audio Session|   | WAS Buffer size: 896
+2014-10-15 03:12:33.421172|DEBUG   |Windows Audio Session|   | WAS::openDevice-leave
+2014-10-15 03:12:33.421172|INFO    |PreProSpeex   |  1| Speex version: speex-1.2beta3
+2014-10-15 03:12:33.421172|DEBUG   |Windows Audio Session|   | WAS::startDevice-enter
+2014-10-15 03:12:33.422172|DEBUG   |Windows Audio Session|   | WAS::startDevice-leave
+2014-10-15 03:12:33.422172|DEBUG   |Windows Audio Session|   | WAS::openDevice-enter
+2014-10-15 03:12:33.439173|DEBUG   |Windows Audio Session|   | WAS Buffer size: 960
+2014-10-15 03:12:33.439173|DEBUG   |Windows Audio Session|   | WAS::openDevice-leave
+2014-10-15 03:12:33.439173|DEBUG   |Windows Audio Session|   | WAS::startDevice-enter
+2014-10-15 03:12:33.440173|DEBUG   |Windows Audio Session|   | WAS::startDevice-leave

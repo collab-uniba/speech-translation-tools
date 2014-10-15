@@ -9,6 +9,7 @@
 ///------------------------------------------------------------------
 
 #include "ClientTsFrm.h"
+#include "Login.h"
 #include <windows.h>
 #include <stdio.h>
 #include <time.h>
@@ -59,6 +60,7 @@
     char NICK[50];
     char LINGUA[20];
     int PORT=9987;
+    int cmbel=0;
     
     struct WaveHeader {
 	/* Riff chunk */
@@ -1011,10 +1013,12 @@ void ClientTsFrm::CreateGUIControls()
 	Center();
 	
 	////GUI Items Creation End
+	
 	conta=10.0;
 	FILE*config=fopen("config.txt","r");
     fscanf(config,"%s",&SERVER_ADDRESS);
     fscanf(config,"%s",&NICK);
+    fscanf(config,"%d",&cmbel);
     fscanf(config,"%s",&LINGUA);
     fclose(config);
 	txtnick->AppendText(NICK);
