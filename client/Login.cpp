@@ -11,12 +11,45 @@
 #include "Login.h"
 #include "ClientTsFrm.h"
 #include "utility.h"
+#include <curl/curl.h>
+#include <malloc.h>
 
 FILE*config;
 char StringLoginServer[20];
 char StringLoginNick[50];
 char StringLoginLingua[20];
 int  cmbelement=0;
+
+struct string {
+  char *ptr;
+  size_t len;
+};
+
+void init_string(struct string *s) {
+  s->len = 0;
+  s->ptr = (char*)malloc(s->len+1);
+  if (s->ptr == NULL) {
+    fprintf(stderr, "malloc() failed\n");
+    exit(EXIT_FAILURE);
+  }
+  s->ptr[0] = '\0';
+}
+
+size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
+{
+  size_t new_len = s->len + size*nmemb;
+  s->ptr = (char*)realloc(s->ptr, new_len+1);
+  if (s->ptr == NULL) {
+    fprintf(stderr, "realloc() failed\n");
+    exit(EXIT_FAILURE);
+  }
+  memcpy(s->ptr+s->len, ptr, size*nmemb);
+  s->ptr[new_len] = '\0';
+  s->len = new_len;
+
+  return size*nmemb;
+}
+
 //Do not add custom headers
 //wxDev-C++ designer will remove them
 ////Header Include Start
@@ -93,6 +126,65 @@ void Login::CreateGUIControls()
     fclose(config);
     }
     cmblingua->SetSelection(cmbelement);
+    
+
+   CURL *curl;
+  CURLcode res;
+ 
+  curl_global_init(CURL_GLOBAL_DEFAULT);
+ 
+  curl = curl_easy_init();
+   struct string s;
+    init_string(&s);
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.it/");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+ 
+//#ifdef SKIP_PEER_VERIFICATION
+    /*
+     * If you want to connect to a site who isn't using a certificate that is
+     * signed by one of the certs in the CA bundle you have, you can skip the
+     * verification of the server's certificate. This makes the connection
+     * A LOT LESS SECURE.
+     *
+     * If you have a CA cert for the server stored someplace else than in the
+     * default bundle, then the CURLOPT_CAPATH option might come handy for
+     * you.
+     */ 
+  //  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+//#endif
+ 
+//#ifdef SKIP_HOSTNAME_VERIFICATION
+    /*
+     * If the site you're connecting to uses a different host name that what
+     * they have mentioned in their server certificate's commonName (or
+     * subjectAltName) fields, libcurl will refuse to connect. You can skip
+     * this check, but this will make the connection less secure.
+     */ 
+  //  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+//#endif
+ 
+    /* Perform the request, res will get the return code */ 
+    res = curl_easy_perform(curl);
+    //wxMessageBox(s.ptr);
+    FILE *html=fopen("pagina.htm","w");
+    fprintf(html,"%s",s.ptr);
+    fflush(html);
+    fclose(html);
+    /* Check for errors */ 
+    if(res != CURLE_OK)
+      fprintf(stderr, "curl_easy_perform() failed: %s\n",
+              curl_easy_strerror(res));
+    
+    /* always cleanup */ 
+    curl_easy_cleanup(curl);
+  }
+ 
+  curl_global_cleanup();
+
 }
 
 void Login::OnClose(wxCloseEvent& /*event*/)
