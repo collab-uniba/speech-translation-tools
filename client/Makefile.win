@@ -1,7 +1,7 @@
 # Project: ClientTs
 # Compiler: Default GCC compiler
 # Compiler Type: MingW 3
-# Makefile created by wxDev-C++ IDE 7.4.2.569 on 15/10/14 03:48
+# Makefile created by wxDev-C++ IDE 7.4.2.569 on 15/10/14 04:32
 
 WXLIBNAME = wxmsw29u
 CPP       = g++.exe
@@ -39,7 +39,7 @@ $(BIN): $(OBJ)
 Objects/MingW/ClientTsApp.o: $(GLOBALDEPS) ClientTsApp.cpp ClientTsApp.h ClientTsFrm.h Login.h
 	$(CPP) -c ClientTsApp.cpp -o Objects/MingW/ClientTsApp.o $(CXXFLAGS)
 
-Objects/MingW/ClientTsFrm.o: $(GLOBALDEPS) ClientTsFrm.cpp ClientTsFrm.h Login.h
+Objects/MingW/ClientTsFrm.o: $(GLOBALDEPS) ClientTsFrm.cpp ClientTsFrm.h Login.h Images/ClientTsFrm_frmNewForm_XPM.xpm Images/ClientTsFrm_WxBitmapButton1_XPM.xpm
 	$(CPP) -c ClientTsFrm.cpp -o Objects/MingW/ClientTsFrm.o $(CXXFLAGS)
 
 Objects/MingW/Login.o: $(GLOBALDEPS) Login.cpp Login.h ClientTsFrm.h utility.h

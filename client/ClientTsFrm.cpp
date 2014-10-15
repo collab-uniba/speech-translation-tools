@@ -931,6 +931,8 @@ anyID targetChannelID, const char *returnCode);
 //Header Include Start and Header Include End
 //wxDev-C++ designer will remove them
 ////Header Include Start
+#include "Images/ClientTsFrm_frmNewForm_XPM.xpm"
+#include "Images/ClientTsFrm_WxBitmapButton1_XPM.xpm"
 ////Header Include End
 
 //----------------------------------------------------------------------------
@@ -944,9 +946,10 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	////Manual Code End
 	
 	EVT_CLOSE(ClientTsFrm::OnClose)
+	EVT_BUTTON(ID_WXBITMAPBUTTON1,ClientTsFrm::WxBitmapButton1Click0)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
 	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
-	EVT_TEXT_ENTER(ID_WXEDIT1,ClientTsFrm::txtmsgEnter)
+	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
 	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
 END_EVENT_TABLE()
 ////Event Table End
@@ -970,20 +973,26 @@ void ClientTsFrm::CreateGUIControls()
 	//Add the custom code before or after the blocks
 	////GUI Items Creation Start
 
+	wxInitAllImageHandlers();   //Initialize graphic format handlers
+
+	wxBitmap WxBitmapButton1_BITMAP (ClientTsFrm_WxBitmapButton1_XPM);
+	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(176, 400), wxSize(27, 25), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
+	WxBitmapButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(3000);
+	WxTimer1->Start(2000);
 
-	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
+	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(128, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
 	txtclient->SetMaxLength(0);
 	txtclient->SetFocus();
 	txtclient->SetInsertionPointEnd();
 	txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtlingua = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
+	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
 	txtlingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT1, _("Linguaggio:"), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT2, _("Linguaggio:"), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
 	lbllingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
@@ -992,7 +1001,7 @@ void ClientTsFrm::CreateGUIControls()
 	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(75, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
 	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
+	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
 	txtchat->SetMaxLength(0);
 	txtchat->SetFocus();
 	txtchat->SetInsertionPointEnd();
@@ -1001,14 +1010,14 @@ void ClientTsFrm::CreateGUIControls()
 	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(543, 387), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
 	txtsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtmsg = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(215, 387), wxSize(313, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
+	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(215, 387), wxSize(313, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	WxButton1 = new wxButton(this, ID_WXBUTTON1, _("Avvia Client"), wxPoint(228, 439), wxSize(149, 31), 0, wxDefaultValidator, _("WxButton1"));
 	WxButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	SetTitle(_("ClientTs"));
-	SetIcon(wxNullIcon);
+	SetIcon(ClientTsFrm_frmNewForm_XPM);
 	SetSize(8,8,682,517);
 	Center();
 	
@@ -1438,4 +1447,25 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
 	// insert your code here
 	//wxMessageBox("Hai scritto "+txtmsg->GetValue()+" nella TextBox!");
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,txtmsg->GetValue(),(uint64)1,NULL);
+}
+
+/*
+ * WxBitmapButton1Click
+ */
+void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
+{
+	// insert your code here
+	wxMessageBox("Hai cliccato il bottone Record!");
+	toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
+}
+
+/*
+ * WxBitmapButton1Click0
+ */
+void ClientTsFrm::WxBitmapButton1Click0(wxCommandEvent& event)
+{
+	// insert your code here
+	if(recordSound==0) wxMessageBox("Sto registrando l'audio");
+	else wxMessageBox("Ho finito di registrare");
+    toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
 }

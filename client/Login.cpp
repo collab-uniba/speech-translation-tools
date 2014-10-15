@@ -59,17 +59,17 @@ void Login::CreateGUIControls()
 	arrayStringFor_cmblingua.Add(_("Inglese"));
 	arrayStringFor_cmblingua.Add(_("Italiano"));
 	arrayStringFor_cmblingua.Add(_("Portoghese"));
-	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 128), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
+	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 152), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT1, _("Seleziona un linguaggio:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Seleziona un linguaggio:"), wxPoint(24, 152), wxDefaultSize, 0, _("lbllingua"));
 
 	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Login"), wxPoint(347, 212), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
 
-	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(248, 86), wxSize(121, 22), 0, wxDefaultValidator, _("txtnick"));
+	txtnick = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(248, 86), wxSize(121, 22), 0, wxDefaultValidator, _("txtnick"));
 
-	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci un nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
+	lblnick = new wxStaticText(this, ID_WXSTATICTEXT2, _("Inserisci un nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
 
-	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("neo.di.uniba.it"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
+	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("127.0.0.1"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
 
 	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci l'indirizzo del server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
 
@@ -78,21 +78,21 @@ void Login::CreateGUIControls()
 	SetSize(8,8,640,480);
 	Center();
 	
+	////GUI Items Creation End
+	
 	if (config = fopen("config.txt", "r"))
     {
-        fscanf(config,"%s",&StringLoginServer);
-        txtserver->SetValue(StringLoginServer);
-        fscanf(config,"%s",&StringLoginNick);
-        txtnick->SetValue(StringLoginNick);
-        fscanf(config,"%d",&cmbelement);
-        cmblingua->SetSelection(cmbelement);
-        fscanf(config,"%s",&StringLoginLingua);
-        cmblingua->SetValue(StringLoginLingua);
-        fclose(config);
+    fscanf(config,"%s",&StringLoginServer);
+    txtserver->SetValue(StringLoginServer);
+    fscanf(config,"%s",&StringLoginNick);
+    txtnick->SetValue(StringLoginNick);
+    fscanf(config,"%d",&cmbelement);
+    cmblingua->SetSelection(cmbelement);
+    fscanf(config,"%s",&StringLoginLingua);
+    cmblingua->SetValue(StringLoginLingua);
+    fclose(config);
     }
     cmblingua->SetSelection(cmbelement);
-	
-	////GUI Items Creation End
 }
 
 void Login::OnClose(wxCloseEvent& /*event*/)
@@ -115,8 +115,8 @@ void Login::btnloginClick(wxCommandEvent& event)
     char ip[100];
 	hostname_to_ip(StringLoginServer , ip);
 	
-	if ( (config = fopen("config.txt", "r"))==NULL)
-    {
+	//if ( (config = fopen("config.txt", "r"))==NULL)
+    //{
         config=fopen("config.txt","w");
     	fprintf(config,"%s\n",ip);
     	fprintf(config,"%s\n",StringLoginNick);
@@ -124,7 +124,7 @@ void Login::btnloginClick(wxCommandEvent& event)
     	fprintf(config,"%s",StringLoginLingua);
     	fflush(config);
     	fclose(config);
-    }
+    //}
 	ClientTsFrm* frame = new ClientTsFrm(NULL);
     frame->Show();
 	this->Close();
