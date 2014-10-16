@@ -10,46 +10,38 @@
 
 #include "Login.h"
 #include "ClientTsFrm.h"
-#include "utility.h"
-#include <curl/curl.h>
 #include <malloc.h>
-
+#include "utility.h"
 FILE*config;
 char StringLoginServer[20];
 char StringLoginNick[50];
 char StringLoginLingua[20];
 int  cmbelement=0;
 
-struct string {
-  char *ptr;
-  size_t len;
-};
-
-void init_string(struct string *s) {
-  s->len = 0;
-  s->ptr = (char*)malloc(s->len+1);
-  if (s->ptr == NULL) {
-    fprintf(stderr, "malloc() failed\n");
-    exit(EXIT_FAILURE);
-  }
-  s->ptr[0] = '\0';
-}
-
-size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
+int hostname_to_ip(char * hostname , char* ip)
 {
-  size_t new_len = s->len + size*nmemb;
-  s->ptr = (char*)realloc(s->ptr, new_len+1);
-  if (s->ptr == NULL) {
-    fprintf(stderr, "realloc() failed\n");
-    exit(EXIT_FAILURE);
-  }
-  memcpy(s->ptr+s->len, ptr, size*nmemb);
-  s->ptr[new_len] = '\0';
-  s->len = new_len;
-
-  return size*nmemb;
+    struct hostent *he;
+    struct in_addr **addr_list;
+    int i;
+         
+    if ( (he = gethostbyname( hostname ) ) == NULL)
+    {
+        // get the host info
+        printf("Errore nella risoluzione.\n");
+        return 1;
+    }
+ 
+    addr_list = (struct in_addr **) he->h_addr_list;
+     
+    for(i = 0; addr_list[i] != NULL; i++)
+    {
+        //Return the first one;
+        strcpy(ip , inet_ntoa(*addr_list[i]) );
+        return 0;
+    }
+     
+    return 1;
 }
-
 //Do not add custom headers
 //wxDev-C++ designer will remove them
 ////Header Include Start
@@ -92,17 +84,17 @@ void Login::CreateGUIControls()
 	arrayStringFor_cmblingua.Add(_("Inglese"));
 	arrayStringFor_cmblingua.Add(_("Italiano"));
 	arrayStringFor_cmblingua.Add(_("Portoghese"));
-	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 152), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
+	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 128), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Seleziona un linguaggio:"), wxPoint(24, 152), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT1, _("Seleziona un linguaggio:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
 
 	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Login"), wxPoint(347, 212), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
 
-	txtnick = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(248, 86), wxSize(121, 22), 0, wxDefaultValidator, _("txtnick"));
+	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(248, 86), wxSize(121, 22), 0, wxDefaultValidator, _("txtnick"));
 
-	lblnick = new wxStaticText(this, ID_WXSTATICTEXT2, _("Inserisci un nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
+	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci un nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
 
-	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("127.0.0.1"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
+	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("neo.di.uniba.it"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
 
 	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci l'indirizzo del server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
 
@@ -115,76 +107,18 @@ void Login::CreateGUIControls()
 	
 	if (config = fopen("config.txt", "r"))
     {
-    fscanf(config,"%s",&StringLoginServer);
-    txtserver->SetValue(StringLoginServer);
-    fscanf(config,"%s",&StringLoginNick);
-    txtnick->SetValue(StringLoginNick);
-    fscanf(config,"%d",&cmbelement);
-    cmblingua->SetSelection(cmbelement);
-    fscanf(config,"%s",&StringLoginLingua);
-    cmblingua->SetValue(StringLoginLingua);
-    fclose(config);
+        fscanf(config,"%s",&StringLoginServer);
+        txtserver->SetValue(StringLoginServer);
+        fscanf(config,"%s",&StringLoginNick);
+        txtnick->SetValue(StringLoginNick);
+        fscanf(config,"%d",&cmbelement);
+        cmblingua->SetSelection(cmbelement);
+        fscanf(config,"%s",&StringLoginLingua);
+        cmblingua->SetValue(StringLoginLingua);
+        fclose(config);
     }
     cmblingua->SetSelection(cmbelement);
-    
-
-   CURL *curl;
-  CURLcode res;
- 
-  curl_global_init(CURL_GLOBAL_DEFAULT);
- 
-  curl = curl_easy_init();
-   struct string s;
-    init_string(&s);
-  if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.it/");
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
- 
-//#ifdef SKIP_PEER_VERIFICATION
-    /*
-     * If you want to connect to a site who isn't using a certificate that is
-     * signed by one of the certs in the CA bundle you have, you can skip the
-     * verification of the server's certificate. This makes the connection
-     * A LOT LESS SECURE.
-     *
-     * If you have a CA cert for the server stored someplace else than in the
-     * default bundle, then the CURLOPT_CAPATH option might come handy for
-     * you.
-     */ 
-  //  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-//#endif
- 
-//#ifdef SKIP_HOSTNAME_VERIFICATION
-    /*
-     * If the site you're connecting to uses a different host name that what
-     * they have mentioned in their server certificate's commonName (or
-     * subjectAltName) fields, libcurl will refuse to connect. You can skip
-     * this check, but this will make the connection less secure.
-     */ 
-  //  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-//#endif
- 
-    /* Perform the request, res will get the return code */ 
-    res = curl_easy_perform(curl);
-    //wxMessageBox(s.ptr);
-    FILE *html=fopen("pagina.htm","w");
-    fprintf(html,"%s",s.ptr);
-    fflush(html);
-    fclose(html);
-    /* Check for errors */ 
-    if(res != CURLE_OK)
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
-    
-    /* always cleanup */ 
-    curl_easy_cleanup(curl);
-  }
- 
-  curl_global_cleanup();
-
+	
 }
 
 void Login::OnClose(wxCloseEvent& /*event*/)
@@ -207,8 +141,8 @@ void Login::btnloginClick(wxCommandEvent& event)
     char ip[100];
 	hostname_to_ip(StringLoginServer , ip);
 	
-	//if ( (config = fopen("config.txt", "r"))==NULL)
-    //{
+	if ( (config = fopen("config.txt", "r"))==NULL)
+    {
         config=fopen("config.txt","w");
     	fprintf(config,"%s\n",ip);
     	fprintf(config,"%s\n",StringLoginNick);
@@ -216,7 +150,7 @@ void Login::btnloginClick(wxCommandEvent& event)
     	fprintf(config,"%s",StringLoginLingua);
     	fflush(config);
     	fclose(config);
-    //}
+    }
 	ClientTsFrm* frame = new ClientTsFrm(NULL);
     frame->Show();
 	this->Close();

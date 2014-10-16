@@ -113,7 +113,7 @@ object frmNewForm_1: TfrmNewForm
     Wx_FGColor = clBlack
     Wx_GeneralStyle = []
     Wx_Hidden = False
-    Wx_IDName = 'ID_WXSTATICTEXT2'
+    Wx_IDName = 'ID_WXSTATICTEXT1'
     Wx_IDValue = 1003
     Wx_LabelStyle = []
     Wx_PaneCaption = 'WxStaticText1'
@@ -149,7 +149,7 @@ object frmNewForm_1: TfrmNewForm
     Wx_FGColor = clBlack
     Wx_GeneralStyle = []
     Wx_Hidden = False
-    Wx_IDName = 'ID_WXEDIT2'
+    Wx_IDName = 'ID_WXEDIT1'
     Wx_IDValue = 1004
     Wx_MaxLength = 0
     Wx_PaneCaption = 'WxEdit1'
@@ -208,8 +208,8 @@ object frmNewForm_1: TfrmNewForm
     Wx_Floating_Y_Pos = 0
   end
   object lbllingua: TWxStaticText
-    Left = 24
-    Top = 152
+    Left = 32
+    Top = 136
     Width = 167
     Height = 24
     Caption = 'Seleziona un linguaggio:'
@@ -220,7 +220,7 @@ object frmNewForm_1: TfrmNewForm
     Wx_FGColor = clBlack
     Wx_GeneralStyle = []
     Wx_Hidden = False
-    Wx_IDName = 'ID_WXSTATICTEXT3'
+    Wx_IDName = 'ID_WXSTATICTEXT1'
     Wx_IDValue = 1006
     Wx_LabelStyle = []
     Wx_PaneCaption = 'WxStaticText1'
@@ -242,7 +242,7 @@ object frmNewForm_1: TfrmNewForm
   end
   object cmblingua: TWxComboBox
     Left = 248
-    Top = 152
+    Top = 128
     Width = 145
     Height = 28
     ItemHeight = 20

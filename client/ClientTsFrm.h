@@ -28,7 +28,6 @@
 //Header Include Start and Header Include End.
 //wxDev-C++ designer will remove them. Add custom headers after the block.
 ////Header Include Start
-#include <wx/bmpbuttn.h>
 #include <wx/timer.h>
 #include <wx/stattext.h>
 #include <wx/richtext/richtextctrl.h>
@@ -59,16 +58,15 @@ class ClientTsFrm : public wxFrame
 		void WxTimer1Timer(wxTimerEvent& event);
 		void txtmsgEnter(wxCommandEvent& event);
 		void RefreshChat();
-		void WxBitmapButton1Click0(wxCommandEvent& event);
-		void WxBitmapButton1Click(wxCommandEvent& event);
+		void txttranslateClick(wxCommandEvent& event);
 		
 	private:
 		//Do not add custom control declarations between
 		//GUI Control Declaration Start and GUI Control Declaration End.
 		//wxDev-C++ will remove them. Add custom code after the block.
 		////GUI Control Declaration Start
-		wxBitmapButton *WxBitmapButton1;
 		wxTimer *WxTimer1;
+		wxButton *txttranslate;
 		wxRichTextCtrl *txtclient;
 		wxTextCtrl *txtlingua;
 		wxStaticText *lbllingua;
@@ -88,8 +86,8 @@ class ClientTsFrm : public wxFrame
 		enum
 		{
 			////GUI Enum Control ID Start
-			ID_WXBITMAPBUTTON1 = 1013,
 			ID_WXTIMER1 = 1006,
+			ID_WXBUTTON3 = 1013,
 			ID_WXRICHTEXTCTRL1 = 1012,
 			ID_WXEDIT2 = 1011,
 			ID_WXSTATICTEXT2 = 1010,

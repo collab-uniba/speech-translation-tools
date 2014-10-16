@@ -10,6 +10,7 @@
 
 #include "ClientTsFrm.h"
 #include "Login.h"
+#include "utility.h"
 #include <windows.h>
 #include <stdio.h>
 #include <time.h>
@@ -82,6 +83,103 @@
 	char dataId[4];  // 'data'
 	unsigned int dataLen;
 };
+
+struct stringa {
+  char *ptr;
+  size_t len;
+};
+
+void init_string(struct stringa *s) {
+  s->len = 0;
+  s->ptr = (char*)malloc(s->len+1);
+  if (s->ptr == NULL) {
+    fprintf(stderr, "malloc() failed\n");
+    exit(EXIT_FAILURE);
+  }
+  s->ptr[0] = '\0';
+}
+
+size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringa *s)
+{
+  size_t new_len = s->len + size*nmemb;
+  s->ptr = (char*)realloc(s->ptr, new_len+1);
+  if (s->ptr == NULL) {
+    fprintf(stderr, "realloc() failed\n");
+    exit(EXIT_FAILURE);
+  }
+  memcpy(s->ptr+s->len, ptr, size*nmemb);
+  s->ptr[new_len] = '\0';
+  s->len = new_len;
+
+  return size*nmemb;
+}
+
+void parse(char *str)
+{
+    char * pch;
+    char  pch2[256];
+    char pch3;
+    int i;
+    int begin=0;
+    int end=0;
+    pch = strstr (str,":\"");
+    for(i=0;i<strlen(pch);i++)
+    {   
+        if(pch[i]==',')
+        {
+            end=i;
+            break;
+        }
+        
+        if(pch[i]=='"')
+        {
+            begin=i;
+        }
+    }
+    
+    for(i=begin;i<end;i++) pch2[i]=pch[i];
+    pch2[i]='\0';
+    wxMessageBox(wxString::FromUTF8(pch2));
+}
+char* richiesta(const char *StringSource)
+{
+    CURL *curl;
+    CURLcode res;
+
+    char url[256]={""};
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+ 
+    curl = curl_easy_init();
+    struct stringa s;
+    init_string(&s);
+    if(curl) 
+    {
+    strcpy(url,"http://traduttore.babylon.com/translate/babylon.php?v=1.0&q=");
+    strcat(url,StringSource);
+    strcat(url,"&langpair=2|0&callback=babylonTranslator.callback&context=babylon.0.2._babylon_api_response");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    res = curl_easy_perform(curl);
+    FILE *html=fopen("pagina.htm","w");
+    fprintf(html,"%s",s.ptr);
+    fflush(html);
+    fclose(html);
+    /* Check for errors */ 
+    if(res != CURLE_OK)
+      fprintf(stderr, "curl_easy_perform() failed: %s\n",
+              curl_easy_strerror(res));
+    
+    /* always cleanup */ 
+    curl_easy_cleanup(curl);
+    return s.ptr;
+  }
+ 
+  curl_global_cleanup();
+}
+
 
 /* This is a global variable to indicate if sound needs to be recorded.
    Normally one would have thread synchronization with locks etc. for
@@ -931,8 +1029,6 @@ anyID targetChannelID, const char *returnCode);
 //Header Include Start and Header Include End
 //wxDev-C++ designer will remove them
 ////Header Include Start
-#include "Images/ClientTsFrm_frmNewForm_XPM.xpm"
-#include "Images/ClientTsFrm_WxBitmapButton1_XPM.xpm"
 ////Header Include End
 
 //----------------------------------------------------------------------------
@@ -946,8 +1042,8 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	////Manual Code End
 	
 	EVT_CLOSE(ClientTsFrm::OnClose)
-	EVT_BUTTON(ID_WXBITMAPBUTTON1,ClientTsFrm::WxBitmapButton1Click0)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
+	EVT_BUTTON(ID_WXBUTTON3,ClientTsFrm::txttranslateClick)
 	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
 	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
@@ -973,17 +1069,14 @@ void ClientTsFrm::CreateGUIControls()
 	//Add the custom code before or after the blocks
 	////GUI Items Creation Start
 
-	wxInitAllImageHandlers();   //Initialize graphic format handlers
-
-	wxBitmap WxBitmapButton1_BITMAP (ClientTsFrm_WxBitmapButton1_XPM);
-	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(176, 400), wxSize(27, 25), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
-	WxBitmapButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(2000);
+	WxTimer1->Start(3000);
 
-	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(128, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
+	txttranslate = new wxButton(this, ID_WXBUTTON3, _("ITA -> ENG"), wxPoint(120, 384), wxSize(83, 49), 0, wxDefaultValidator, _("txttranslate"));
+	txttranslate->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
 	txtclient->SetMaxLength(0);
 	txtclient->SetFocus();
 	txtclient->SetInsertionPointEnd();
@@ -998,7 +1091,7 @@ void ClientTsFrm::CreateGUIControls()
 	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
 	lblnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(75, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
+	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(91, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
 	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
@@ -1017,7 +1110,7 @@ void ClientTsFrm::CreateGUIControls()
 	WxButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	SetTitle(_("ClientTs"));
-	SetIcon(ClientTsFrm_frmNewForm_XPM);
+	SetIcon(wxNullIcon);
 	SetSize(8,8,682,517);
 	Center();
 	
@@ -1450,22 +1543,16 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
 }
 
 /*
- * WxBitmapButton1Click
+ * txttranslateClick
  */
-void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
+void ClientTsFrm::txttranslateClick(wxCommandEvent& event)
 {
 	// insert your code here
-	wxMessageBox("Hai cliccato il bottone Record!");
-	toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
-}
-
-/*
- * WxBitmapButton1Click0
- */
-void ClientTsFrm::WxBitmapButton1Click0(wxCommandEvent& event)
-{
-	// insert your code here
-	if(recordSound==0) wxMessageBox("Sto registrando l'audio");
-	else wxMessageBox("Ho finito di registrare");
-    toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
+      //const char *str=richiesta((const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
+      //char str[]="babylonTranslator.callback('babylon.0.2._babylon_api_response', {\"translatedText\":\"building, construction, edifice, house, structure\"}, 200, null, null);";
+      
+      parse(richiesta((const char*)txtmsg->GetValue().mb_str(wxConvUTF8)));
+  //wxMessageBox(wxString::FromUTF8(parse(str)));
+  /*wxMessageBox(wxString::FromUTF8(pch2));
+  wxMessageBox(wxString::FromUTF8(pch3));*/
 }
