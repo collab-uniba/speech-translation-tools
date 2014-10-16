@@ -32,9 +32,9 @@ LeftChar=1
 [Editor_4]
 Open=1
 Top=0
-CursorCol=9
-CursorRow=1552
-TopLine=1530
+CursorCol=46
+CursorRow=174
+TopLine=145
 LeftChar=1
 [Editor_5]
 Open=1
@@ -49,9 +49,9 @@ CursorRow=51
 TopLine=41
 LeftChar=1
 [Editor_7]
-CursorCol=81
+CursorCol=33
 <<<<<<< HEAD
-CursorRow=138
+CursorRow=147
 TopLine=128
 =======
 CursorRow=120

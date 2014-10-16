@@ -141,8 +141,7 @@ void Login::btnloginClick(wxCommandEvent& event)
     char ip[100];
 	hostname_to_ip(StringLoginServer , ip);
 	
-	if ( (config = fopen("config.txt", "r"))==NULL)
-    {
+	
         config=fopen("config.txt","w");
     	fprintf(config,"%s\n",ip);
     	fprintf(config,"%s\n",StringLoginNick);
@@ -150,7 +149,7 @@ void Login::btnloginClick(wxCommandEvent& event)
     	fprintf(config,"%s",StringLoginLingua);
     	fflush(config);
     	fclose(config);
-    }
+    
 	ClientTsFrm* frame = new ClientTsFrm(NULL);
     frame->Show();
 	this->Close();

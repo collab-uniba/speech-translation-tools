@@ -56,6 +56,7 @@
 	wxString strMessage="";
 	wxString nomeClient[MAX];
 	wxDateTime data;
+	wxString StringTranslate="";
 	char **nomeclient;
 	char SERVER_ADDRESS[20];
     char NICK[50];
@@ -116,7 +117,7 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringa *s)
 
 void parse(char *str)
 {
-    char * pch;
+    /*char * pch;
     char  pch2[256];
     char pch3;
     int i;
@@ -139,7 +140,38 @@ void parse(char *str)
     
     for(i=begin;i<end;i++) pch2[i]=pch[i];
     pch2[i]='\0';
-    wxMessageBox(wxString::FromUTF8(pch2));
+    wxMessageBox(wxString::FromUTF8(pch2));*/
+    int i=0;
+    int j=0;
+    char * pch;
+    char * stringalpha;
+    char finale[2048]={""};
+  char temp[64];
+  char buffer[512]={""};
+  //printf ("Splitting string \"%s\" into tokens:\n",str);
+  pch = strtok (str,",.:\"'{}();200");
+  while (pch != NULL)
+  {
+    strcat(buffer,pch);
+    //strcat(buffer,"%20");
+    //printf ("%s\n",pch);
+    pch = strtok (NULL, ",.:\"'{}();200");
+  }
+
+    char prova[256];
+    int quanto=strlen(strstr(buffer,"Text"))-11;
+    //puts(buffer);
+    strncpy(prova,strstr(buffer,"Text"),quanto);
+    prova[quanto]='\0';
+    //puts(strstr(prova,"Text"));
+    //wxMessageBox(wxString::FromUTF8(strstr(prova,"Text")));
+    stringalpha=strstr(prova,"Text");
+    for(i=4;i<strlen(strstr(prova,"Text"));i++)
+    {
+        finale[j]=stringalpha[i];
+        j++;
+    }
+    StringTranslate=wxString::FromUTF8(finale);
 }
 char* richiesta(const char *StringSource)
 {
@@ -1074,6 +1106,7 @@ void ClientTsFrm::CreateGUIControls()
 	WxTimer1->Start(3000);
 
 	txttranslate = new wxButton(this, ID_WXBUTTON3, _("ITA -> ENG"), wxPoint(120, 384), wxSize(83, 49), 0, wxDefaultValidator, _("txttranslate"));
+	txttranslate->Show(false);
 	txttranslate->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
@@ -1500,8 +1533,23 @@ void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
  */
 void ClientTsFrm::txtsendClick(wxCommandEvent& event)
 {
-    ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,txtmsg->GetValue(),(uint64)1,NULL);
-    aggiorna(strGlobale);
+    char str[1024]={""};
+      strcpy(str,(const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
+      char * pch;
+      char buffer[2048]={""};
+      char buffer2[2048]={""};
+      pch = strtok (str," ,.-");
+      while (pch != NULL)
+      {
+        strcat(buffer,pch);
+        strcat(buffer,"%20");
+        printf ("%s\n",pch);
+        pch = strtok (NULL, " ,.-");
+      }
+     
+    parse(richiesta(buffer));
+    ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nITA: "+txtmsg->GetValue()+"\nENG: "+StringTranslate,(uint64)1,NULL);
+    //aggiorna(strGlobale);
     //toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
     //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
 	// insert your code here
@@ -1551,7 +1599,21 @@ void ClientTsFrm::txttranslateClick(wxCommandEvent& event)
       //const char *str=richiesta((const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
       //char str[]="babylonTranslator.callback('babylon.0.2._babylon_api_response', {\"translatedText\":\"building, construction, edifice, house, structure\"}, 200, null, null);";
       
-      parse(richiesta((const char*)txtmsg->GetValue().mb_str(wxConvUTF8)));
+      /*char str[1024]={""};
+      strcpy(str,(const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
+      char * pch;
+      char buffer[2048]={""};
+      pch = strtok (str," ,.-");
+      while (pch != NULL)
+      {
+        strcat(buffer,pch);
+        strcat(buffer,"%20");
+        printf ("%s\n",pch);
+        pch = strtok (NULL, " ,.-");
+      }
+  parse(richiesta(buffer));*/
+  //wxMessageBox(StringTranslate);
+    //wxMessageBox(wxString::FromUTF8(parse(richiesta(buffer))));
   //wxMessageBox(wxString::FromUTF8(parse(str)));
   /*wxMessageBox(wxString::FromUTF8(pch2));
   wxMessageBox(wxString::FromUTF8(pch3));*/
