@@ -54,7 +54,7 @@ object frmNewForm: TfrmNewForm
       'EVT_UPDATE_UI:OnUpdateUI')
     Wx_FGColor = clBlack
     Wx_GeneralStyle = []
-    Wx_Hidden = False
+    Wx_Hidden = True
     Wx_IDName = 'ID_WXBUTTON1'
     Wx_IDValue = 1001
     Wx_PaneCaption = 'WxButton1'

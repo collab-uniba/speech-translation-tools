@@ -1056,147 +1056,6 @@ void showHelp() {
 unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID,  const char *message,
 anyID targetChannelID, const char *returnCode);
 
-
-//Do not add custom headers between
-//Header Include Start and Header Include End
-//wxDev-C++ designer will remove them
-////Header Include Start
-////Header Include End
-
-//----------------------------------------------------------------------------
-// ClientTsFrm
-//----------------------------------------------------------------------------
-//Add Custom Events only in the appropriate block.
-//Code added in other places will be removed by wxDev-C++
-////Event Table Start
-BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
-	////Manual Code Start
-	////Manual Code End
-	
-	EVT_CLOSE(ClientTsFrm::OnClose)
-	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
-	EVT_BUTTON(ID_WXBUTTON3,ClientTsFrm::txttranslateClick)
-	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
-	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
-	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
-END_EVENT_TABLE()
-////Event Table End
-
-ClientTsFrm::ClientTsFrm(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
-: wxFrame(parent, id, title, position, size, style)
-{
-	CreateGUIControls();
-}
-
-ClientTsFrm::~ClientTsFrm()
-{
-}
-
-
-void ClientTsFrm::CreateGUIControls()
-{
-	//Do not add custom code between
-	//GUI Items Creation Start and GUI Items Creation End
-	//wxDev-C++ designer will remove them.
-	//Add the custom code before or after the blocks
-	////GUI Items Creation Start
-
-	WxTimer1 = new wxTimer();
-	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(3000);
-
-	txttranslate = new wxButton(this, ID_WXBUTTON3, _("ITA -> ENG"), wxPoint(120, 384), wxSize(83, 49), 0, wxDefaultValidator, _("txttranslate"));
-	txttranslate->Show(false);
-	txttranslate->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
-	txtclient->SetMaxLength(0);
-	txtclient->SetFocus();
-	txtclient->SetInsertionPointEnd();
-	txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
-	txtlingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT2, _("Linguaggio:"), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
-	lbllingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
-	lblnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(91, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
-	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
-	txtchat->SetMaxLength(0);
-	txtchat->SetFocus();
-	txtchat->SetInsertionPointEnd();
-	txtchat->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(543, 387), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
-	txtsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(215, 387), wxSize(313, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
-	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	WxButton1 = new wxButton(this, ID_WXBUTTON1, _("Avvia Client"), wxPoint(228, 439), wxSize(149, 31), 0, wxDefaultValidator, _("WxButton1"));
-	WxButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	SetTitle(_("ClientTs"));
-	SetIcon(wxNullIcon);
-	SetSize(8,8,682,517);
-	Center();
-	
-	////GUI Items Creation End
-	
-	conta=10.0;
-	FILE*config=fopen("config.txt","r");
-    fscanf(config,"%s",&SERVER_ADDRESS);
-    fscanf(config,"%s",&NICK);
-    fscanf(config,"%d",&cmbel);
-    fscanf(config,"%s",&LINGUA);
-    fclose(config);
-	txtnick->AppendText(NICK);
-	txtlingua->AppendText(LINGUA);
-}
-
-void ClientTsFrm::OnClose(wxCloseEvent& event)
-{
-	Destroy();
-}
-
-DWORD WINAPI riceve(LPVOID lpParameter)
-{
-    /*anyID targetMode;
-    anyID toID;
-    anyID fromID; 
-    const char* fromName;
-    const char* fromUniqueIdentifier;
-    char* message="";
-    while(strcmp(message,"")!=0)
-    {
-        strcpy(message,"");
-        onTextMessageEvent(DEFAULT_VIRTUAL_SERVER,targetMode,toID,fromID,fromName,fromUniqueIdentifier,message);
-        message[strlen(message)+1]='\0';
-    }*/
-    /*
-    char benvenuto[30];
-     FILE*prova=    fopen("file.txt","w");
-    strcpy(benvenuto,"");
-	while(1)
-    {
-    recv(sock,benvenuto,30,0);
-    fprintf(prova,"%s\n",benvenuto);
-    fflush(prova);
-	puts(benvenuto);
-	//MessageBox(NULL,(LPCWSTR)benvenuto,(LPCWSTR)"Benvenuto",NULL);
-	fflush(stdin);
-	fflush(stdout);
-	Sleep(500);
-    }*/
-    return 0;
-}
-
 DWORD WINAPI myThread(LPVOID lpParameter)
 {
     uint64 scHandlerID;
@@ -1326,8 +1185,9 @@ DWORD WINAPI myThread(LPVOID lpParameter)
     ts3client_freeMemory(version);  /* Release dynamically allocated memory */
     version = NULL;
 
-    SLEEP(300);
-
+    SLEEP(150);
+    
+    wxMessageBox("Connessione avvenuta con successo!");
     /* Simple commandline interface */
     printf("\nTeamSpeak 3 client commandline interface\n");
     showHelp();
@@ -1446,6 +1306,151 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 	return 0;
 }
 
+//Do not add custom headers between
+//Header Include Start and Header Include End
+//wxDev-C++ designer will remove them
+////Header Include Start
+////Header Include End
+
+//----------------------------------------------------------------------------
+// ClientTsFrm
+//----------------------------------------------------------------------------
+//Add Custom Events only in the appropriate block.
+//Code added in other places will be removed by wxDev-C++
+////Event Table Start
+BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
+	////Manual Code Start
+	////Manual Code End
+	
+	EVT_CLOSE(ClientTsFrm::OnClose)
+	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
+	EVT_BUTTON(ID_WXBUTTON3,ClientTsFrm::txttranslateClick)
+	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
+	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
+	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
+END_EVENT_TABLE()
+////Event Table End
+
+ClientTsFrm::ClientTsFrm(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
+: wxFrame(parent, id, title, position, size, style)
+{
+	CreateGUIControls();
+}
+
+ClientTsFrm::~ClientTsFrm()
+{
+}
+
+
+void ClientTsFrm::CreateGUIControls()
+{
+	//Do not add custom code between
+	//GUI Items Creation Start and GUI Items Creation End
+	//wxDev-C++ designer will remove them.
+	//Add the custom code before or after the blocks
+	////GUI Items Creation Start
+
+	WxTimer1 = new wxTimer();
+	WxTimer1->SetOwner(this, ID_WXTIMER1);
+	WxTimer1->Start(3000);
+
+	txttranslate = new wxButton(this, ID_WXBUTTON3, _("ITA -> ENG"), wxPoint(120, 384), wxSize(83, 49), 0, wxDefaultValidator, _("txttranslate"));
+	txttranslate->Show(false);
+	txttranslate->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
+	txtclient->SetMaxLength(0);
+	txtclient->SetFocus();
+	txtclient->SetInsertionPointEnd();
+	txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
+	txtlingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT2, _("Linguaggio:"), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
+	lblnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(91, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
+	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
+	txtchat->SetMaxLength(0);
+	txtchat->SetFocus();
+	txtchat->SetInsertionPointEnd();
+	txtchat->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(543, 387), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
+	txtsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(215, 387), wxSize(313, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
+	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	WxButton1 = new wxButton(this, ID_WXBUTTON1, _("Avvia Client"), wxPoint(228, 439), wxSize(149, 31), 0, wxDefaultValidator, _("WxButton1"));
+	WxButton1->Show(false);
+	WxButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	SetTitle(_("ClientTs"));
+	SetIcon(wxNullIcon);
+	SetSize(8,8,682,517);
+	Center();
+	
+	////GUI Items Creation End
+	
+	conta=10.0;
+	FILE*config=fopen("config.txt","r");
+    fscanf(config,"%s",&SERVER_ADDRESS);
+    fscanf(config,"%s",&NICK);
+    fscanf(config,"%d",&cmbel);
+    fscanf(config,"%s",&LINGUA);
+    fclose(config);
+	txtnick->AppendText(NICK);
+	txtlingua->AppendText(LINGUA);
+	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
+	Sleep(300);
+}
+
+void ClientTsFrm::OnClose(wxCloseEvent& event)
+{
+	Destroy();
+}
+
+DWORD WINAPI riceve(LPVOID lpParameter)
+{
+    /*anyID targetMode;
+    anyID toID;
+    anyID fromID; 
+    const char* fromName;
+    const char* fromUniqueIdentifier;
+    char* message="";
+    while(strcmp(message,"")!=0)
+    {
+        strcpy(message,"");
+        onTextMessageEvent(DEFAULT_VIRTUAL_SERVER,targetMode,toID,fromID,fromName,fromUniqueIdentifier,message);
+        message[strlen(message)+1]='\0';
+    }*/
+    /*
+    char benvenuto[30];
+     FILE*prova=    fopen("file.txt","w");
+    strcpy(benvenuto,"");
+	while(1)
+    {
+    recv(sock,benvenuto,30,0);
+    fprintf(prova,"%s\n",benvenuto);
+    fflush(prova);
+	puts(benvenuto);
+	//MessageBox(NULL,(LPCWSTR)benvenuto,(LPCWSTR)"Benvenuto",NULL);
+	fflush(stdin);
+	fflush(stdout);
+	Sleep(500);
+    }*/
+    return 0;
+}
+
+
+
 void ClientTsFrm::RefreshChat()
 {
     int i;
@@ -1523,7 +1528,7 @@ void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
 		puts("Errore connetti.\n");
 	}
 	*/
-    HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
+//    HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
 	//HANDLE myHandle2 = CreateThread(0, 0, riceve, NULL, 0, &myThreadID2);
 	// insert your code here
 }
@@ -1587,7 +1592,8 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
 {
 	// insert your code here
 	//wxMessageBox("Hai scritto "+txtmsg->GetValue()+" nella TextBox!");
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,txtmsg->GetValue(),(uint64)1,NULL);
+	//ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,txtmsg->GetValue(),(uint64)1,NULL);
+	txtsendClick(event);
 }
 
 /*
