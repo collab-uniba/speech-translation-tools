@@ -49,6 +49,7 @@
 	int iresult;
 	int numero;
 	int max;
+	short flag = 0;
 	
 	wxString strGlobale="";
 	wxString oldstrGlobale="";
@@ -173,22 +174,32 @@ void parse(char *str)
     }
     StringTranslate=wxString::FromUTF8(finale);
 }
-char* richiesta(const char *StringSource)
+char* richiesta(const char *StringSource,const char * lingua)
 {
     CURL *curl;
     CURLcode res;
 
     char url[256]={""};
+    char language[30]={""},
     curl_global_init(CURL_GLOBAL_DEFAULT);
  
     curl = curl_easy_init();
     struct stringa s;
     init_string(&s);
+    if(strcmp(lingua,"Italiano")==0)
+    {
+        strcpy(language,"&langpair=2|0");
+    }
+    else if(strcmp(lingua,"Inglese")==0)
+    {
+        strcpy(language,"&langpair=0|2");
+    }
     if(curl) 
     {
     strcpy(url,"http://traduttore.babylon.com/translate/babylon.php?v=1.0&q=");
     strcat(url,StringSource);
-    strcat(url,"&langpair=2|0&callback=babylonTranslator.callback&context=babylon.0.2._babylon_api_response");
+    strcat(url,language);
+    strcat(url,"&callback=babylonTranslator.callback&context=babylon.0.2._babylon_api_response");
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
@@ -1064,7 +1075,6 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 	char** device;
 	char *version;
 	char identity[IDENTITY_BUFSIZE];
-    short abort = 0;
 
     /*wxString strLingua = wxString::FromUTF8(LINGUA);
     wxMessageBox(strLingua);*/
@@ -1185,20 +1195,20 @@ DWORD WINAPI myThread(LPVOID lpParameter)
     ts3client_freeMemory(version);  /* Release dynamically allocated memory */
     version = NULL;
 
-    SLEEP(150);
+    SLEEP(300);
     
     wxMessageBox("Connessione avvenuta con successo!");
     /* Simple commandline interface */
     printf("\nTeamSpeak 3 client commandline interface\n");
     showHelp();
 
-    while(!abort) {
+    while(!flag) {
 
         int c = getc(stdin);
         switch(c) {
             case 'q':
                 printf("\nDisconnecting from server...\n");
-                abort = 1;
+                flag = 1;
                 break;
             case 'h':
                 showHelp();
@@ -1286,7 +1296,7 @@ DWORD WINAPI myThread(LPVOID lpParameter)
         return 1;
     }
 
-	SLEEP(200);
+	SLEEP(300);
 
 	/* Destroy server connection handler */
     if((error = ts3client_destroyServerConnectionHandler(scHandlerID)) != ERROR_ok) {
@@ -1414,6 +1424,8 @@ void ClientTsFrm::CreateGUIControls()
 
 void ClientTsFrm::OnClose(wxCloseEvent& event)
 {
+    flag=1;
+    Sleep(300);
 	Destroy();
 }
 
@@ -1552,8 +1564,9 @@ void ClientTsFrm::txtsendClick(wxCommandEvent& event)
         pch = strtok (NULL, " ,.-");
       }
      
-    parse(richiesta(buffer));
-    ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nITA: "+txtmsg->GetValue()+"\nENG: "+StringTranslate,(uint64)1,NULL);
+    parse(richiesta(buffer,LINGUA));
+    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nITA: "+txtmsg->GetValue()+"\nENG: "+StringTranslate,(uint64)1,NULL);
+    else if(strcmp(LINGUA,"Inglese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nENG: "+txtmsg->GetValue()+"\nITA: "+StringTranslate,(uint64)1,NULL);
     //aggiorna(strGlobale);
     //toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
     //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
