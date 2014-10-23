@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>
+#include <audiere.h>
 #include <string.h>
 #include <winsock2.h>
 #include <public_definitions.h>
@@ -40,32 +41,8 @@
 #define SLEEP(x) usleep(x*1000)
 #endif
 
-    DWORD myThreadID;
-    DWORD myThreadID2;
-	WSADATA wsadata;
-	SOCKET sock;
-	SOCKADDR_IN client_addr;
-	
-	int iresult;
-	int numero;
-	int max;
-	short flag = 0;
-	
-	wxString strGlobale="";
-	wxString oldstrGlobale="";
-	wxString strNick="";
-	wxString strMessage="";
-	wxString nomeClient[MAX];
-	wxDateTime data;
-	wxString StringTranslate="";
-	char **nomeclient;
-	char SERVER_ADDRESS[20];
-    char NICK[50];
-    char LINGUA[20];
-    int PORT=9987;
-    int cmbel=0;
-    
-    struct WaveHeader {
+using namespace audiere;
+struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];
 	unsigned int len;
@@ -86,11 +63,72 @@
 	unsigned int dataLen;
 };
 
+typedef struct colore
+{
+    unsigned short red;
+    unsigned short green;
+    unsigned short blue;
+} COLORE;
+
+struct user
+{
+    wxString nome;
+    unsigned short colore;
+    unsigned short usato;
+};
+
 struct stringa {
   char *ptr;
   size_t len;
 };
 
+    DWORD myThreadID;
+    DWORD myThreadID2;
+	WSADATA wsadata;
+	SOCKET sock;
+	SOCKADDR_IN client_addr;
+	
+	int iresult;
+	int numero;
+	int max;
+	short flag = 0;
+	
+	wxString strGlobale="";
+	wxString oldstrGlobale="";
+	wxString strNick="";
+	wxString strMessage="";
+	wxString nomeClient[MAX];
+	wxDateTime data;
+	wxString StringTranslate="";
+	wxString TESTTTS="";
+	char **nomeclient;
+	char SERVER_ADDRESS[20];
+    char NICK[50];
+    char LINGUA[20];
+    char API_KEY[50]={""};
+    int PORT=9987;
+    int cmbel=0;
+    COLORE colori[10];
+    unsigned conta_client;
+    unsigned short set_color_client;
+    unsigned short coloreClient[MAX];
+    struct user persona[MAX];
+    
+
+void SetupColor()
+{
+    colori[0].red=255;
+    colori[0].green=0;
+    colori[0].blue=0;
+    
+    colori[1].red=0;
+    colori[1].green=255;
+    colori[1].blue=0;
+    
+    colori[2].red=0;
+    colori[2].green=0;
+    colori[2].blue=255;
+}
 void init_string(struct stringa *s) {
   s->len = 0;
   s->ptr = (char*)malloc(s->len+1);
@@ -142,6 +180,7 @@ void parse(char *str)
     for(i=begin;i<end;i++) pch2[i]=pch[i];
     pch2[i]='\0';
     wxMessageBox(wxString::FromUTF8(pch2));*/
+    //char str[] ="{\"data\": {\"translations\": [{\"translatedText\": \"Ciao mamma come stai\"}]}}";
     int i=0;
     int j=0;
     char * pch;
@@ -150,17 +189,17 @@ void parse(char *str)
   char temp[64];
   char buffer[512]={""};
   //printf ("Splitting string \"%s\" into tokens:\n",str);
-  pch = strtok (str,",.:\"'{}();200");
+  pch = strtok (str,",.:\"'{}();200[]");
   while (pch != NULL)
   {
     strcat(buffer,pch);
     //strcat(buffer,"%20");
     //printf ("%s\n",pch);
-    pch = strtok (NULL, ",.:\"'{}();200");
+    pch = strtok (NULL, ",.:\"'{}();200[]");
   }
 
     char prova[256];
-    int quanto=strlen(strstr(buffer,"Text"))-11;
+    int quanto=strlen(strstr(buffer,"Text"));
     //puts(buffer);
     strncpy(prova,strstr(buffer,"Text"),quanto);
     prova[quanto]='\0';
@@ -180,7 +219,8 @@ char* richiesta(const char *StringSource,const char * lingua)
     CURLcode res;
 
     char url[256]={""};
-    char language[30]={""},
+    char languagesrc[30]={""};
+    char languagedst[30]={""};
     curl_global_init(CURL_GLOBAL_DEFAULT);
  
     curl = curl_easy_init();
@@ -188,18 +228,30 @@ char* richiesta(const char *StringSource,const char * lingua)
     init_string(&s);
     if(strcmp(lingua,"Italiano")==0)
     {
-        strcpy(language,"&langpair=2|0");
+        strcpy(languagesrc,"it");
+        strcpy(languagedst,"en");
     }
     else if(strcmp(lingua,"Inglese")==0)
     {
-        strcpy(language,"&langpair=0|2");
+        strcpy(languagesrc,"en");
+        strcpy(languagedst,"it");
+    }
+    else if(strcmp(lingua,"Portoghese")==0)
+    {
+        strcpy(languagesrc,"pt");
+        strcpy(languagedst,"it");
     }
     if(curl) 
     {
-    strcpy(url,"http://traduttore.babylon.com/translate/babylon.php?v=1.0&q=");
+    strcpy(url,"https://www.googleapis.com/language/translate/v2?key=");
+    strcat(url,API_KEY);
+    strcat(url,"&q=");
     strcat(url,StringSource);
-    strcat(url,language);
-    strcat(url,"&callback=babylonTranslator.callback&context=babylon.0.2._babylon_api_response");
+    strcat(url,"&source=");
+    strcat(url,languagesrc);
+    strcat(url,"&target=");
+    strcat(url,languagedst);
+    //strcat(url,language);
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
@@ -363,6 +415,7 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
  */
 void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	printf("ClientID %u timeouts with message %s\n", clientID, timeoutMessage);
+	//conta_client--;
 }
 
 /*
@@ -708,10 +761,37 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
      printf("Error querying client nickname: %d\n", error);
      return;
         }
+        
+        char prova[512]={""};
         nome=wxString::FromUTF8(name);
         strGlobale=nome+": "+mystring;
         strNick=wxString::FromUTF8(name);
         strMessage=wxString::FromUTF8(message);
+        
+        /*strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
+        strcpy(MSG_SRC,strtok(NULL, "\n"));*/
+        //strcpy(prova,"TTS.jar ");
+        //strcat(prova,message);
+        
+        //char *pch = strtok(prova, "\n");
+        //wxMessageBox(wxString::FromUTF8(pch));
+        //FreeConsole();
+        //ShowWindow (GetConsoleWindow(), SW_HIDE);
+        //system(pch);
+        
+        //system((const char*)TESTTTS.mb_str());
+        //wxMessageBox(wxString::FromUTF8((const char*)TESTTTS.mb_str()));
+                    //Sleep(300);
+                    /*system("del testonew.wav");
+                    system("ffmpeg -f s16le -ar 8.0k -ac 1 -i testo.wav testonew.wav");
+                   
+                    //system("testonew.wav");
+                    	AudioDevicePtr device(OpenDevice()); 
+                        OutputStreamPtr sound(OpenSound(device, "testonew.wav", false));
+                        sound->play(); 
+                        sound->setVolume(1.0f);
+                        Sleep(3000);*/
+                        
         //wxMessageBox(strGlobale);
     return;
 }
@@ -731,6 +811,7 @@ void showClients(uint64 serverConnectionHandlerID) {
     int i;
     anyID uno,due,tre;
     unsigned int error;
+    conta_client=0;
 
     printf("\nList of all visible clients on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
     if((error = ts3client_getClientList(serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of client IDs */
@@ -749,7 +830,11 @@ void showClients(uint64 serverConnectionHandlerID) {
 		return;
 	}
 
-    for(i=0; i<MAX;i++) nomeClient[i]="";
+    for(i=0; i<MAX;i++) 
+    {
+        nomeClient[i]="";
+        coloreClient[i]=-1;
+    }
     for(i=0; ids[i]; i++) {
         char* name;
         int talkStatus;
@@ -770,8 +855,17 @@ void showClients(uint64 serverConnectionHandlerID) {
 				break;
 			}
 		}
+		
+		
+        if(strcmp(name,NICK)==0) set_color_client=i;
         printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
+        conta_client++;
         nomeClient[i]=name;
+        coloreClient[i]=i;
+        persona[i].nome=name;
+        persona[i].colore=i;
+        persona[i].usato=1;
+//        wxMessageBox("Nome: "+nomeClient[i]+" Colore : " + wxString::Format(wxT("%i"),coloreClient[i]));
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -1109,7 +1203,7 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 	if((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "")) != ERROR_ok) {
 		char* errormsg;
 		if(ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
-			printf("Error initialzing serverlib: %s\n", errormsg);
+			wxMessageBox("Error initialzing serverlib");
 			ts3client_freeMemory(errormsg);
 		}
 		return 1;
@@ -1117,40 +1211,40 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
     if((error = ts3client_spawnNewServerConnectionHandler(0, &scHandlerID)) != ERROR_ok) {
-        printf("Error spawning server connection handler: %d\n", error);
+        wxMessageBox("Error spawning server connection handler");
         return 1;
     }
 
     /* Get default capture mode */
     if((error = ts3client_getDefaultCaptureMode(&mode)) != ERROR_ok) {
-        printf("Error getting default capture mode: %d\n", error);
+        wxMessageBox("Error getting default capture mode");
         return 1;
     }
 	printf("Default capture mode: %s\n", mode);
 
 	/* Get default capture device */
 	if((error = ts3client_getDefaultCaptureDevice(mode, &device)) != ERROR_ok) {
-		printf("Error getting default capture device: %d\n", error);
+		wxMessageBox("Error getting default capture device");
 		return 1;
 	}
-	printf("Default capture device: %s %s\n", device[0], device[1]);
+	//wxMessageBox("Default capture device");
 
     /* Open default capture device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
     if((error = ts3client_openCaptureDevice(scHandlerID, mode, device[1])) != ERROR_ok) {
-        printf("Error opening capture device: %d\n", error);
+        wxMessageBox("Error opening capture device");
     }
 
     /* Get default playback mode */
     if((error = ts3client_getDefaultPlayBackMode(&mode)) != ERROR_ok) {
-        printf("Error getting default playback mode: %d\n", error);
+        wxMessageBox("Error getting default playback mode");
         return 1;
     }
 	printf("Default playback mode: %s\n", mode);
 
 	/* Get default playback device */
 	if((error = ts3client_getDefaultPlaybackDevice(mode, &device)) != ERROR_ok) {
-		printf("Error getting default playback device: %d\n", error);
+		wxMessageBox("Error getting default playback device");
 		return 1;
 	}
 	printf("Default playback device: %s %s\n", device[0], device[1]);
@@ -1158,18 +1252,18 @@ DWORD WINAPI myThread(LPVOID lpParameter)
     /* Open default playback device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
     if((error = ts3client_openPlaybackDevice(scHandlerID, mode, device[1])) != ERROR_ok) {
-        printf("Error opening playback device: %d\n", error);
+        wxMessageBox("Error opening playback device");
     }
 
     /* Try reading identity from file, otherwise create new identity */
     if(readIdentity(identity) != 0) {
         char* id;
         if((error = ts3client_createIdentity(&id)) != ERROR_ok) {
-            printf("Error creating identity: %d\n", error);
+            wxMessageBox("Error creating identity");
             return 0;
         }
         if(strlen(id) >= IDENTITY_BUFSIZE) {
-            printf("Not enough bufsize for identity string\n");
+            wxMessageBox("Not enough bufsize for identity string");
             return 0;
         }
         strcpy(identity, id);
@@ -1180,7 +1274,7 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 
     /* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
 	if((error = ts3client_startConnection(scHandlerID, identity, SERVER_ADDRESS, PORT, NICK, NULL, "", "secret")) != ERROR_ok) {
-		printf("Error connecting to server: %d\n", error);
+		wxMessageBox("Error connecting to server");
 		return 1;
 	}
 
@@ -1188,7 +1282,7 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 
 	/* Query and print client lib version */
     if((error = ts3client_getClientLibVersion(&version)) != ERROR_ok) {
-        printf("Failed to get clientlib version: %d\n", error);
+        wxMessageBox("Failed to get clientlib version");
         return 1;
     }
     printf("Client lib version: %s\n", version);
@@ -1416,10 +1510,13 @@ void ClientTsFrm::CreateGUIControls()
     fscanf(config,"%d",&cmbel);
     fscanf(config,"%s",&LINGUA);
     fclose(config);
+    FILE *api=fopen("API.txt","r");
+    fscanf(api,"%s",API_KEY);
+    fclose(api);
 	txtnick->AppendText(NICK);
 	txtlingua->AppendText(LINGUA);
 	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
-	Sleep(300);
+	SetupColor();
 }
 
 void ClientTsFrm::OnClose(wxCloseEvent& event)
@@ -1485,13 +1582,13 @@ void ClientTsFrm::RefreshChat()
             coloreA=coloreB+coloreC%256*(i+1);
             coloreB=coloreA+171*(i+1)%256;
             coloreC=coloreA+coloreB*(i+1)%256;
-            txtclient->BeginTextColour(wxColour(coloreA, coloreB, coloreC));
+            txtclient->BeginTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue));
             txtclient->WriteText(nomeClient[i]);
             txtclient->EndTextColour();
             txtclient->Newline();
         }
     }
-	if(strGlobale!="" /*&& strGlobale!=oldstrGlobale*/)
+        if(strGlobale!="" /*&& strGlobale!=oldstrGlobale*/)
     {
         if(strNick==NICK)
         {
@@ -1499,22 +1596,46 @@ void ClientTsFrm::RefreshChat()
             txtchat->WriteText("  (");
             txtchat->WriteText(buf);
             txtchat->WriteText("): ");
-            txtchat->WriteText(strMessage);
+            txtchat->WriteText("\n"+strMessage);
             txtchat->Newline();
         }
         else
         {
-        txtchat->WriteText(strNick);
-        txtchat->WriteText("  (");
-        txtchat->WriteText(buf);
-        txtchat->WriteText("): ");
-        txtchat->WriteText(strMessage);
-        txtchat->Newline();
+            for (i=0;i<MAX;i++)
+            {
+                if(strNick==persona[i].nome && persona[i].usato==1)
+                {
+                    //wxMessageBox("Nome: "+persona[i].nome+" Colore : " + wxString::Format(wxT("%i"),persona[i].colore));
+                    //wxString prova;
+                    //prova="TTS.jar "+strMessage;
+                    
+                    
+                    txtchat->BeginTextColour(wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
+                    txtchat->WriteText(strNick);
+                    txtchat->WriteText("  (");
+                    txtchat->WriteText(buf);
+                    txtchat->WriteText("): ");
+                    txtchat->Newline();
+                    txtchat->WriteText("\n"+strMessage);
+                    txtchat->EndTextColour();
+                    //txtchat->Newline();
+                    oldstrGlobale=strGlobale;
+                    strGlobale="";
+                    //system((const char*)prova.mb_str());
+                    //wxMessageBox(wxString::FromUTF8((const char*)prova.mb_str()));
+                    //Sleep(300);
+                    //system("ffmpeg -f s16le -ar 8.0k -ac 1 -i testo.wav");
+                    //Sleep(300);
+                    //system("testo.wav");
+                    return;
+                }
+            }
         }
         //wxMessageBox(strGlobale.BeforeFirst(ch,nick));
         oldstrGlobale=strGlobale;
         strGlobale="";
-    }   
+    }
+       
 }
 
 
@@ -1555,18 +1676,34 @@ void ClientTsFrm::txtsendClick(wxCommandEvent& event)
       char * pch;
       char buffer[2048]={""};
       char buffer2[2048]={""};
-      pch = strtok (str," ,.-");
+      pch = strtok (str," ");
+      //wxMessageBox(wxString::FromUTF8(pch));
       while (pch != NULL)
       {
         strcat(buffer,pch);
         strcat(buffer,"%20");
         printf ("%s\n",pch);
-        pch = strtok (NULL, " ,.-");
+        pch = strtok (NULL, " ");
+        //wxMessageBox(wxString::FromUTF8(pch));
       }
-     
+      
+      strcpy(str,"");
+      strcpy(str,buffer);
+      pch = strtok (str,",");
+      //wxMessageBox(wxString::FromUTF8(pch));
+      while (pch != NULL)
+      {
+        strcat(buffer2,pch);
+        strcat(buffer2,"%2C");
+        printf ("%s\n",pch);
+        pch = strtok (NULL, ",");
+        //wxMessageBox(wxString::FromUTF8(pch));
+      }
+     //wxMessageBox(wxString::FromUTF8(buffer2));
     parse(richiesta(buffer,LINGUA));
-    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nITA: "+txtmsg->GetValue()+"\nENG: "+StringTranslate,(uint64)1,NULL);
-    else if(strcmp(LINGUA,"Inglese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nENG: "+txtmsg->GetValue()+"\nITA: "+StringTranslate,(uint64)1,NULL);
+    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"ITA: "+txtmsg->GetValue()+"\nENG: "+StringTranslate,(uint64)1,NULL);
+    else if(strcmp(LINGUA,"Inglese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"ENG: "+txtmsg->GetValue()+"\nITA: "+StringTranslate,(uint64)1,NULL);
+    else if(strcmp(LINGUA,"Portoghese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"POR: "+txtmsg->GetValue()+"\nITA: "+StringTranslate,(uint64)1,NULL);
     //aggiorna(strGlobale);
     //toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
     //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
