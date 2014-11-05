@@ -59,12 +59,16 @@ class ClientTsFrm : public wxFrame
 		void txtmsgEnter(wxCommandEvent& event);
 		void RefreshChat();
 		void txttranslateClick(wxCommandEvent& event);
+		void ClientTsFrmActivate(wxActivateEvent& event);
+		void WxButton2Click(wxCommandEvent& event);
+		void WxTimer2Timer(wxTimerEvent& event);
 		
 	private:
 		//Do not add custom control declarations between
 		//GUI Control Declaration Start and GUI Control Declaration End.
 		//wxDev-C++ will remove them. Add custom code after the block.
 		////GUI Control Declaration Start
+		wxTimer *WxTimer2;
 		wxTimer *WxTimer1;
 		wxButton *txttranslate;
 		wxRichTextCtrl *txtclient;
@@ -86,6 +90,7 @@ class ClientTsFrm : public wxFrame
 		enum
 		{
 			////GUI Enum Control ID Start
+			ID_WXTIMER2 = 1014,
 			ID_WXTIMER1 = 1006,
 			ID_WXBUTTON3 = 1013,
 			ID_WXRICHTEXTCTRL1 = 1012,

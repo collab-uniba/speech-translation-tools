@@ -18,6 +18,7 @@
 #include <audiere.h>
 #include <string.h>
 #include <winsock2.h>
+#include <iostream>
 #include <public_definitions.h>
 #include <public_errors.h>
 #include <clientlib_publicdefinitions.h>
@@ -25,6 +26,9 @@
 #include <wx/msgdlg.h>
 #include <wx/sstream.h>
 #include <wx/protocol/http.h>
+#include "rapidjson/document.h"		// rapidjson's DOM-style API
+#include "rapidjson/prettywriter.h"	// for stringify JSON
+#include "rapidjson/filestream.h"
 
 #define MAX 30
 
@@ -42,6 +46,8 @@
 #endif
 
 using namespace audiere;
+using namespace std;
+using namespace rapidjson;
 struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];
@@ -82,6 +88,13 @@ struct stringa {
   size_t len;
 };
 
+typedef struct message
+{
+    wxString nick;
+    wxString msg;
+    wxString lang;
+} MESSAGE;
+
     DWORD myThreadID;
     DWORD myThreadID2;
 	WSADATA wsadata;
@@ -105,7 +118,12 @@ struct stringa {
 	char SERVER_ADDRESS[20];
     char NICK[50];
     char LINGUA[20];
+    char SERVIZIO[20];
+    char LINGUA_MSG_SRC[20]={""};
+    char MSG_SRC[50]={""};
     char API_KEY[50]={""};
+    char url[256]={""};
+    char MSG_PARSE[1024]={""};
     int PORT=9987;
     int cmbel=0;
     COLORE colori[10];
@@ -115,6 +133,61 @@ struct stringa {
     struct user persona[MAX];
     
 
+
+int JSON()
+{
+    const char json[2048*2]={""};
+    FILE * jfile=fopen("pagina.htm","r");
+    fscanf(jfile,"%s",&json);
+    fflush(jfile);
+    fclose(jfile);
+	Document document;	// Default template parameter uses UTF8 and MemoryPoolAllocator.
+
+#if 0
+	// "normal" parsing, decode strings to new buffers. Can use other input stream via ParseStream().
+	if (document.Parse<0>(json).HasParseError())
+		return 1;
+#else
+	// In-situ parsing, decode strings directly in the source string. Source must be string.
+	char buffer[sizeof(json)];
+	memcpy(buffer, json, sizeof(json));
+	if (document.ParseInsitu<0>(buffer).HasParseError())
+		return 1;
+#endif
+
+	//wxMessageBox("\nParsing to document succeeded.\n");
+
+	////////////////////////////////////////////////////////////////////////////
+	// 2. Access values in document. 
+
+	printf("\nAccess values in document:\n");
+	assert(document.IsObject());	// Document is a JSON value represents the root of DOM. Root can be either an object or array.
+
+	assert(document.HasMember("token_type"));
+	assert(document["token_type"].IsString());
+	printf("hello = %s\n", document["token_type"].GetString());
+	
+	assert(document.HasMember("access_token"));
+	assert(document["access_token"].IsString());
+	printf("hello = %s\n", document["access_token"].GetString());
+	
+	assert(document.HasMember("expires_in"));
+	assert(document["expires_in"].IsString());
+	printf("hello = %s\n", document["expires_in"].GetString());
+	
+	assert(document.HasMember("scope"));
+	assert(document["scope"].IsString());
+	printf("hello = %s\n", document["scope"].GetString());
+	
+	FILE*js=fopen("JSON.txt","w");
+	//fprintf(js,"%s\n",document["token_type"].GetString());
+	fprintf(js,"%s",document["access_token"].GetString());
+	//fprintf(js,"%s\n",document["expires_in"].GetString());
+	//fprintf(js,"%s\n",document["scope"].GetString());
+	fclose(js);
+	
+	//return document["access_token"].GetString();
+}
 void SetupColor()
 {
     colori[0].red=255;
@@ -154,33 +227,18 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringa *s)
   return size*nmemb;
 }
 
-void parse(char *str)
+void parseBing(char *parola)
 {
-    /*char * pch;
-    char  pch2[256];
-    char pch3;
+    char *buffer;
     int i;
-    int begin=0;
-    int end=0;
-    pch = strstr (str,":\"");
-    for(i=0;i<strlen(pch);i++)
-    {   
-        if(pch[i]==',')
-        {
-            end=i;
-            break;
-        }
-        
-        if(pch[i]=='"')
-        {
-            begin=i;
-        }
-    }
-    
-    for(i=begin;i<end;i++) pch2[i]=pch[i];
-    pch2[i]='\0';
-    wxMessageBox(wxString::FromUTF8(pch2));*/
-    //char str[] ="{\"data\": {\"translations\": [{\"translatedText\": \"Ciao mamma come stai\"}]}}";
+    buffer=strstr(parola,">");
+    for(i=1;i<strlen(buffer);i++) buffer[i-1]=buffer[i];
+    buffer[strlen(buffer)-10]='\0';
+    StringTranslate=wxString::FromUTF8(buffer);
+}
+
+void parseGoogle(char *str)
+{
     int i=0;
     int j=0;
     char * pch;
@@ -188,7 +246,7 @@ void parse(char *str)
     char finale[2048]={""};
   char temp[64];
   char buffer[512]={""};
-  //printf ("Splitting string \"%s\" into tokens:\n",str);
+  
   pch = strtok (str,",.:\"'{}();200[]");
   while (pch != NULL)
   {
@@ -200,11 +258,8 @@ void parse(char *str)
 
     char prova[256];
     int quanto=strlen(strstr(buffer,"Text"));
-    //puts(buffer);
     strncpy(prova,strstr(buffer,"Text"),quanto);
     prova[quanto]='\0';
-    //puts(strstr(prova,"Text"));
-    //wxMessageBox(wxString::FromUTF8(strstr(prova,"Text")));
     stringalpha=strstr(prova,"Text");
     for(i=4;i<strlen(strstr(prova,"Text"));i++)
     {
@@ -213,12 +268,133 @@ void parse(char *str)
     }
     StringTranslate=wxString::FromUTF8(finale);
 }
-char* richiesta(const char *StringSource,const char * lingua)
+
+char * richiestaBing(wxString StringSource, char * lingua)
 {
+    if(strcmp(lingua,LINGUA)==0) return (char*)StringSource.mb_str().data();
+    int i;
+    CURL *curl2;
+    CURL *curl3;
+    CURLcode res2;
+    struct curl_slist *chunk = NULL;
+    struct stringa f;
+    init_string(&f);
+    struct stringa p;
+    init_string(&p);
+    char frase[512];
+    char PROVA[256]={""};
+    curl_global_init(CURL_GLOBAL_ALL);
+ 
+    curl2 = curl_easy_init();
+    if(curl2) 
+    {
+  
+    curl_easy_setopt(curl2, CURLOPT_URL, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13");
+    curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl2, CURLOPT_WRITEFUNCTION, writefunc);
+    curl_easy_setopt(curl2, CURLOPT_WRITEDATA, &f);
+    curl_easy_setopt(curl2, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl2, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    curl_easy_setopt(curl2, CURLOPT_VERBOSE, 1L);
+     
+    FILE *bing=fopen("BING.txt","r");
+    
+    char CLIENT_ID[50]="";
+    char CLIENT_SECRET[128]="";
+    
+    fscanf(bing,"%s",CLIENT_ID);
+    fscanf(bing,"%s",CLIENT_SECRET);
+    
+    char * encode_key=curl_easy_escape(curl2,CLIENT_SECRET,strlen(CLIENT_SECRET));
+    char url2[1024]={""};
+    strcpy(url2,"client_id=");
+    strcat(url2,CLIENT_ID);
+    strcat(url2,"&client_secret=");
+    strcat(url2,encode_key);
+    strcat(url2,"&scope=http://api.microsofttranslator.com&grant_type=client_credentials");
+    curl_easy_setopt(curl2, CURLOPT_POSTFIELDS, url2);
+    
+    res2 = curl_easy_perform(curl2);
+    FILE *html=fopen("pagina.htm","w");
+    fprintf(html,"%s",f.ptr);
+    fflush(html);
+    fclose(html);
+    
+    JSON();
+    char auth[2048]={""};
+    char header[2048+512]={""};
+    
+    FILE * jfile=fopen("JSON.txt","r+");
+    fscanf(jfile,"%s",&auth);
+    fflush(jfile);
+    fclose(jfile);
+    
+    strcpy(header,"Authorization: Bearer ");
+    strcat(header,auth);
+    char languagesrc[30]={""};
+    char languagedst[30]={""};
+    if(strcmp(lingua,"Italiano")==0)
+    {
+        strcpy(languagesrc,"it");
+        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+    }
+    else if(strcmp(lingua,"Inglese")==0)
+    {
+        strcpy(languagesrc,"en");
+        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+    }
+    else if(strcmp(lingua,"Portoghese")==0)
+    {
+        strcpy(languagesrc,"pt");
+        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+    }
+    curl3 = curl_easy_init();
+    char *veroheader=curl_easy_unescape(curl3 , header , 0 , NULL);
+    const char *BufferSource=curl_easy_escape(curl3, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
+    char url3[512]={""};
+    strcpy(url3,"http://api.microsofttranslator.com/V2/Http.svc/Translate?text=");
+    strcat(url3,BufferSource);
+    strcat(url3,"&from=");
+    strcat(url3,languagesrc);
+    strcat(url3,"&to=");
+    strcat(url3,languagedst);
+  
+    curl_easy_setopt(curl3, CURLOPT_URL, url3);
+    //curl_easy_setopt(curl3, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl3, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    chunk = curl_slist_append(chunk, header);
+    //chunk = curl_slist_append(chunk, "Content-Type: text/xml");
+    res2 = curl_easy_setopt(curl3, CURLOPT_HTTPHEADER, chunk);
+    curl_easy_setopt(curl3, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(curl3, CURLOPT_WRITEFUNCTION, writefunc);
+    curl_easy_setopt(curl3, CURLOPT_WRITEDATA, &p);
+    res2 = curl_easy_perform(curl3);
+   
+   
+    if(res2 != CURLE_OK)
+      fprintf(stderr, "curl_easy_perform() failed: %s\n",
+              curl_easy_strerror(res2));
+    curl_easy_cleanup(curl2);
+  }
+  curl_global_cleanup();
+  return p.ptr;
+}
+
+char* richiestaGoogle(wxString StringSource, char * lingua)
+{
+  
+    if(strcmp(lingua,LINGUA)==0) return (char*)StringSource.mb_str().data();
     CURL *curl;
     CURLcode res;
 
-    char url[256]={""};
+    strcpy(url,"");
     char languagesrc[30]={""};
     char languagedst[30]={""};
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -229,39 +405,72 @@ char* richiesta(const char *StringSource,const char * lingua)
     if(strcmp(lingua,"Italiano")==0)
     {
         strcpy(languagesrc,"it");
-        strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
     }
     else if(strcmp(lingua,"Inglese")==0)
     {
         strcpy(languagesrc,"en");
-        strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
     }
     else if(strcmp(lingua,"Portoghese")==0)
     {
         strcpy(languagesrc,"pt");
-        strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
+        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
+        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
     }
+    
+    
     if(curl) 
     {
     strcpy(url,"https://www.googleapis.com/language/translate/v2?key=");
     strcat(url,API_KEY);
+    
+    
+        StringSource.Replace(" ","%20",true);
+        StringSource.Replace("!","%21",true);
+        StringSource.Replace("\"","%22",true);
+        /*StringSource.Replace("#","%23",true);
+        StringSource.Replace("$","%24",true);
+        StringSource.Replace("%","%25",true);
+        StringSource.Replace("&","%26",true);
+        */
+        StringSource.Replace("'","%27",true);
+        StringSource.Replace("(","%28",true);
+        /*StringSource.Replace(")","%29",true);
+        StringSource.Replace("*","%2A",true);
+        StringSource.Replace("+","%2B",true);*/
+        StringSource.Replace(",","%2C",true);
+        StringSource.Replace("-","%2D",true);
+        /*
+        StringSource.Replace(".","%2E",true);
+        StringSource.Replace("/","%2F",true);
+        StringSource.Replace(":","%3A",true);
+        StringSource.Replace(";","%3B",true);
+        StringSource.Replace("<","%3C",true);
+        StringSource.Replace("=","%3D",true);
+        StringSource.Replace(">","%3E",true);*/
+        StringSource.Replace("?","%3F",true);
+        //StringSource.Replace("@","%40",true);
+        //wxMessageBox(StringSource);*/
     strcat(url,"&q=");
     strcat(url,StringSource);
     strcat(url,"&source=");
     strcat(url,languagesrc);
     strcat(url,"&target=");
     strcat(url,languagedst);
-    //strcat(url,language);
+   
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     res = curl_easy_perform(curl);
-    FILE *html=fopen("pagina.htm","w");
-    fprintf(html,"%s",s.ptr);
-    fflush(html);
-    fclose(html);
+  
     /* Check for errors */ 
     if(res != CURLE_OK)
       fprintf(stderr, "curl_easy_perform() failed: %s\n",
@@ -768,8 +977,22 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
         strNick=wxString::FromUTF8(name);
         strMessage=wxString::FromUTF8(message);
         
-        /*strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
-        strcpy(MSG_SRC,strtok(NULL, "\n"));*/
+        strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
+        strcpy(MSG_SRC,strtok(NULL, "\n"));
+        
+        wxString parsata=wxString::FromUTF8(MSG_SRC);
+      
+        if(strcmp(SERVIZIO,"google")==0)
+        {
+        if(strcmp(MSG_SRC,richiestaGoogle(MSG_SRC,LINGUA_MSG_SRC))==0) StringTranslate=wxString::FromUTF8(MSG_SRC);
+        else parseGoogle(richiestaGoogle(parsata,LINGUA_MSG_SRC));
+        }
+        
+        if(strcmp(SERVIZIO,"bing")==0)
+        {
+        if(strcmp(MSG_SRC,richiestaBing(MSG_SRC,LINGUA_MSG_SRC))==0) StringTranslate=wxString::FromUTF8(MSG_SRC);
+        else parseBing(richiestaBing(parsata,LINGUA_MSG_SRC));
+        }
         //strcpy(prova,"TTS.jar ");
         //strcat(prova,message);
         
@@ -1427,6 +1650,7 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	////Manual Code End
 	
 	EVT_CLOSE(ClientTsFrm::OnClose)
+	EVT_TIMER(ID_WXTIMER2,ClientTsFrm::WxTimer2Timer)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
 	EVT_BUTTON(ID_WXBUTTON3,ClientTsFrm::txttranslateClick)
 	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
@@ -1453,6 +1677,10 @@ void ClientTsFrm::CreateGUIControls()
 	//wxDev-C++ designer will remove them.
 	//Add the custom code before or after the blocks
 	////GUI Items Creation Start
+
+	WxTimer2 = new wxTimer();
+	WxTimer2->SetOwner(this, ID_WXTIMER2);
+	WxTimer2->Start(100);
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
@@ -1509,6 +1737,7 @@ void ClientTsFrm::CreateGUIControls()
     fscanf(config,"%s",&NICK);
     fscanf(config,"%d",&cmbel);
     fscanf(config,"%s",&LINGUA);
+    fscanf(config,"%s",&SERVIZIO);
     fclose(config);
     FILE *api=fopen("API.txt","r");
     fscanf(api,"%s",API_KEY);
@@ -1590,13 +1819,14 @@ void ClientTsFrm::RefreshChat()
     }
         if(strGlobale!="" /*&& strGlobale!=oldstrGlobale*/)
     {
+         
         if(strNick==NICK)
         {
-            txtchat->WriteText("Me");
-            txtchat->WriteText("  (");
+            txtchat->WriteText("\nMe\t\t\t\t\t\t");
+            txtchat->WriteText("(");
             txtchat->WriteText(buf);
-            txtchat->WriteText("): ");
-            txtchat->WriteText("\n"+strMessage);
+            txtchat->WriteText("): \n");
+            txtchat->WriteText(MSG_SRC);
             txtchat->Newline();
         }
         else
@@ -1611,12 +1841,12 @@ void ClientTsFrm::RefreshChat()
                     
                     
                     txtchat->BeginTextColour(wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
-                    txtchat->WriteText(strNick);
-                    txtchat->WriteText("  (");
+                    txtchat->WriteText("\n"+strNick);
+                    txtchat->WriteText("\t\t\t\t\t\t(");
                     txtchat->WriteText(buf);
                     txtchat->WriteText("): ");
                     txtchat->Newline();
-                    txtchat->WriteText("\n"+strMessage);
+                    txtchat->WriteText(/*strMessage+"\n"+*/StringTranslate);
                     txtchat->EndTextColour();
                     //txtchat->Newline();
                     oldstrGlobale=strGlobale;
@@ -1673,37 +1903,22 @@ void ClientTsFrm::txtsendClick(wxCommandEvent& event)
 {
     char str[1024]={""};
       strcpy(str,(const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
-      char * pch;
-      char buffer[2048]={""};
-      char buffer2[2048]={""};
-      pch = strtok (str," ");
-      //wxMessageBox(wxString::FromUTF8(pch));
-      while (pch != NULL)
-      {
-        strcat(buffer,pch);
-        strcat(buffer,"%20");
-        printf ("%s\n",pch);
-        pch = strtok (NULL, " ");
-        //wxMessageBox(wxString::FromUTF8(pch));
-      }
       
-      strcpy(str,"");
-      strcpy(str,buffer);
-      pch = strtok (str,",");
-      //wxMessageBox(wxString::FromUTF8(pch));
-      while (pch != NULL)
-      {
-        strcat(buffer2,pch);
-        strcat(buffer2,"%2C");
-        printf ("%s\n",pch);
-        pch = strtok (NULL, ",");
-        //wxMessageBox(wxString::FromUTF8(pch));
-      }
+      /*wxString parsata=txtmsg->GetValue();
+      parsata.Replace(" ","%20",true);
+      parsata.Replace(",","%2C",true);
+      wxMessageBox(parsata);*/
      //wxMessageBox(wxString::FromUTF8(buffer2));
-    parse(richiesta(buffer,LINGUA));
-    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"ITA: "+txtmsg->GetValue()+"\nENG: "+StringTranslate,(uint64)1,NULL);
-    else if(strcmp(LINGUA,"Inglese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"ENG: "+txtmsg->GetValue()+"\nITA: "+StringTranslate,(uint64)1,NULL);
-    else if(strcmp(LINGUA,"Portoghese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"POR: "+txtmsg->GetValue()+"\nITA: "+StringTranslate,(uint64)1,NULL);
+    //parse(richiesta(buffer,LINGUA_MSG_SRC));
+    //wxString buffer3=wxString::FromUTF8(buffer2);
+    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItaliano\n"+txtmsg->GetValue()/*+"\nENG: "+StringTranslate*/,(uint64)1,NULL);
+    else if(strcmp(LINGUA,"Inglese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nInglese\n"+txtmsg->GetValue()/*+"\nITA: "+StringTranslate*/,(uint64)1,NULL);
+    else if(strcmp(LINGUA,"Portoghese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nPortoghese\n"+txtmsg->GetValue()/*+"\nITA: "+StringTranslate*/,(uint64)1,NULL);
+    
+    /*char command[512];
+    strcpy(command,"espeak.exe -v it ");
+    strcat(command,str);
+    system(command);*/
     //aggiorna(strGlobale);
     //toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
     //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
@@ -1732,6 +1947,7 @@ void ClientTsFrm::WxTimer1Timer(wxTimerEvent& event)
 	// insert your code here
 	//if(conta<0) return;
 	//wxMessageBox(wxString::FromDouble(conta--));
+	//wxMessageBox(wxString::FromUTF8(url));
 	RefreshChat();
 }
 
@@ -1773,4 +1989,30 @@ void ClientTsFrm::txttranslateClick(wxCommandEvent& event)
   //wxMessageBox(wxString::FromUTF8(parse(str)));
   /*wxMessageBox(wxString::FromUTF8(pch2));
   wxMessageBox(wxString::FromUTF8(pch3));*/
+}
+
+/*
+ * ClientTsFrmActivate
+ */
+void ClientTsFrm::ClientTsFrmActivate(wxActivateEvent& event)
+{
+	// insert your code here
+}
+
+/*
+ * WxButton2Click
+ */
+void ClientTsFrm::WxButton2Click(wxCommandEvent& event)
+{
+	// insert your code here
+	wxMessageBox(wxString::FromUTF8(url));
+}
+
+/*
+ * WxTimer2Timer
+ */
+void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
+{
+	// insert your code here
+	 txtchat->ScrollIntoView(txtchat->GetCaretPosition(),WXK_PAGEDOWN);
 }

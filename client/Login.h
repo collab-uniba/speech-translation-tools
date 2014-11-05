@@ -26,6 +26,7 @@
 //Header Include Start and Header Include End.
 //wxDev-C++ designer will remove them. Add custom headers after the block.
 ////Header Include Start
+#include <wx/radiobut.h>
 #include <wx/combobox.h>
 #include <wx/button.h>
 #include <wx/textctrl.h>
@@ -55,6 +56,9 @@ class Login : public wxDialog
 		//GUI Control Declaration Start and GUI Control Declaration End.
 		//wxDev-C++ will remove them. Add custom code after the block.
 		////GUI Control Declaration Start
+		wxRadioButton *radbing;
+		wxRadioButton *radgoogle;
+		wxStaticText *lbltrad;
 		wxComboBox *cmblingua;
 		wxStaticText *lbllingua;
 		wxButton *btnlogin;
@@ -74,6 +78,9 @@ class Login : public wxDialog
 		enum
 		{
 			////GUI Enum Control ID Start
+			ID_WXRADIOBUTTON2 = 1011,
+			ID_WXRADIOBUTTON1 = 1009,
+			ID_WXSTATICTEXT4 = 1008,
 			ID_WXCOMBOBOX1 = 1007,
 			ID_WXSTATICTEXT3 = 1006,
 			ID_WXBUTTON1 = 1005,
