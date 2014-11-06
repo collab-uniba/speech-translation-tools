@@ -1,0 +1,3 @@
+2014-11-05 12:02:36.440061|INFO    |ServerLibPriv |   | TeamSpeak 3 Server 3.0.2 (2012-07-19 10:50:53) SDK
+2014-11-05 12:02:36.480061|WARNING |Accounting    |   | Unable to find valid license key, falling back to limited functionality
+2014-11-05 12:02:36.530061|INFO    |VirtualSvrMgr |   | addServer() VirtualServer(1) started
