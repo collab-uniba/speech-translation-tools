@@ -3,7 +3,7 @@ speech-translation-tools
 
 A collection of several instruments to collect data in experiments about speech translation. Each branch refers to a different technology.
 
-
+Guida: http://liuxingguang.blogspot.it/2014/02/using-wxwidgets-30-in-microsoft-visual.html
 
 Per compilare correttamente la soluzione in visual studio bisogna seguire queste istruzioni:
 
