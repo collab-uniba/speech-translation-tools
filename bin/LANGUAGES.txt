@@ -1,3 +1,0 @@
-Italiano=it
-English=en
-Portoguese=pt
