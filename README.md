@@ -1,7 +1,7 @@
-speech-translation-tools
+TeamTranslate
 ========================
-
-A collection of several instruments to collect data in experiments about speech translation. Each branch refers to a different technology.
+A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Bing Translator, speech conversion by Nuance Dragon.
+The tool is intended to support multilanguage group communcation and collaboration. TeamTranslate is available under MPL license.
 
 Guida: http://liuxingguang.blogspot.it/2014/02/using-wxwidgets-30-in-microsoft-visual.html
 
