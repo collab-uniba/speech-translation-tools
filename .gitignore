@@ -2,3 +2,7 @@ bin/*
 bin/minimal/*
 *.exe
 *.obj
+*.o
+*.swp
+.~
+thumbs.db
