@@ -176,14 +176,15 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener {
 				{
 					painelTabs = new JTabbedPane();
 					painelPrincipal.add(painelTabs);
-					painelTabs.setBounds(89, 66, 261, 222);
-					{
-						jTabbedPane2 = new JTabbedPane();
-						painelTabs.addTab("jTabbedPane2", null, jTabbedPane2, null);
-					}
+					painelTabs.setBounds(7, 6, 454, 221);
 					{
 						jTabbedPane1 = new JTabbedPane();
 						painelTabs.addTab("jTabbedPane1", null, jTabbedPane1, null);
+						jTabbedPane1.setPreferredSize(new java.awt.Dimension(316, 237));
+					}
+					{
+						jTabbedPane2 = new JTabbedPane();
+						painelTabs.addTab("jTabbedPane2", null, jTabbedPane2, null);
 					}
 				}
 			}
