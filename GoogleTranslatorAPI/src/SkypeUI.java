@@ -1,5 +1,7 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -9,6 +11,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -33,7 +36,7 @@ import com.skype.Chat;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
-public class SkypeUI extends javax.swing.JFrame implements ActionListener {
+public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
 	{
 		//Set Look & Feel
@@ -145,24 +148,17 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener {
 					painelListaDeAmigos.add(scrollPane);
 					scrollPane.setBounds(2, 31, 189, 389);
 					{
+						
+						/* Criando a lista de amigos e setando no JList */
 						FriendsList friendsList = new FriendsList();
-						//int numeroAmigos = friendsList.getNumberOfFriends();
+						Vector<String> listaFinal = friendsList.getFriendsIdsAsString();
+						ListModel listaDeAmigosModel = new DefaultComboBoxModel(listaFinal);
 						
-						//String listaDeAmigos[] = new String[numeroAmigos];
-						//listaDeAmigos = friendsList.getFriendsIdsAsString();
-						Vector<String> teste = friendsList.getFriendsIdsAsString();
-						
-						for(int i = 0; i < teste.size(); i++) {
-							
-
-							System.out.println(teste.get(i));
-						}
-						
-						ListModel listaDeAmigosModel = new DefaultComboBoxModel(teste);
 						listaDeAmigos = new JList();
 						scrollPane.setViewportView(listaDeAmigos);
 						listaDeAmigos.setModel(listaDeAmigosModel);
 						listaDeAmigos.setBounds(184, 14, 155, 444);
+						listaDeAmigos.addMouseListener(this);
 					}
 				}
 			}
@@ -202,5 +198,39 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener {
 		if(arg0.getSource() == menuItemSair) {
 			System.exit(0);
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		if(arg0.getClickCount() == 2) {
+			System.out.println(listaDeAmigos.getSelectedValue());
+			
+			JOptionPane.showInputDialog(null, null);
+		}
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
