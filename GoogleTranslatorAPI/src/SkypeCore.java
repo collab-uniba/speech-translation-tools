@@ -38,10 +38,6 @@ public class SkypeCore {
 		GoogleAPI.setKey("AIzaSyCq1JQCESjgNTc4iM1tXMzEo9d2uVf3IP8");
 		GoogleAPI.setHttpReferrer("http://code.google.com/p/google-api-translate-java");
 		
-		
-		 
-		//System.out.println(saida);
-		
 		while (true) {
 			text = br.readLine();
 			String saida = v2.execute(text, Language.PORTUGUESE, Language.ENGLISH);

@@ -47,8 +47,6 @@ public class FriendsList {
 		Friend fr[] = list.getAllFriends();
 		return fr.length + 1;
 	}
-	
-	
 }
 
 

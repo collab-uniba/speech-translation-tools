@@ -23,19 +23,6 @@ import javax.swing.SwingUtilities;
 
 import com.skype.Chat;
 
-
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
 public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
 	{
@@ -73,7 +60,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	private JPanel painelPrincipal;
 	private JTabbedPane jTabbedPane2;
 
-	private Chat chat = null;
+	private SkypeCore chat = null;
 
 	/**
 	* Auto-generated main method to display this JFrame
@@ -203,9 +190,24 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		if(arg0.getClickCount() == 2) {
-			System.out.println(listaDeAmigos.getSelectedValue());
+			//System.out.println(listaDeAmigos.getSelectedValue());
 			
-			JOptionPane.showInputDialog(null, null);
+			String idDoContato = (String) listaDeAmigos.getSelectedValue();
+			chat = new SkypeCore();
+			
+			try {
+				chat.connect();
+				
+				String texto = JOptionPane.showInputDialog(null, null);
+				
+				
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+			
+			
+			
 		}
 		
 	}
