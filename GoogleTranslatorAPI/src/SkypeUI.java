@@ -2,6 +2,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -21,7 +23,16 @@ import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.SwingUtilities;
 
+import com.google.api.GoogleAPI;
+import com.google.api.translate.Language;
+import com.google.api.translate.TranslateV2;
 import com.skype.Chat;
+import com.skype.ChatMessage;
+import com.skype.ChatMessageListener;
+import com.skype.Skype;
+import com.skype.SkypeException;
+import com.skype.connector.Connector;
+import com.skype.connector.ConnectorException;
 
 public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
@@ -60,7 +71,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	private JPanel painelPrincipal;
 	private JTabbedPane jTabbedPane2;
 
-	private SkypeCore chat = null;
+	private Chat chat = null;
 
 	/**
 	* Auto-generated main method to display this JFrame
@@ -179,6 +190,58 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 		}
 	}
 
+	
+	/* The methods below are used to connect
+	 * to skype communication layer. */
+	static {
+		Connector.useJNIConnector(true);
+	}
+	
+	public void sendMessage(String id, String text) throws SkypeException {
+		chat = (null == chat ? Skype.chat(id) : chat);
+		chat.send(text);
+	}
+
+	public void connect() throws Exception {
+		Connector.Status status = null;
+		Connector conn = Connector.getInstance();
+
+		try {
+			status = conn.connect();
+		} catch (ConnectorException e1) {
+			e1.printStackTrace();
+			throw new Exception(e1.getMessage());
+		}
+
+		if (status != Connector.Status.ATTACHED)
+			throw new Exception(new Exception(
+					"Please install Skype from www.skype.com and run it."));
+
+		/* Add Skype4Java listeners. */
+		try {
+			Skype.addChatMessageListener(chatMessageListener);
+		} catch (SkypeException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Connected, Skype ver. " + Skype.getVersion());
+	}
+
+	private ChatMessageListener chatMessageListener = new ChatMessageListener() {
+
+		@Override
+		public void chatMessageSent(ChatMessage arg0) throws SkypeException {
+		}
+
+		@Override
+		public void chatMessageReceived(ChatMessage chatMessage)
+				throws SkypeException {
+			System.out.println(chatMessage.getSenderDisplayName() + "("
+					+ chatMessage.getSenderId() + "): "
+					+ chatMessage.getContent());
+		}
+	};
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		
@@ -193,23 +256,23 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 			//System.out.println(listaDeAmigos.getSelectedValue());
 			
 			String idDoContato = (String) listaDeAmigos.getSelectedValue();
-			chat = new SkypeCore();
 			
 			try {
-				chat.connect();
+				connect();
 				
-				String texto = JOptionPane.showInputDialog(null, null);
+				String texto = JOptionPane.showInputDialog("Digite a mensagem para enviar...");
 				
+				//while (true) {
+					
+					//String saida = v2.execute(texto, Language.PORTUGUESE, Language.ENGLISH);
+					sendMessage(idDoContato, texto);
+				//}
 				
 			} catch (Exception e) {
 				
 				e.printStackTrace();
 			}
-			
-			
-			
 		}
-		
 	}
 
 	@Override

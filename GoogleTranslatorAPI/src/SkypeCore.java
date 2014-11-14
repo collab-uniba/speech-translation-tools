@@ -19,8 +19,8 @@ public class SkypeCore {
 	static {
 		Connector.useJNIConnector(true);
 	}
-
-	public static void main(String[] args) throws Exception {
+	
+	public void inicializa() throws Exception {
 		
 		SkypeCore core = new SkypeCore();
 		core.connect();
@@ -47,7 +47,7 @@ public class SkypeCore {
 		
 	}
 	
-	private void sendMessage(String id, String text) throws SkypeException {
+	public void sendMessage(String id, String text) throws SkypeException {
 		chat = (null == chat ? Skype.chat(id) : chat);
 		chat.send(text);
 	}
