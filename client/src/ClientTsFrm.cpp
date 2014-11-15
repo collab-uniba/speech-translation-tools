@@ -17,9 +17,11 @@
 #include <sapi.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sstream>
 #include <time.h>
 #include <limits.h>
 #include <audiere.h>
+#include <irrKlang.h>
 #include <string.h>
 //#include <winsock2.h>
 #include <iostream>
@@ -53,6 +55,7 @@ using namespace audiere;
 using namespace std;
 using namespace ATL;
 using namespace rapidjson;
+using namespace irrklang;
 struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];
@@ -170,6 +173,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
     char API_KEY[50]={""};
     char url[256]={""};
     char MSG_PARSE[1024]={""};
+	char traduzione_jar[512] = { "" };
     int PORT=9987;
     int cmbel=0;
     COLORE colori[10];
@@ -177,8 +181,87 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
     unsigned short set_color_client;
     unsigned short coloreClient[MAX];
     struct user persona[MAX];
-    
+	ISoundEngine* engine;
+	IAudioRecorder* recorder;
+	bool sound_flag = false;
 
+
+	void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
+	{
+		if (!data)
+		{
+			printf("Could not save recorded data to %s, nothing recorded\n", filename);
+			return;
+		}
+
+		FILE* file = fopen(filename, "wb");
+
+		if (file)
+		{
+			// write wave header 
+			unsigned short formatType = 1;
+			unsigned short numChannels = format.ChannelCount;
+			unsigned long  sampleRate = format.SampleRate;
+			unsigned short bitsPerChannel = format.getSampleSize() * 8;
+			unsigned short bytesPerSample = format.getFrameSize();
+			unsigned long  bytesPerSecond = format.getBytesPerSecond();
+			unsigned long  dataLen = format.getSampleDataSize();
+
+			const int fmtChunkLen = 16;
+			const int waveHeaderLen = 4 + 8 + fmtChunkLen + 8;
+
+			unsigned long totalLen = waveHeaderLen + dataLen;
+
+			fwrite("RIFF", 4, 1, file);
+			fwrite(&totalLen, 4, 1, file);
+			fwrite("WAVE", 4, 1, file);
+			fwrite("fmt ", 4, 1, file);
+			fwrite(&fmtChunkLen, 4, 1, file);
+			fwrite(&formatType, 2, 1, file);
+			fwrite(&numChannels, 2, 1, file);
+			fwrite(&sampleRate, 4, 1, file);
+			fwrite(&bytesPerSecond, 4, 1, file);
+			fwrite(&bytesPerSample, 2, 1, file);
+			fwrite(&bitsPerChannel, 2, 1, file);
+
+			// write data
+
+			fwrite("data", 4, 1, file);
+			fwrite(&dataLen, 4, 1, file);
+			fwrite(data, dataLen, 1, file);
+
+			// finish
+
+			printf("Saved audio as %s\n", filename);
+			fclose(file);
+		}
+		else
+			printf("Could not open %s to write audio data\n", filename);
+	}
+
+	std::string hex(unsigned int c)
+	{
+		std::ostringstream stm;
+		stm << '%' << std::hex << std::uppercase << c;
+		return stm.str();
+	}
+
+	std::string url_encode(const std::string& str)
+	{
+		static const std::string unreserved = "0123456789"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"-_.~";
+		std::string result;
+
+		for (unsigned char c : str)
+		{
+			if (unreserved.find(c) != std::string::npos) result += c;
+			else result += hex(c);
+		}
+
+		return result;
+	}
 
 int JSON()
 {
@@ -297,6 +380,9 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringa *s)
 
 void parseBing(char *parola)
 {
+	/*wchar_t* wString = new wchar_t[4096];
+	MultiByteToWideChar(CP_ACP, 0, parola, -1, wString, 4096);
+	MessageBox(NULL, wString, L"Test print handler", MB_OK);*/
     char *buffer;
     int i;
 	int result;
@@ -370,6 +456,7 @@ char * richiestaBing(wxString StringSource, char * lingua)
     init_string(&p);
     char frase[512];
     char PROVA[256]={""};
+	wchar_t* wString = new wchar_t[4096];
     curl_global_init(CURL_GLOBAL_ALL);
  
     curl2 = curl_easy_init();
@@ -452,10 +539,26 @@ char * richiestaBing(wxString StringSource, char * lingua)
     }
     curl3 = curl_easy_init();
     char *veroheader=curl_easy_unescape(curl3 , header , 0 , NULL);
+	
+	
     const char *BufferSource=curl_easy_escape(curl3, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
+	/*MultiByteToWideChar(CP_ACP, 0, BufferSource, -1, wString, 4096);
+	MessageBox(NULL, wString, L"CURL_EASY_ESCAPE", MB_OK);*/
+	
+	/*MultiByteToWideChar(CP_ACP, 0, StringSource, -1, wString, 4096);
+	MessageBox(NULL, wString, L"StringSourceReplace", MB_OK);*/
+	/*wxString prova = wxString::FromUTF8(BufferSource);
+	prova.Replace("%E8", "%C3%A8", true);
+	prova.Replace("%e8", "%C3%A8", true);
+	prova.Replace(" ", "%20", true);
+	string pr = StringSource.mb_str().data();
+	MultiByteToWideChar(CP_ACP, 0, url_encode(pr).c_str(), -1, wString, 4096);
+	MessageBox(NULL, wString, L"ENCODEC++", MB_OK);*/
     char url3[512]={""};
     strcpy(url3,"http://api.microsofttranslator.com/V2/Http.svc/Translate?text=");
-    strcat(url3,BufferSource);
+	
+	//strcat(url3, url_encode(pr).c_str());
+	strcat(url3, BufferSource);
     strcat(url3,"&from=");
     strcat(url3,languagesrc);
     strcat(url3,"&to=");
@@ -479,6 +582,15 @@ char * richiestaBing(wxString StringSource, char * lingua)
     curl_easy_cleanup(curl2);
   }
   curl_global_cleanup();
+  /*MultiByteToWideChar(CP_ACP, 0, p.ptr, -1, wString, 4096);
+  MessageBox(NULL, wString, L"P.PTR", MB_OK);*/
+  FILE *html;
+  if (html = fopen("..\\conf\\trad.htm", "w"))
+  {
+	  fprintf(html, "%s", p.ptr);
+	  fflush(html);
+	  fclose(html);
+  }
   return p.ptr;
 }
 
@@ -527,7 +639,7 @@ char* richiestaGoogle(wxString StringSource, char * lingua)
     strcat(url,API_KEY);
     
     
-        StringSource.Replace(" ","%20",true);
+        /*StringSource.Replace(" ","%20",true);
         StringSource.Replace("!","%21",true);
         StringSource.Replace("\"","%22",true);
         /*StringSource.Replace("#","%23",true);
@@ -535,12 +647,12 @@ char* richiestaGoogle(wxString StringSource, char * lingua)
         StringSource.Replace("%","%25",true);
         StringSource.Replace("&","%26",true);
         */
-        StringSource.Replace("'","%27",true);
+        /*StringSource.Replace("'","%27",true);
         StringSource.Replace("(","%28",true);
         /*StringSource.Replace(")","%29",true);
         StringSource.Replace("*","%2A",true);
         StringSource.Replace("+","%2B",true);*/
-        StringSource.Replace(",","%2C",true);
+        /*StringSource.Replace(",","%2C",true);
         StringSource.Replace("-","%2D",true);
         /*
         StringSource.Replace(".","%2E",true);
@@ -550,11 +662,15 @@ char* richiestaGoogle(wxString StringSource, char * lingua)
         StringSource.Replace("<","%3C",true);
         StringSource.Replace("=","%3D",true);
         StringSource.Replace(">","%3E",true);*/
-        StringSource.Replace("?","%3F",true);
+        //StringSource.Replace("?","%3F",true);
+		/*StringSource.Replace("è", "%C3%A8", true);
+		StringSource.Replace("é", "%C3%A9", true);
+		StringSource.Replace(" ", "%20", true);*/
         //StringSource.Replace("@","%40",true);
         //wxMessageBox(StringSource);*/
     strcat(url,"&q=");
-    strcat(url,StringSource);
+	const char *BufferSource = curl_easy_escape(curl, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
+    strcat(url,BufferSource);
     strcat(url,"&source=");
     strcat(url,languagesrc);
     strcat(url,"&target=");
@@ -741,8 +857,49 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
     if(status == STATUS_TALKING)
         {
         printf("Client \"%s\" starts talking.\n", name);
+		/*if (sound_flag == false)
+		{
+			sound_flag = true;
+			recorder->startRecordingBufferedAudio();
+			printf("Client \"%s\" starts talking.\n", name);
+		}*/
     } else {
-        printf("Client \"%s\" stops talking.\n", name);
+		/*if (sound_flag == true)
+		{
+			recorder->stopRecordingAudio();
+			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
+			if(strcmp(LINGUA,"Italiano")==0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+			if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+			if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			FILE *trad;
+			a:
+			Sleep(100);
+			if (trad = fopen("translate.txt", "r"))
+			{
+				fgets(traduzione_jar, 256, trad);
+				fflush(trad);
+				fclose(trad);
+				if (strcmp(traduzione_jar, "") != 0)
+				{
+					//fscanf(trad, "%s", &traduzione);
+					//wxMessageBox(wxString::FromUTF8(traduzione_jar));
+					wxString final = "\nItaliano\n" + wxString::FromUTF8(traduzione_jar);
+					ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL);
+					strcpy(traduzione_jar, "");
+					WinExec("Taskkill /IM java.exe /F", SW_HIDE);
+					Sleep(50);
+					WinExec("del /F translate.txt", SW_HIDE);
+					//WinExec("del /F recorded.wav", SW_HIDE);
+					remove("recorded.wav");
+					remove("translate.txt");
+					sound_flag = false;
+				}
+
+				
+			}
+			else goto a;
+		}
+        printf("Client \"%s\" stops talking.\n", name);*/
     }
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
@@ -1091,8 +1248,8 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
         
         if(strcmp(SERVIZIO,"bing")==0)
         {
-        if(strcmp(MSG_SRC,richiestaBing(MSG_SRC,LINGUA_MSG_SRC))==0) StringTranslate=wxString::FromUTF8(MSG_SRC);
-        else parseBing(richiestaBing(parsata,LINGUA_MSG_SRC));
+			if (strcmp(MSG_SRC, richiestaBing(MSG_SRC, LINGUA_MSG_SRC)) == 0) StringTranslate = wxString::FromUTF8(MSG_SRC);
+			else parseBing(richiestaBing(parsata, LINGUA_MSG_SRC));
         }
 
 
@@ -1792,7 +1949,7 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 
     SLEEP(300);
     
-    wxMessageBox("Connessione avvenuta con successo!");
+    //wxMessageBox("Connessione avvenuta con successo!");
     /* Simple commandline interface */
     printf("\nTeamSpeak 3 client commandline interface\n");
     showHelp();
@@ -1958,11 +2115,11 @@ void ClientTsFrm::CreateGUIControls()
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
-	WxTimer2->Start(100);
+	WxTimer2->Start(500);
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(3000);
+	WxTimer1->Start(4000);
 
 	txttranslate = new wxButton(this, ID_WXBUTTON3, _("ITA -> ENG"), wxPoint(120, 384), wxSize(83, 49), 0, wxDefaultValidator, _("txttranslate"));
 	txttranslate->Show(false);
@@ -2031,7 +2188,8 @@ void ClientTsFrm::CreateGUIControls()
 	txtlingua->AppendText(LINGUA);
 	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
 	SetupColor();
-	
+	engine = irrklang::createIrrKlangDevice();
+	recorder = irrklang::createIrrKlangAudioRecorder(engine);
 	
 }
 
