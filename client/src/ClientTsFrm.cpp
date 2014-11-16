@@ -32,9 +32,22 @@
 #include <wx/msgdlg.h>
 #include <wx/sstream.h>
 #include <wx/protocol/http.h>
+#include <wx/richtext/richtextctrl.h>
+#include <wx/richtext/richtextstyles.h>
+#include <wx/richtext/richtextxml.h>
+#include <wx/richtext/richtexthtml.h>
+#include <wx/richtext/richtextformatdlg.h>
+#include <wx/richtext/richtextsymboldlg.h>
+#include <wx/richtext/richtextstyledlg.h>
+#include <wx/richtext/richtextprint.h>
+#include <wx/richtext/richtextimagedlg.h>
 #include "rapidjson/document.h"		// rapidjson's DOM-style API
 #include "rapidjson/prettywriter.h"	// for stringify JSON
 #include "rapidjson/filestream.h"
+
+#include "../res/keyboard.xpm"
+#include "../res/microphone.xpm"
+#include "../res/italy.xpm"
 
 #define MAX 30
 
@@ -89,6 +102,7 @@ struct user
     wxString nome;
     unsigned short colore;
     unsigned short usato;
+	unsigned short parla;
 };
 
 struct stringa {
@@ -159,11 +173,10 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 	wxString oldstrGlobale="";
 	wxString strNick="";
 	wxString strMessage="";
-	wxString nomeClient[MAX];
 	wxDateTime data;
 	wxString StringTranslate="";
-	wxString TESTTTS="";
-	char **nomeclient;
+	wxString TESTTTS = "";
+	wxImage *immagine;
 	char SERVER_ADDRESS[20];
     char NICK[50];
     char LINGUA[20];
@@ -174,6 +187,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
     char url[256]={""};
     char MSG_PARSE[1024]={""};
 	char traduzione_jar[512] = { "" };
+	wxString nome_parla="";
     int PORT=9987;
     int cmbel=0;
     COLORE colori[10];
@@ -184,6 +198,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 	ISoundEngine* engine;
 	IAudioRecorder* recorder;
 	bool sound_flag = false;
+	wxRichTextCtrl *chat;
 
 
 	void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
@@ -335,6 +350,10 @@ void SetupColor()
     colori[2].red=0;
     colori[2].green=0;
     colori[2].blue=255;
+
+	persona[0].parla = 0;
+	persona[1].parla = 0;
+	persona[2].parla = 0;
 }
 void init_string(struct stringa *s) {
   s->len = 0;
@@ -850,13 +869,23 @@ void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, 
  */
 void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	char* name;
-
+	int i;
     /* Query client nickname from ID */
 	if(ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 		return;
     if(status == STATUS_TALKING)
         {
+		for (i = 0; i < MAX; i++)
+		{
+			if (persona[i].nome==name)
+			{
+				persona[i].parla = 1;
+				
+			}
+		}
         printf("Client \"%s\" starts talking.\n", name);
+		nome_parla = "Client " + wxString::FromAscii(name);
+		nome_parla = nome_parla + " sta parlando.";
 		/*if (sound_flag == false)
 		{
 			sound_flag = true;
@@ -864,7 +893,8 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			printf("Client \"%s\" starts talking.\n", name);
 		}*/
     } else {
-		/*if (sound_flag == true)
+		/*
+		if (sound_flag == true)
 		{
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
@@ -883,7 +913,13 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 				{
 					//fscanf(trad, "%s", &traduzione);
 					//wxMessageBox(wxString::FromUTF8(traduzione_jar));
-					wxString final = "\nItaliano\n" + wxString::FromUTF8(traduzione_jar);
+					wxString prova = "\n" + wxString::FromUTF8(LINGUA) + "\n";
+					wxString final = prova + wxString::FromUTF8(traduzione_jar);
+					final.Replace("è", "e'", true);
+					final.Replace("à", "a'", true);
+					final.Replace("ù", "u'", true);
+					final.Replace("ì", "i'", true);
+					final.Replace("ò", "o'", true);
 					ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL);
 					strcpy(traduzione_jar, "");
 					WinExec("Taskkill /IM java.exe /F", SW_HIDE);
@@ -898,8 +934,18 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 				
 			}
 			else goto a;
+		}*/
+		for (i = 0; i < MAX; i++)
+		{
+			if (persona[i].nome==name)
+			{
+				persona[i].parla = 0;
+			}
 		}
-        printf("Client \"%s\" stops talking.\n", name);*/
+        printf("Client \"%s\" stops talking.\n", name);
+		nome_parla = "Client " + wxString::FromAscii(name);
+		nome_parla = nome_parla + " non parla piu";
+
     }
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
@@ -1135,7 +1181,7 @@ void showChannels(uint64 serverConnectionHandlerID) {
         }
         printf("%llu - %s\n", (unsigned long long)ids[i], name);
 
-        ts3client_requestSendChannelTextMsg(serverConnectionHandlerID,"Ciao Bel Canale!",ids[0],"");
+        //ts3client_requestSendChannelTextMsg(serverConnectionHandlerID,"Ciao Bel Canale!",ids[0],"");
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -1191,7 +1237,7 @@ void showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID) {
 		}
 
         printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
-//        nomeclient[0][0]=(char*)
+
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -1234,7 +1280,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
         strcpy(MSG_SRC,strtok(NULL, "\n"));
         
         wxString parsata=wxString::FromUTF8(MSG_SRC);
-        
+		chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
 		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
 		{
 			StringTranslate = wxString::FromUTF8(MSG_SRC);
@@ -1488,11 +1534,6 @@ void showClients(uint64 serverConnectionHandlerID) {
 		return;
 	}
 
-    for(i=0; i<MAX;i++) 
-    {
-        nomeClient[i]="";
-        coloreClient[i]=-1;
-    }
     for(i=0; ids[i]; i++) {
         char* name;
         int talkStatus;
@@ -1518,12 +1559,10 @@ void showClients(uint64 serverConnectionHandlerID) {
         if(strcmp(name,NICK)==0) set_color_client=i;
         printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
         conta_client++;
-        nomeClient[i]=name;
         coloreClient[i]=i;
         persona[i].nome=name;
         persona[i].colore=i;
         persona[i].usato=1;
-//        wxMessageBox("Nome: "+nomeClient[i]+" Colore : " + wxString::Format(wxT("%i"),coloreClient[i]));
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -2163,7 +2202,17 @@ void ClientTsFrm::CreateGUIControls()
 	SetIcon(wxNullIcon);
 	SetSize(8,8,682,517);
 	Center();
-	
+	#if wxUSE_LIBPNG
+		wxImage::AddHandler(new wxPNGHandler);
+	#endif
+
+	#if wxUSE_LIBJPEG
+		wxImage::AddHandler(new wxJPEGHandler);
+	#endif
+
+	#if wxUSE_GIF
+		wxImage::AddHandler(new wxGIFHandler);
+	#endif
 	////GUI Items Creation End
 	
 	conta=10.0;
@@ -2188,9 +2237,10 @@ void ClientTsFrm::CreateGUIControls()
 	txtlingua->AppendText(LINGUA);
 	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
 	SetupColor();
+	chat = txtchat;
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
-	
+
 }
 
 void ClientTsFrm::OnClose(wxCloseEvent& event)
@@ -2248,20 +2298,26 @@ void ClientTsFrm::RefreshChat()
     char       buf[80];
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%d-%m-%Y.%X", &tstruct);
-    int coloreA=tstruct.tm_sec;
-	int coloreB=tstruct.tm_min;
-	int coloreC=tstruct.tm_hour;
     showClients(DEFAULT_VIRTUAL_SERVER);
     txtclient->Clear();
+	/*txtclient->WriteText(nome_parla);
+	txtclient->Newline();*/
     for (i=0;i<MAX;i++)
     {
-        if(nomeClient[i]!="") 
+        if(persona[i].nome!="") 
         {
-            coloreA=coloreB+coloreC%256*(i+1);
-            coloreB=coloreA+171*(i+1)%256;
-            coloreC=coloreA+coloreB*(i+1)%256;
+			//if (persona[i].nome == NICK && strcmp(LINGUA,"Italiano")==0) txtclient->WriteImage(wxBitmap(italy_xpm));
             txtclient->BeginTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue));
-            txtclient->WriteText(nomeClient[i]);
+			if (persona[i].parla == 1)
+			{
+				txtclient->WriteText(persona[i].nome+"\t");
+				txtclient->WriteImage(wxBitmap(microphone_xpm));
+			}
+			else if (persona[i].parla == 0)
+			{
+				txtclient->WriteText(persona[i].nome+"\t");
+				txtclient->WriteImage(wxBitmap(keyboard_xpm));
+			}
             txtclient->EndTextColour();
             txtclient->Newline();
         }
@@ -2296,6 +2352,7 @@ void ClientTsFrm::RefreshChat()
                     txtchat->WriteText("): ");
                     txtchat->Newline();
                     txtchat->WriteText(/*strMessage+"\n"+*/StringTranslate);
+					
                     txtchat->EndTextColour();
                     //txtchat->Newline();
                     oldstrGlobale=strGlobale;
@@ -2355,16 +2412,18 @@ void ClientTsFrm::txtsendClick(wxCommandEvent& event)
     char str[1024]={""};
       strcpy(str,(const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
       
-      /*wxString parsata=txtmsg->GetValue();
-      parsata.Replace(" ","%20",true);
-      parsata.Replace(",","%2C",true);
-      wxMessageBox(parsata);*/
+      wxString parsata=txtmsg->GetValue();
+	  parsata.Replace("è", "e'", true);
+	  parsata.Replace("à", "a'", true);
+	  parsata.Replace("ù", "u'", true);
+	  parsata.Replace("ì", "i'", true);
+	  parsata.Replace("ò", "o'", true);
      //wxMessageBox(wxString::FromUTF8(buffer2));
     //parse(richiesta(buffer,LINGUA_MSG_SRC));
     //wxString buffer3=wxString::FromUTF8(buffer2);
-    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItaliano\n"+txtmsg->GetValue()/*+"\nENG: "+StringTranslate*/,(uint64)1,NULL);
-    else if(strcmp(LINGUA,"Inglese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nInglese\n"+txtmsg->GetValue()/*+"\nITA: "+StringTranslate*/,(uint64)1,NULL);
-    else if(strcmp(LINGUA,"Portoghese")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nPortoghese\n"+txtmsg->GetValue()/*+"\nITA: "+StringTranslate*/,(uint64)1,NULL);
+    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItaliano\n"+parsata/*+"\nENG: "+StringTranslate*/,(uint64)1,NULL);
+	else if (strcmp(LINGUA, "Inglese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nInglese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
+	else if (strcmp(LINGUA, "Portoghese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nPortoghese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
     
     /*char command[512];
     strcpy(command,"espeak.exe -v it ");
@@ -2374,6 +2433,8 @@ void ClientTsFrm::txtsendClick(wxCommandEvent& event)
     //toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
     //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
 	// insert your code here
+	txtmsg->Clear();
+	
 }
 
 void ClientTsFrm::aggiorna(wxString testo)
@@ -2465,5 +2526,5 @@ void ClientTsFrm::WxButton2Click(wxCommandEvent& event)
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	// insert your code here
-	 txtchat->ScrollIntoView(txtchat->GetCaretPosition(),WXK_PAGEDOWN);
+	 //txtchat->ScrollIntoView(txtchat->GetCaretPosition(),WXK_PAGEDOWN);
 }
