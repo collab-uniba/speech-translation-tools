@@ -15,4 +15,4 @@ To compile the solution, you will need Visual Studio. We have tested these steps
 
 For more info on building WxWidgets, please refer to [this page] (http://liuxingguang.blogspot.it/2014/02/using-wxwidgets-30-in-microsoft-visual.html).
 
-Now, open in Visual Studio the TeamTranslate client solution `PATH\to\client\teamtranslate.sln' and build it (press F6) in _Release_ configuration (not _Debug_).
+Now, open Visual Studio and load the TeamTranslate client solution (`PATH\to\client\teamtranslate.sln`) and build it in _Release_ configuration (not _Debug_).
