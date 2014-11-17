@@ -1,7 +1,8 @@
 TeamTranslate
 ========================
-A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Bing Translator, speech conversion by Nuance Dragon.
-The tool is intended to support multilanguage group communcation and collaboration. TeamTranslate is written in C/C++ and is available under MPL license.
+A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Bing Translator, speech conversion by Nuance Dragon. The tool is intended to support multilanguage group communcation and collaboration. 
+
+TeamTranslate is written in C/C++ and is available under MPL license.
 
 How to build
 ------------------------
