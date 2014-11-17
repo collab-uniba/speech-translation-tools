@@ -220,8 +220,8 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <ObjectFileName>bin\</ObjectFileName>
-      <ProgramDataBaseFileName>bin\TeamTranslate.pdb</ProgramDataBaseFileName>
+      <ObjectFileName>obj\</ObjectFileName>
+      <ProgramDataBaseFileName>obj\TeamTranslate.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -230,23 +230,27 @@
       <PreprocessorDefinitions>__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>.\..\..\lib\vc_lib\mswu;.\..\..\include;.;.\..\..\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ResourceOutputFileName>..\res\%(Filename).res</ResourceOutputFileName>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>wxmsw29u_core.lib;wxbase29u.lib;wxmsw29u_richtext.lib;wxmsw29u_adv.lib;wxmsw29u_html.lib;wxbase29u_xml.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wxscintilla.lib;odbc32.lib;opengl32.lib;ts3client_win32.lib;ts3client_win64.lib;ts3server_win32.lib;ts3server_win64.lib;libcrypto.a;libcrypto.dll.a;libcurl.a;libcurldll.a;libidn.a;libidn.dll.a;librtmp.a;libssh2.a;libssh2dll.a;libssl.a;libssl.dll.a;libz.a;libz.dll.a;libzdll.a;audiere.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>bin\minimal.exe</OutputFile>
+      <OutputFile>bin\TeamTranslate.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>.\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>bin\minimal.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>obj\TeamTranslate.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <Bscmake>
-      <OutputFile>bin\minimal_vc9.bsc</OutputFile>
+      <OutputFile>obj\TeamTranslate.bsc</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
+    <BuildLog>
+      <Path>..\conf\$(MSBuildProjectName).log</Path>
+    </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universal Debug|Win32'">
     <Midl>
@@ -497,7 +501,7 @@
   <ItemGroup>
     <ClCompile Include="src\ClientTsFrm.cpp" />
     <ClCompile Include="src\Login.cpp" />
-    <ClCompile Include="src\minimal.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ClientTsFrm.h" />
