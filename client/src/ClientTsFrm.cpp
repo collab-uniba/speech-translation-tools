@@ -48,6 +48,8 @@
 #include "../res/keyboard.xpm"
 #include "../res/microphone.xpm"
 #include "../res/italy.xpm"
+#include "../res/usa.xpm"
+#include "../res/brasil.xpm"
 
 #define MAX 30
 
@@ -103,6 +105,7 @@ struct user
     unsigned short colore;
     unsigned short usato;
 	unsigned short parla;
+	wxString lingua;
 };
 
 struct stringa {
@@ -344,12 +347,20 @@ void SetupColor()
     colori[0].blue=0;
     
     colori[1].red=0;
-    colori[1].green=255;
-    colori[1].blue=0;
-    
-    colori[2].red=0;
-    colori[2].green=0;
-    colori[2].blue=255;
+    colori[1].green=0;
+    colori[1].blue=255;
+	
+	colori[2].red = 139;
+	colori[2].green = 69;
+	colori[2].blue = 19;
+
+	colori[3].red = 148;
+	colori[3].green = 0;
+	colori[3].blue = 211;
+	
+	colori[4].red = 0;
+	colori[4].green = 100;
+	colori[4].blue = 0;
 
 	persona[0].parla = 0;
 	persona[1].parla = 0;
@@ -1270,6 +1281,9 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
      return;
         }
         
+	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
+	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
+	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
         char prova[512]={""};
         nome=wxString::FromUTF8(name);
         strGlobale=nome+": "+mystring;
@@ -1279,8 +1293,23 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
         strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
         strcpy(MSG_SRC,strtok(NULL, "\n"));
         
+		/*if (strcmp(MSG_SRC, "welcome") == 0)
+		{
+			int i;
+			for (i = 0; i < MAX; i++)
+			{
+				if (persona[i].nome == strNick)
+				{
+					persona[i].lingua = LINGUA_MSG_SRC;
+					break;
+				}
+			}
+			StringTranslate = "";
+			return;
+		}*/
+
         wxString parsata=wxString::FromUTF8(MSG_SRC);
-		chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
+		
 		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
 		{
 			StringTranslate = wxString::FromUTF8(MSG_SRC);
@@ -1534,6 +1563,11 @@ void showClients(uint64 serverConnectionHandlerID) {
 		return;
 	}
 
+	for (i = 0; i < MAX; i++)
+	{
+		persona[i].nome = "";
+		persona[i].usato = 0;
+	}
     for(i=0; ids[i]; i++) {
         char* name;
         int talkStatus;
@@ -1987,7 +2021,8 @@ DWORD WINAPI myThread(LPVOID lpParameter)
     version = NULL;
 
     SLEEP(300);
-    
+	/*wxString saluto = "\n" + wxString::FromUTF8(LINGUA) + "\n"+"welcome";
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,saluto, (uint64)1, NULL);*/
     //wxMessageBox("Connessione avvenuta con successo!");
     /* Simple commandline interface */
     printf("\nTeamSpeak 3 client commandline interface\n");
@@ -2154,7 +2189,7 @@ void ClientTsFrm::CreateGUIControls()
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
-	WxTimer2->Start(500);
+	WxTimer2->Start(1000);
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
@@ -2184,15 +2219,16 @@ void ClientTsFrm::CreateGUIControls()
 
 	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
 	txtchat->SetMaxLength(0);
-	txtchat->SetFocus();
+	
 	txtchat->SetInsertionPointEnd();
-	txtchat->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+	txtchat->SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(543, 387), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
 	txtsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(215, 387), wxSize(313, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+	txtmsg->SetFocus();
 
 	WxButton1 = new wxButton(this, ID_WXBUTTON1, _("Avvia Client"), wxPoint(228, 439), wxSize(149, 31), 0, wxDefaultValidator, _("WxButton1"));
 	WxButton1->Show(false);
@@ -2310,21 +2346,30 @@ void ClientTsFrm::RefreshChat()
             txtclient->BeginTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue));
 			if (persona[i].parla == 1)
 			{
-				txtclient->WriteText(persona[i].nome+"\t");
+				txtclient->WriteText(persona[i].nome+" ");
+				if (persona[i].lingua=="Italiano") txtclient->WriteImage(wxBitmap(italy_xpm));
+				if (persona[i].lingua == "Inglese") txtclient->WriteImage(wxBitmap(usa_xpm));
+				if (persona[i].lingua == "Portoghese") txtclient->WriteImage(wxBitmap(brasil_xpm));
+				txtclient->WriteText("\t");
 				txtclient->WriteImage(wxBitmap(microphone_xpm));
 			}
 			else if (persona[i].parla == 0)
 			{
-				txtclient->WriteText(persona[i].nome+"\t");
+				txtclient->WriteText(persona[i].nome + " ");
+				if (persona[i].lingua == "Italiano") txtclient->WriteImage(wxBitmap(italy_xpm));
+				if (persona[i].lingua == "Inglese") txtclient->WriteImage(wxBitmap(usa_xpm));
+				if (persona[i].lingua == "Portoghese") txtclient->WriteImage(wxBitmap(brasil_xpm));
+				txtclient->WriteText("\t");
 				txtclient->WriteImage(wxBitmap(keyboard_xpm));
 			}
             txtclient->EndTextColour();
             txtclient->Newline();
         }
     }
-        if(strGlobale!="" /*&& strGlobale!=oldstrGlobale*/)
+        if(strGlobale!="" && StringTranslate!=""/*&& strGlobale!=oldstrGlobale*/)
     {
-         
+			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
+			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
         if(strNick==NICK)
         {
             txtchat->WriteText("\nMe\t\t\t\t\t\t");
@@ -2343,7 +2388,6 @@ void ClientTsFrm::RefreshChat()
                     //wxMessageBox("Nome: "+persona[i].nome+" Colore : " + wxString::Format(wxT("%i"),persona[i].colore));
                     //wxString prova;
                     //prova="TTS.jar "+strMessage;
-                    
                     
                     txtchat->BeginTextColour(wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
                     txtchat->WriteText("\n"+strNick);
@@ -2434,6 +2478,7 @@ void ClientTsFrm::txtsendClick(wxCommandEvent& event)
     //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
 	// insert your code here
 	txtmsg->Clear();
+	
 	
 }
 
@@ -2527,4 +2572,7 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	// insert your code here
 	 //txtchat->ScrollIntoView(txtchat->GetCaretPosition(),WXK_PAGEDOWN);
+	 
+	/*wxString saluto = "\n" + wxString::FromUTF8(LINGUA) + "\n" + "welcome";
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, saluto, (uint64)1, NULL);*/
 }

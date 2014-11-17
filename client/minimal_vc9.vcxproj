@@ -508,10 +508,12 @@
     <ResourceCompile Include="res\sample.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\brasil.xpm" />
     <None Include="res\italy.xpm" />
     <None Include="res\keyboard.xpm" />
     <None Include="res\microphone.xpm" />
     <None Include="res\sample.xpm" />
+    <None Include="res\usa.xpm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

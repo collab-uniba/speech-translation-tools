@@ -50,5 +50,11 @@
     <None Include="res\italy.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\brasil.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\usa.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
