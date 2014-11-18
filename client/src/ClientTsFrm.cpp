@@ -23,7 +23,6 @@
 #include <audiere.h>
 #include <irrKlang.h>
 #include <string.h>
-//#include <winsock2.h>
 #include <iostream>
 #include <public_definitions.h>
 #include <public_errors.h>
@@ -41,8 +40,8 @@
 #include <wx/richtext/richtextstyledlg.h>
 #include <wx/richtext/richtextprint.h>
 #include <wx/richtext/richtextimagedlg.h>
-#include "rapidjson/document.h"		// rapidjson's DOM-style API
-#include "rapidjson/prettywriter.h"	// for stringify JSON
+#include "rapidjson/document.h"		
+#include "rapidjson/prettywriter.h"	
 #include "rapidjson/filestream.h"
 
 #include "../res/keyboard.xpm"
@@ -71,6 +70,7 @@ using namespace std;
 using namespace ATL;
 using namespace rapidjson;
 using namespace irrklang;
+
 struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];
@@ -144,28 +144,8 @@ struct WriteThis {
 	long sizeleft;
 };
 
-static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
-{
-	struct WriteThis *pooh = (struct WriteThis *)userp;
-
-	if (size*nmemb < 1)
-		return 0;
-
-	if (pooh->sizeleft) {
-		*(char *)ptr = pooh->readptr[0]; /* copy one single byte */
-		pooh->readptr++;                 /* advance pointer */
-		pooh->sizeleft--;                /* less data left */
-		return 1;                        /* we return 1 byte at a time! */
-	}
-
-	return 0;                          /* no more data left to deliver */
-}
-
     DWORD myThreadID;
     DWORD myThreadID2;
-	WSADATA wsadata;
-	SOCKET sock;
-	SOCKADDR_IN client_addr;
 	
 	int iresult;
 	int numero;
@@ -191,7 +171,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
     char MSG_PARSE[1024]={""};
 	char traduzione_jar[512] = { "" };
 	wxString nome_parla="";
-    int PORT=9987;
+	unsigned short PORT = 9987;
     int cmbel=0;
     COLORE colori[10];
     unsigned conta_client;
@@ -203,7 +183,28 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 	bool sound_flag = false;
 	wxRichTextCtrl *chat;
 
+	void stampa(char*parola)
+	{
+		wchar_t* wString = new wchar_t[4096];
+		MultiByteToWideChar(CP_ACP, 0, parola, -1, wString, 4096);
+		MessageBox(NULL, wString, L"Test print handler", MB_OK);
+	}
+	static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
+	{
+		struct WriteThis *pooh = (struct WriteThis *)userp;
 
+		if (size*nmemb < 1)
+			return 0;
+
+		if (pooh->sizeleft) {
+			*(char *)ptr = pooh->readptr[0]; /* copy one single byte */
+			pooh->readptr++;                 /* advance pointer */
+			pooh->sizeleft--;                /* less data left */
+			return 1;                        /* we return 1 byte at a time! */
+		}
+
+		return 0;                          /* no more data left to deliver */
+	}
 	void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
 	{
 		if (!data)
@@ -362,9 +363,8 @@ void SetupColor()
 	colori[4].green = 100;
 	colori[4].blue = 0;
 
-	persona[0].parla = 0;
-	persona[1].parla = 0;
-	persona[2].parla = 0;
+	int i;
+	for (i = 0; i < MAX;i++) persona[i].parla = 0;
 }
 void init_string(struct stringa *s) {
   s->len = 0;
@@ -612,8 +612,7 @@ char * richiestaBing(wxString StringSource, char * lingua)
     curl_easy_cleanup(curl2);
   }
   curl_global_cleanup();
-  /*MultiByteToWideChar(CP_ACP, 0, p.ptr, -1, wString, 4096);
-  MessageBox(NULL, wString, L"P.PTR", MB_OK);*/
+  
   FILE *html;
   if (html = fopen("..\\conf\\trad.htm", "w"))
   {
@@ -1192,7 +1191,7 @@ void showChannels(uint64 serverConnectionHandlerID) {
         }
         printf("%llu - %s\n", (unsigned long long)ids[i], name);
 
-        //ts3client_requestSendChannelTextMsg(serverConnectionHandlerID,"Ciao Bel Canale!",ids[0],"");
+        
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -1597,6 +1596,8 @@ void showClients(uint64 serverConnectionHandlerID) {
         persona[i].nome=name;
         persona[i].colore=i;
         persona[i].usato=1;
+		if (talkStatus == STATUS_TALKING) persona[i].parla = 1;
+		if (persona[i].nome == NICK) persona[i].lingua = LINGUA;
         ts3client_freeMemory(name);
     }
     printf("\n");
