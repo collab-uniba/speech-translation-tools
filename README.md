@@ -1,6 +1,6 @@
 TeamTranslate
 ========================
-A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Bing Translator, speech conversion by Nuance Dragon. The tool is intended to support multilanguage group communcation and collaboration. 
+A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Microsoft Bing Translator, speech conversion by Nuance Dragon. The tool is intended to support multilanguage group communcation and collaboration. 
 
 TeamTranslate is written in C/C++ and is available under MPL license.
 
@@ -18,3 +18,10 @@ For the speech to text to work properly in your language of choice, make sure th
 * Java 7+ 
 * The Microsoft Speech API package for your language. In Windows 8.1 the package for your current language is typically installed already. To add more or to configure earlier Windows version (< 8.1), go to _Control Panel > Language_ and pick yours to download.
 
+Machine translation configuration
+--------------------
+In order to use the machine tranlsation services, you need to obtain the proper API keys and edit the configuration files stored in the `PATH\to\client\conf` dir.
+
+As per Google Translate, this is a paid service. A valid API key can be obtained from the [Google developer console](https://console.developers.google.com), enabling the Translate API and providing correct billing info. Then, paste the valid key in the `API.txt` file.
+
+As per Microsoft Bing Translator, this is a free service (for up to 2M characters per month). A valid API key can be obtained for free upong registering one's app on [Windows Azure Marketplace](https://datamarket.azure.com/dataset/bing/microsofttranslator). Then, paste the obtained _clientID_ and _clientSecret_ into the `BING.txt` file.
