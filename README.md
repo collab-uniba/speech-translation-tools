@@ -10,4 +10,11 @@ To compile the solution, you will need Visual Studio. We have tested these steps
 
 To build the client, open Visual Studio 2013 and load the TeamTranslate client solution (`PATH\to\client\TeamTranslate.sln`) and build it in _Release_ configuration (not ~~Debug~~, look for _*Configuration Manager*_ command under the _*Build*_ menu).
 
-To test the client, you will need a TeamSpeak server. Tocompile it, open the server solution (`PATH\to\server\ts3_server_sample.sln`) and build it in either _Debug_ or _Release_ configuration.
+To test the client, you will need a TeamSpeak server. To compile it, open the server solution (`PATH\to\server\ts3_server_sample.sln`) and build it in either _Debug_ or _Release_ configuration.
+
+Speech to text requirements
+---------------------------
+For the speech to text to work properly in your language of choice, make sure that you have installed
+* Java 7+ 
+* The Microsoft Speech API package for your language. In Windows 8.1 the package for your current language is typically installed already. To add more or to configure earlier Windows version (< 8.1), go to _Control Panel > Language_ and pick yours to download it.
+
