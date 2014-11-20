@@ -146,6 +146,7 @@ struct WriteThis {
 
     DWORD myThreadID;
     DWORD myThreadID2;
+	DWORD myThreadID3;
 	
 	int iresult;
 	int numero;
@@ -171,6 +172,7 @@ struct WriteThis {
     char MSG_PARSE[1024]={""};
 	char traduzione_jar[512] = { "" };
 	wxString nome_parla="";
+	wxString strSpeak = "";
 	unsigned short PORT = 9987;
     int cmbel=0;
     COLORE colori[10];
@@ -181,6 +183,7 @@ struct WriteThis {
 	ISoundEngine* engine;
 	IAudioRecorder* recorder;
 	bool sound_flag = false;
+	bool tts_flag = false;
 	wxRichTextCtrl *chat;
 	unsigned int curRow=0;
 	unsigned int curCol=0;
@@ -1992,6 +1995,21 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 	return 0;
 }
 
+DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
+{
+	while (1)
+	{
+		if (tts_flag == true)
+		{
+			speak(LINGUA, (char*)strSpeak.mb_str().data());
+			Sleep(300);
+			tts_flag = false;
+		}
+		Sleep(50);
+	}
+	return 0;
+}
+
 //Do not add custom headers between
 //Header Include Start and Header Include End
 //wxDev-C++ designer will remove them
@@ -2057,7 +2075,7 @@ void ClientTsFrm::CreateGUIControls()
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(4000);
+	WxTimer1->Start(2000);
 
 	txttranslate = new wxButton(this, ID_WXBUTTON3, _("SPEECH LAST MESSAGE"), wxPoint(0, 367), wxSize(185, 49), 0, wxDefaultValidator, _("txttranslate"));
 	txttranslate->Show(true);
@@ -2137,6 +2155,7 @@ void ClientTsFrm::CreateGUIControls()
 	txtnick->AppendText(NICK);
 	txtlingua->AppendText(LINGUA);
 	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
+	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	SetupColor();
 	//chat = txtchat;
 	engine = irrklang::createIrrKlangDevice();
@@ -2160,11 +2179,11 @@ void MyGridCellRenderer::Draw(wxGrid& grid,
 
 void ClientTsFrm::WxGrid1CellLeftClick(wxGridEvent& event)
 {
-	wxString strSpeak = wxString::FromUTF8(strtok((char*)WxGrid1->GetCellValue(event.GetRow(), 0).mb_str().data(), ":"));
+	strSpeak = wxString::FromUTF8(strtok((char*)WxGrid1->GetCellValue(event.GetRow(), 0).mb_str().data(), ":"));
 	strSpeak = wxString::FromUTF8(strtok(NULL, ":"));
 	strSpeak = wxString::FromUTF8(strtok(NULL, ":"));
 	strSpeak = wxString::FromUTF8(strtok(NULL, ":"));
-	if (event.GetCol() == 1) speak(LINGUA, (char*)strSpeak.mb_str().data());
+	if (event.GetCol() == 1) { tts_flag = true; }
 
 }
 void ClientTsFrm::OnClose(wxCloseEvent& event)
@@ -2177,39 +2196,6 @@ void ClientTsFrm::OnClose(wxCloseEvent& event)
 	//WxTimer2->~wxTimer();
 	Destroy();
 }
-
-DWORD WINAPI riceve(LPVOID lpParameter)
-{
-    /*anyID targetMode;
-    anyID toID;
-    anyID fromID; 
-    const char* fromName;
-    const char* fromUniqueIdentifier;
-    char* message="";
-    while(strcmp(message,"")!=0)
-    {
-        strcpy(message,"");
-        onTextMessageEvent(DEFAULT_VIRTUAL_SERVER,targetMode,toID,fromID,fromName,fromUniqueIdentifier,message);
-        message[strlen(message)+1]='\0';
-    }*/
-    /*
-    char benvenuto[30];
-     FILE*prova=    fopen("file.txt","w");
-    strcpy(benvenuto,"");
-	while(1)
-    {
-    recv(sock,benvenuto,30,0);
-    fprintf(prova,"%s\n",benvenuto);
-    fflush(prova);
-	puts(benvenuto);
-	//MessageBox(NULL,(LPCWSTR)benvenuto,(LPCWSTR)"Benvenuto",NULL);
-	fflush(stdin);
-	fflush(stdout);
-	Sleep(500);
-    }*/
-    return 0;
-}
-
 
 
 void ClientTsFrm::RefreshChat()
@@ -2331,7 +2317,7 @@ void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
 	}
 	*/
 //    HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
-	//HANDLE myHandle2 = CreateThread(0, 0, riceve, NULL, 0, &myThreadID2);
+	//HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	// insert your code here
 }
 
@@ -2412,7 +2398,8 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
  */
 void ClientTsFrm::txttranslateClick(wxCommandEvent& event)
 {
-	speak(LINGUA,(char*)StringTranslate.mb_str().data());
+	//speak(LINGUA,(char*)StringTranslate.mb_str().data());
+	
 }
 
 /*

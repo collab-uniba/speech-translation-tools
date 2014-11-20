@@ -1,6 +1,7 @@
 # Custom project setting 
 bin/*
 bin/minimal/*
+bin/TeamTranslate.tlog/*
 *.swp
 .~
 
@@ -58,3 +59,7 @@ $RECYCLE.BIN/
 *.i*86
 *.x86_64
 *.hex
+
+#Log
+*.log
+
