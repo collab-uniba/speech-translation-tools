@@ -166,7 +166,7 @@ struct WriteThis {
     char SERVIZIO[20];
     char LINGUA_MSG_SRC[20]={""};
     char MSG_SRC[50]={""};
-    char API_KEY[50]={""};
+    char GOOGLE_API_KEY[50]={""};
     char url[256]={""};
     char MSG_PARSE[1024]={""};
 	char traduzione_jar[512] = { "" };
@@ -182,7 +182,42 @@ struct WriteThis {
 	IAudioRecorder* recorder;
 	bool sound_flag = false;
 	wxRichTextCtrl *chat;
+	unsigned int curRow=0;
+	unsigned int curCol=0;
 
+
+	void speak(char *LANG, char*MSG)
+	{
+		char CODE[3] = { "" };
+		HRESULT hr = S_OK;
+		CComPtr <ISpVoice>		cpVoice;
+		CComPtr <ISpObjectToken>	cpToken;
+		CComPtr <IEnumSpObjectTokens>	cpEnum;
+		wchar_t* voce = new wchar_t[1024];
+		wcscpy(voce, L"Gender=Female;Language=");
+		hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
+		if (strcmp(LANG, "Italiano") == 0) wcscat(voce, L"410");
+		if (strcmp(LANG, "Inglese") == 0) wcscat(voce, L"809");
+		if (strcmp(LANG, "Portoghese") == 0) wcscat(voce, L"416");
+			
+			if (SUCCEEDED(hr)) hr = SpEnumTokens(SPCAT_VOICES, voce, NULL, &cpEnum);
+			if (SUCCEEDED(hr)) hr = cpEnum->Next(1, &cpToken, NULL);
+			if (SUCCEEDED(hr)) hr = cpVoice->SetVoice(cpToken);
+
+			if (SUCCEEDED(hr)) hr = cpVoice->SetOutput(NULL, TRUE);
+		
+			if (SUCCEEDED(hr))
+			{
+			wchar_t* wString = new wchar_t[1024];
+			MultiByteToWideChar(CP_ACP, 0, MSG, -1, wString, 1024);
+			hr = cpVoice->Speak(wString, 0, NULL);
+			}
+
+			cpVoice.Release();
+			cpEnum.Release();
+			cpToken.Release();
+			
+	}
 	void stampa(char*parola)
 	{
 		wchar_t* wString = new wchar_t[4096];
@@ -340,6 +375,7 @@ int JSON()
 		fclose(js);
 	}
 	//return document["access_token"].GetString();
+	return 0;
 }
 void SetupColor()
 {
@@ -414,7 +450,7 @@ void parseBing(char *parola)
 	MultiByteToWideChar(CP_ACP, 0, parola, -1, wString, 4096);
 	MessageBox(NULL, wString, L"Test print handler", MB_OK);*/
     char *buffer;
-    int i;
+    unsigned int i;
 	int result;
     buffer=strstr(parola,">");
 	result = (int)(buffer - parola + 1);
@@ -430,12 +466,12 @@ void parseBing(char *parola)
 
 void parseGoogle(char *str)
 {
-    int i=0;
+    unsigned int i=0;
     int j=0;
     char * pch;
     char * stringalpha;
     char finale[2048]={""};
-  char temp[64];
+  
   char buffer[512]={""};
   
   pch = strtok (str,",.:\"'{}();200[]");
@@ -475,7 +511,7 @@ void parseGoogle(char *str)
 char * richiestaBing(wxString StringSource, char * lingua)
 {
     if(strcmp(lingua,LINGUA)==0) return (char*)StringSource.mb_str().data();
-    int i;
+    
     CURL *curl2;
     CURL *curl3;
     CURLcode res2;
@@ -484,9 +520,8 @@ char * richiestaBing(wxString StringSource, char * lingua)
     init_string(&f);
     struct stringa p;
     init_string(&p);
-    char frase[512];
-    char PROVA[256]={""};
-	wchar_t* wString = new wchar_t[4096];
+    
+	
     curl_global_init(CURL_GLOBAL_ALL);
  
     curl2 = curl_easy_init();
@@ -665,7 +700,7 @@ char* richiestaGoogle(wxString StringSource, char * lingua)
     if(curl) 
     {
     strcpy(url,"https://www.googleapis.com/language/translate/v2?key=");
-    strcat(url,API_KEY);
+    strcat(url,GOOGLE_API_KEY);
     
     
         /*StringSource.Replace(" ","%20",true);
@@ -903,6 +938,14 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			printf("Client \"%s\" starts talking.\n", name);
 		}*/
     } else {
+		for (i = 0; i < MAX; i++)
+		{
+			if (persona[i].nome == name)
+			{
+				persona[i].parla = 0;
+				break;
+			}
+		}
 		/*
 		if (sound_flag == true)
 		{
@@ -945,13 +988,7 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			}
 			else goto a;
 		}*/
-		for (i = 0; i < MAX; i++)
-		{
-			if (persona[i].nome==name)
-			{
-				persona[i].parla = 0;
-			}
-		}
+		
         printf("Client \"%s\" stops talking.\n", name);
 		nome_parla = "Client " + wxString::FromAscii(name);
 		nome_parla = nome_parla + " non parla piu";
@@ -1280,13 +1317,15 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
      return;
         }
         
+	 /*chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
 	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
-	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
-	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
-        char prova[512]={""};
+	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);*/
+       
+	 
         nome=wxString::FromUTF8(name);
         strGlobale=nome+": "+mystring;
-        strNick=wxString::FromUTF8(name);
+		strtok((char*)name, "$");
+		strNick = wxString::FromUTF8(strtok(NULL, "$"));
         strMessage=wxString::FromUTF8(message);
         
         strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
@@ -1308,7 +1347,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 		}*/
 
         wxString parsata=wxString::FromUTF8(MSG_SRC);
-		
+		if (parsata == ">") return;
 		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
 		{
 			StringTranslate = wxString::FromUTF8(MSG_SRC);
@@ -1326,205 +1365,6 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 			else parseBing(richiestaBing(parsata, LINGUA_MSG_SRC));
         }
 
-
-		if (strcmp(LINGUA, "Italiano") == 0)
-		{
-			/*HRESULT hr = S_OK;
-			CComPtr <ISpVoice>		cpVoice;
-			CComPtr <ISpObjectToken>	cpToken;
-			CComPtr <IEnumSpObjectTokens>	cpEnum;
-			//Create a SAPI voice
-			hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
-
-			//Enumerate voice tokens with attribute "Name=Microsoft Sam"
-			if (SUCCEEDED(hr))
-			{
-				//hr = SpEnumTokens(SPCAT_VOICES, L"Name=Microsoft Elsa", NULL, &cpEnum);
-				hr = SpEnumTokens(SPCAT_VOICES, L"Gender=Female;Language=410", NULL
-					, &cpEnum);
-			}
-
-			//Get the closest token
-			if (SUCCEEDED(hr))
-			{
-				hr = cpEnum->Next(1, &cpToken, NULL);
-			}
-
-			//set the voice
-			if (SUCCEEDED(hr))
-			{
-				hr = cpVoice->SetVoice(cpToken);
-			}
-
-			//set the output to the default audio device
-			if (SUCCEEDED(hr))
-			{
-				hr = cpVoice->SetOutput(NULL, TRUE);
-			}
-
-			//Speak the text file (assumed to exist)
-			if (SUCCEEDED(hr))
-			{
-				wchar_t* wString = new wchar_t[1024];
-				MultiByteToWideChar(CP_ACP, 0, (char*)StringTranslate.mb_str().data(), -1, wString, 1024);
-				hr = cpVoice->Speak(wString, 0, NULL);
-				//hr = cpVoice->Speak(L"Hello World", SPF_DEFAULT, NULL);
-				//hr = cpVoice->Speak(L"c:\\ttstemp.txt", SPF_IS_FILENAME, NULL);
-			}
-
-			//Release objects
-			cpVoice.Release();
-			cpEnum.Release();
-			cpToken.Release();
-			/*
-			ISpVoice * pVoice = NULL;
-			HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
-			wchar_t* wString = new wchar_t[1024];
-			MultiByteToWideChar(CP_ACP, 0, (char*)StringTranslate.mb_str().data(), -1, wString, 1024);
-			hr = pVoice->Speak(wString, 0, NULL);
-			pVoice->Release();
-			pVoice = NULL;*/
-		}
-		if (strcmp(LINGUA, "Inglese") == 0)
-		{
-			/*HRESULT hr = S_OK;
-			CComPtr <ISpVoice>		cpVoice;
-			CComPtr <ISpObjectToken>	cpToken;
-			CComPtr <IEnumSpObjectTokens>	cpEnum;
-			//Create a SAPI voice
-			hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
-
-			//Enumerate voice tokens with attribute "Name=Microsoft Sam"
-			if (SUCCEEDED(hr))
-			{
-				//hr = SpEnumTokens(SPCAT_VOICES, L"Name=Microsoft Elsa", NULL, &cpEnum);
-				hr = SpEnumTokens(SPCAT_VOICES, L"Gender=Female;Language=809", NULL
-					, &cpEnum);
-			}
-
-			//Get the closest token
-			if (SUCCEEDED(hr))
-			{
-				hr = cpEnum->Next(1, &cpToken , NULL);
-			}
-
-			//set the voice
-			if (SUCCEEDED(hr))
-			{
-				hr = cpVoice->SetVoice(cpToken);
-			}
-
-			//set the output to the default audio device
-			if (SUCCEEDED(hr))
-			{
-				hr = cpVoice->SetOutput(NULL, TRUE);
-			}
-
-			//Speak the text file (assumed to exist)
-			if (SUCCEEDED(hr))
-			{
-				wchar_t* wString = new wchar_t[1024];
-				MultiByteToWideChar(CP_ACP, 0, (char*)StringTranslate.mb_str().data(), -1, wString, 1024);
-				hr = cpVoice->Speak(wString, 0, NULL);
-				//hr = cpVoice->Speak(L"Hello World", SPF_DEFAULT, NULL);
-				//hr = cpVoice->Speak(L"c:\\ttstemp.txt", SPF_IS_FILENAME, NULL);
-			}
-
-			//Release objects
-			cpVoice.Release();
-			cpEnum.Release();
-			cpToken.Release();
-			/*
-			ISpVoice * pVoice = NULL;
-			HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
-			wchar_t* wString = new wchar_t[1024];
-			MultiByteToWideChar(CP_ACP, 0, (char*)StringTranslate.mb_str().data(), -1, wString, 1024);
-			hr = pVoice->Speak(wString, 0, NULL);
-			pVoice->Release();
-			pVoice = NULL;*/
-		}
-
-		if (strcmp(LINGUA, "Portoghese") == 0)
-		{
-			/*HRESULT hr = S_OK;
-			CComPtr <ISpVoice>		cpVoice;
-			CComPtr <ISpObjectToken>	cpToken;
-			CComPtr <IEnumSpObjectTokens>	cpEnum;
-			//Create a SAPI voice
-			hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
-
-			//Enumerate voice tokens with attribute "Name=Microsoft Sam"
-			if (SUCCEEDED(hr))
-			{
-				//hr = SpEnumTokens(SPCAT_VOICES, L"Name=Microsoft Elsa", NULL, &cpEnum);
-				hr = SpEnumTokens(SPCAT_VOICES, L"Gender=Female;Language=416", NULL
-					, &cpEnum);
-			}
-
-			//Get the closest token
-			if (SUCCEEDED(hr))
-			{
-				hr = cpEnum->Next(1, &cpToken, NULL);
-			}
-
-			//set the voice
-			if (SUCCEEDED(hr))
-			{
-				hr = cpVoice->SetVoice(cpToken);
-			}
-
-			//set the output to the default audio device
-			if (SUCCEEDED(hr))
-			{
-				hr = cpVoice->SetOutput(NULL, TRUE);
-			}
-
-			//Speak the text file (assumed to exist)
-			if (SUCCEEDED(hr))
-			{
-				wchar_t* wString = new wchar_t[1024];
-				MultiByteToWideChar(CP_ACP, 0, (char*)StringTranslate.mb_str().data(), -1, wString, 1024);
-				hr = cpVoice->Speak(wString, 0, NULL);
-				//hr = cpVoice->Speak(L"Hello World", SPF_DEFAULT, NULL);
-				//hr = cpVoice->Speak(L"c:\\ttstemp.txt", SPF_IS_FILENAME, NULL);
-			}
-
-			//Release objects
-			cpVoice.Release();
-			cpEnum.Release();
-			cpToken.Release();
-			/*
-			ISpVoice * pVoice = NULL;
-			HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
-			wchar_t* wString = new wchar_t[1024];
-			MultiByteToWideChar(CP_ACP, 0, (char*)StringTranslate.mb_str().data(), -1, wString, 1024);
-			hr = pVoice->Speak(wString, 0, NULL);
-			pVoice->Release();
-			pVoice = NULL;*/
-		}
-        //strcpy(prova,"TTS.jar ");
-        //strcat(prova,message);
-        
-        //char *pch = strtok(prova, "\n");
-        //wxMessageBox(wxString::FromUTF8(pch));
-        //FreeConsole();
-        //ShowWindow (GetConsoleWindow(), SW_HIDE);
-        //system(pch);
-        
-        //system((const char*)TESTTTS.mb_str());
-        //wxMessageBox(wxString::FromUTF8((const char*)TESTTTS.mb_str()));
-                    //Sleep(300);
-                    /*system("del testonew.wav");
-                    system("ffmpeg -f s16le -ar 8.0k -ac 1 -i testo.wav testonew.wav");
-                   
-                    //system("testonew.wav");
-                    	AudioDevicePtr device(OpenDevice()); 
-                        OutputStreamPtr sound(OpenSound(device, "testonew.wav", false));
-                        sound->play(); 
-                        sound->setVolume(1.0f);
-                        Sleep(3000);*/
-                        
-        //wxMessageBox(strGlobale);
     return;
 }
 
@@ -1541,7 +1381,7 @@ void showClients(uint64 serverConnectionHandlerID) {
     anyID *ids;
 	anyID ownClientID;
     int i;
-    anyID uno,due,tre;
+    
     unsigned int error;
     conta_client=0;
 
@@ -1566,6 +1406,7 @@ void showClients(uint64 serverConnectionHandlerID) {
 	{
 		persona[i].nome = "";
 		persona[i].usato = 0;
+		persona[i].lingua = "";
 	}
     for(i=0; ids[i]; i++) {
         char* name;
@@ -1593,11 +1434,14 @@ void showClients(uint64 serverConnectionHandlerID) {
         printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
         conta_client++;
         coloreClient[i]=i;
-        persona[i].nome=name;
+		
+        //persona[i].nome=name;
+		persona[i].lingua = strtok((char*)name, "$");
+		persona[i].nome = strtok(NULL, "$");
         persona[i].colore=i;
         persona[i].usato=1;
 		if (talkStatus == STATUS_TALKING) persona[i].parla = 1;
-		if (persona[i].nome == NICK) persona[i].lingua = LINGUA;
+		//if (persona[i].nome == NICK) persona[i].lingua = LINGUA;
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -2004,8 +1848,13 @@ DWORD WINAPI myThread(LPVOID lpParameter)
     }
     printf("Using identity: %s\n", identity);
 
+	char final_nick[50] = { "" };
+	strcpy(final_nick, LINGUA);
+	strcat(final_nick,"$");
+	strcat(final_nick, NICK);
+	strcat(final_nick, "$");
     /* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
-	if((error = ts3client_startConnection(scHandlerID, identity, SERVER_ADDRESS, PORT, NICK, NULL, "", "secret")) != ERROR_ok) {
+	if((error = ts3client_startConnection(scHandlerID, identity, SERVER_ADDRESS, PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
 		wxMessageBox("Error connecting to server");
 		return 1;
 	}
@@ -2166,6 +2015,7 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
 	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
+	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::WxGrid1CellLeftClick)
 END_EVENT_TABLE()
 ////Event Table End
 
@@ -2188,6 +2038,19 @@ void ClientTsFrm::CreateGUIControls()
 	//Add the custom code before or after the blocks
 	////GUI Items Creation Start
 
+	WxGrid1 = new wxGrid(this, ID_WXGRID1, wxPoint(211, 72), wxSize(600, 480));
+	WxGrid1->SetDefaultColSize(250);
+	WxGrid1->SetRowMinimalHeight(0,450);
+	WxGrid1->SetDefaultRowSize(40);
+	WxGrid1->SetRowLabelSize(50);
+	WxGrid1->SetColLabelSize(25);
+	WxGrid1->CreateGrid(0, 2, wxGrid::wxGridSelectCells);
+
+	//WxGrid1->AppendRows(1, true);
+	WxGrid1->SetColLabelValue(0, "Messaggio");
+	WxGrid1->SetColLabelValue(1, "TextToSpeech");
+	/*WxGrid1->SetCellValue(0, 0, wxT("Ciao,come stai?"));*/
+
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
 	WxTimer2->Start(1000);
@@ -2196,8 +2059,8 @@ void ClientTsFrm::CreateGUIControls()
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
 	WxTimer1->Start(4000);
 
-	txttranslate = new wxButton(this, ID_WXBUTTON3, _("ITA -> ENG"), wxPoint(120, 384), wxSize(83, 49), 0, wxDefaultValidator, _("txttranslate"));
-	txttranslate->Show(false);
+	txttranslate = new wxButton(this, ID_WXBUTTON3, _("SPEECH LAST MESSAGE"), wxPoint(0, 367), wxSize(185, 49), 0, wxDefaultValidator, _("txttranslate"));
+	txttranslate->Show(true);
 	txttranslate->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
@@ -2218,16 +2081,16 @@ void ClientTsFrm::CreateGUIControls()
 	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(91, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
 	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
+	/*txtchat = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL2, _(""), wxPoint(211, 72), wxSize(432, 299), 0, wxDefaultValidator, _("txtchat"));
 	txtchat->SetMaxLength(0);
 	
 	txtchat->SetInsertionPointEnd();
-	txtchat->SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL, false));
+	txtchat->SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL, false));*/
 
-	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(543, 387), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
+	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(800, 600), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
 	txtsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(215, 387), wxSize(313, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
+	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(211, 600), wxSize(550, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 	txtmsg->SetFocus();
 
@@ -2235,9 +2098,10 @@ void ClientTsFrm::CreateGUIControls()
 	WxButton1->Show(false);
 	WxButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
+
 	SetTitle(_("ClientTs"));
 	SetIcon(wxNullIcon);
-	SetSize(8,8,682,517);
+	SetSize(8,8,1024,768);
 	Center();
 	#if wxUSE_LIBPNG
 		wxImage::AddHandler(new wxPNGHandler);
@@ -2264,9 +2128,9 @@ void ClientTsFrm::CreateGUIControls()
     fscanf(config,"%s",&SERVIZIO);
     fclose(config);
 	}
-	if (api = fopen("..\\conf\\API.txt", "r"))
+	if (api = fopen("..\\conf\\GOOGLE.txt", "r"))
 	{
-		fscanf(api, "%s", API_KEY);
+		fscanf(api, "%s", GOOGLE_API_KEY);
 		fclose(api);
 	}
 
@@ -2274,12 +2138,35 @@ void ClientTsFrm::CreateGUIControls()
 	txtlingua->AppendText(LINGUA);
 	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
 	SetupColor();
-	chat = txtchat;
+	//chat = txtchat;
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
 
 }
 
+void MyGridCellRenderer::Draw(wxGrid& grid,
+	wxGridCellAttr& attr,
+	wxDC& dc,
+	const wxRect& rect,
+	int row, int col,
+	bool isSelected)
+{
+	wxGridCellStringRenderer::Draw(grid, attr, dc, rect, row, col, isSelected);
+
+	wxBitmap* bitmap = new wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP);
+	dc.DrawBitmap(*bitmap, 0, 0, 0);
+	dc.DrawBitmap(*bitmap, rect.x + 60, rect.y + 4);
+}
+
+void ClientTsFrm::WxGrid1CellLeftClick(wxGridEvent& event)
+{
+	wxString strSpeak = wxString::FromUTF8(strtok((char*)WxGrid1->GetCellValue(event.GetRow(), 0).mb_str().data(), ":"));
+	strSpeak = wxString::FromUTF8(strtok(NULL, ":"));
+	strSpeak = wxString::FromUTF8(strtok(NULL, ":"));
+	strSpeak = wxString::FromUTF8(strtok(NULL, ":"));
+	if (event.GetCol() == 1) speak(LINGUA, (char*)strSpeak.mb_str().data());
+
+}
 void ClientTsFrm::OnClose(wxCloseEvent& event)
 {
     flag=1;
@@ -2328,7 +2215,7 @@ DWORD WINAPI riceve(LPVOID lpParameter)
 void ClientTsFrm::RefreshChat()
 {
     int i;
-	wxString *nick=new wxString("");
+	
     wxUniChar ch=':';
     time_t     now = time(0);
     struct tm  tstruct;
@@ -2369,16 +2256,20 @@ void ClientTsFrm::RefreshChat()
     }
         if(strGlobale!="" && StringTranslate!=""/*&& strGlobale!=oldstrGlobale*/)
     {
-			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
-			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
+			WxGrid1->AppendRows(1, true);
+			/*txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
+			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);*/
         if(strNick==NICK)
         {
-            txtchat->WriteText("\nMe\t\t\t\t\t\t");
+            /*txtchat->WriteText("\nMe\t\t\t\t\t\t");
             txtchat->WriteText("(");
             txtchat->WriteText(buf);
             txtchat->WriteText("): \n");
             txtchat->WriteText(MSG_SRC);
-            txtchat->Newline();
+            txtchat->Newline();*/
+			wxString messaggio = "Me(" + wxString::FromUTF8(buf) + "): " + wxString::FromUTF8(MSG_SRC);
+			WxGrid1->SetCellValue(messaggio,curRow,0);
+			WxGrid1->SetCellRenderer(curRow++, 1, new MyGridCellRenderer());
         }
         else
         {
@@ -2390,24 +2281,20 @@ void ClientTsFrm::RefreshChat()
                     //wxString prova;
                     //prova="TTS.jar "+strMessage;
                     
-                    txtchat->BeginTextColour(wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
+                    /*txtchat->BeginTextColour(wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
                     txtchat->WriteText("\n"+strNick);
                     txtchat->WriteText("\t\t\t\t\t\t(");
                     txtchat->WriteText(buf);
                     txtchat->WriteText("): ");
                     txtchat->Newline();
-                    txtchat->WriteText(/*strMessage+"\n"+*/StringTranslate);
-					
-                    txtchat->EndTextColour();
-                    //txtchat->Newline();
+                    txtchat->WriteText(StringTranslate);
+                    txtchat->EndTextColour();*/
+
+					WxGrid1->SetCellValue(strNick+"("+buf+"): "+StringTranslate, curRow, 0);
+					WxGrid1->SetCellRenderer(curRow++, 1, new MyGridCellRenderer());
                     oldstrGlobale=strGlobale;
                     strGlobale="";
-                    //system((const char*)prova.mb_str());
-                    //wxMessageBox(wxString::FromUTF8((const char*)prova.mb_str()));
-                    //Sleep(300);
-                    //system("ffmpeg -f s16le -ar 8.0k -ac 1 -i testo.wav");
-                    //Sleep(300);
-                    //system("testo.wav");
+                   
 					
                     return;
                 }
@@ -2525,32 +2412,11 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
  */
 void ClientTsFrm::txttranslateClick(wxCommandEvent& event)
 {
-	// insert your code here
-      //const char *str=richiesta((const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
-      //char str[]="babylonTranslator.callback('babylon.0.2._babylon_api_response', {\"translatedText\":\"building, construction, edifice, house, structure\"}, 200, null, null);";
-      
-      /*char str[1024]={""};
-      strcpy(str,(const char*)txtmsg->GetValue().mb_str(wxConvUTF8));
-      char * pch;
-      char buffer[2048]={""};
-      pch = strtok (str," ,.-");
-      while (pch != NULL)
-      {
-        strcat(buffer,pch);
-        strcat(buffer,"%20");
-        printf ("%s\n",pch);
-        pch = strtok (NULL, " ,.-");
-      }
-  parse(richiesta(buffer));*/
-  //wxMessageBox(StringTranslate);
-    //wxMessageBox(wxString::FromUTF8(parse(richiesta(buffer))));
-  //wxMessageBox(wxString::FromUTF8(parse(str)));
-  /*wxMessageBox(wxString::FromUTF8(pch2));
-  wxMessageBox(wxString::FromUTF8(pch3));*/
+	speak(LINGUA,(char*)StringTranslate.mb_str().data());
 }
 
 /*
- * ClientTsFrmActivate
+ * ClientTsFrmActivateo
  */
 void ClientTsFrm::ClientTsFrmActivate(wxActivateEvent& event)
 {
@@ -2576,4 +2442,6 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 	 
 	/*wxString saluto = "\n" + wxString::FromUTF8(LINGUA) + "\n" + "welcome";
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, saluto, (uint64)1, NULL);*/
+	
 }
+

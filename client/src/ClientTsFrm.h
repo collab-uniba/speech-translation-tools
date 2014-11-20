@@ -33,6 +33,7 @@
 #include <wx/richtext/richtextctrl.h>
 #include <wx/textctrl.h>
 #include <wx/button.h>
+#include <wx/grid.h>
 ////Header Include End
 
 ////Dialog Style Start
@@ -62,6 +63,8 @@ class ClientTsFrm : public wxFrame
 		void ClientTsFrmActivate(wxActivateEvent& event);
 		void WxButton2Click(wxCommandEvent& event);
 		void WxTimer2Timer(wxTimerEvent& event);
+		void WxGrid1CellLeftClick(wxGridEvent& event);
+		
 		
 	private:
 		//Do not add custom control declarations between
@@ -80,6 +83,7 @@ class ClientTsFrm : public wxFrame
 		wxButton *txtsend;
 		wxTextCtrl *txtmsg;
 		wxButton *WxButton1;
+		wxGrid *WxGrid1;
 		////GUI Control Declaration End
 		
 	private:
@@ -90,6 +94,7 @@ class ClientTsFrm : public wxFrame
 		enum
 		{
 			////GUI Enum Control ID Start
+			ID_WXGRID1 = 1033,
 			ID_WXTIMER2 = 1014,
 			ID_WXTIMER1 = 1006,
 			ID_WXBUTTON3 = 1013,
@@ -109,5 +114,15 @@ class ClientTsFrm : public wxFrame
 	private:
 		void OnClose(wxCloseEvent& event);
 		void CreateGUIControls();
+};
+class MyGridCellRenderer : public wxGridCellStringRenderer
+{
+public:
+	virtual void Draw(wxGrid& grid,
+		wxGridCellAttr& attr,
+		wxDC& dc,
+		const wxRect& rect,
+		int row, int col,
+		bool isSelected);
 };
 #endif
