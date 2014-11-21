@@ -949,8 +949,8 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 				break;
 			}
 		}
-		/*
-		if (sound_flag == true)
+		
+		/*if (sound_flag == true)
 		{
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
@@ -995,7 +995,7 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
         printf("Client \"%s\" stops talking.\n", name);
 		nome_parla = "Client " + wxString::FromAscii(name);
 		nome_parla = nome_parla + " non parla piu";
-
+		
     }
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
@@ -1350,6 +1350,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 		}*/
 
         wxString parsata=wxString::FromUTF8(MSG_SRC);
+		if (parsata == "</html>") return;
 		if (parsata == ">") return;
 		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
 		{
@@ -2242,6 +2243,7 @@ void ClientTsFrm::RefreshChat()
     }
         if(strGlobale!="" && StringTranslate!=""/*&& strGlobale!=oldstrGlobale*/)
     {
+			if (wxString::FromUTF8(MSG_SRC) == ">" || wxString::FromUTF8(MSG_SRC) == "</html>") return;
 			WxGrid1->AppendRows(1, true);
 			/*txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
 			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);*/
