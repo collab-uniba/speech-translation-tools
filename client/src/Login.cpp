@@ -93,7 +93,7 @@ void Login::CreateGUIControls()
 	arrayStringFor_cmblingua.Add(_("Portoghese"));
 	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 128), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Seleziona un linguaggio:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Seleziona una lingua:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
 
 	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Login"), wxPoint(451, 332), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
 
