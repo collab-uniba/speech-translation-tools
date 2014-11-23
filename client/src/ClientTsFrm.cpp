@@ -147,6 +147,7 @@ struct WriteThis {
     DWORD myThreadID;
     DWORD myThreadID2;
 	DWORD myThreadID3;
+	DWORD myThreadID4;
 	
 	int iresult;
 	int numero;
@@ -184,6 +185,7 @@ struct WriteThis {
 	IAudioRecorder* recorder;
 	bool sound_flag = false;
 	bool tts_flag = false;
+	bool rec_flag = false;
 	wxRichTextCtrl *chat;
 	unsigned int curRow=0;
 	unsigned int curCol=0;
@@ -929,36 +931,36 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			if (persona[i].nome==name)
 			{
 				persona[i].parla = 1;
-				
 			}
 		}
         printf("Client \"%s\" starts talking.\n", name);
 		nome_parla = "Client " + wxString::FromAscii(name);
 		nome_parla = nome_parla + " sta parlando.";
-		/*if (sound_flag == false)
+		if (sound_flag == false)
 		{
 			sound_flag = true;
 			recorder->startRecordingBufferedAudio();
 			printf("Client \"%s\" starts talking.\n", name);
-		}*/
+		}
     } else {
 		for (i = 0; i < MAX; i++)
 		{
-			if (persona[i].nome == name)
+			if (persona[i].nome == name && persona[i].parla==1)
 			{
 				persona[i].parla = 0;
 				break;
 			}
 		}
 		
-		/*if (sound_flag == true)
+		if (sound_flag == true)
 		{
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
+			
 			if(strcmp(LINGUA,"Italiano")==0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
 			if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
 			if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
-			FILE *trad;
+			/*FILE *trad;
 			a:
 			Sleep(100);
 			if (trad = fopen("translate.txt", "r"))
@@ -985,8 +987,8 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 
 				
 			}
-			else goto a;
-		}*/
+			else goto a;*/
+		}
 		
         printf("Client \"%s\" stops talking.\n", name);
 		nome_parla = "Client " + wxString::FromAscii(name);
@@ -1330,6 +1332,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
         strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
         strcpy(MSG_SRC,strtok(NULL, "\n"));
         
+		if (MSG_SRC[0] == '<') return;
 		/*if (strcmp(MSG_SRC, "welcome") == 0)
 		{
 			int i;
@@ -1407,6 +1410,7 @@ void showClients(uint64 serverConnectionHandlerID) {
 		persona[i].nome = "";
 		persona[i].usato = 0;
 		persona[i].lingua = "";
+		persona[i].parla = 0;
 	}
     for(i=0; ids[i]; i++) {
         char* name;
@@ -1992,6 +1996,41 @@ DWORD WINAPI myThread(LPVOID lpParameter)
 	return 0;
 }
 
+DWORD WINAPI STT_THREAD(LPVOID lpParameter)
+{
+	while (1)
+	{
+		Sleep(100);
+		FILE *trad;
+		a:
+		Sleep(100);
+		if (trad = fopen("translate.txt", "r"))
+		{
+			fgets(traduzione_jar, 256, trad);
+			fflush(trad);
+			fclose(trad);
+			if (strcmp(traduzione_jar, "") != 0)
+			{
+				//fscanf(trad, "%s", &traduzione);
+				//wxMessageBox(wxString::FromAscii(traduzione_jar));
+				wxString prova = "\n" + wxString::FromAscii(LINGUA) + "\n";
+				wxString final = prova + wxString::FromUTF8(traduzione_jar);
+				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL);
+				strcpy(traduzione_jar, "");
+				WinExec("Taskkill /IM java.exe /F", SW_HIDE);
+				Sleep(50);
+				WinExec("del /F translate.txt", SW_HIDE);
+				//WinExec("del /F recorded.wav", SW_HIDE);
+				remove("recorded.wav");
+				remove("translate.txt");
+				sound_flag = false;
+			}
+
+
+		}
+		else goto a;
+	}
+}
 DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 {
 	while (1)
@@ -2155,10 +2194,12 @@ void ClientTsFrm::CreateGUIControls()
 	txtlingua->AppendText(LINGUA);
 	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
+	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
 	SetupColor();
 	//chat = txtchat;
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
+	
 
 }
 
@@ -2241,7 +2282,7 @@ void ClientTsFrm::RefreshChat()
     }
         if(strGlobale!="" && StringTranslate!=""/*&& strGlobale!=oldstrGlobale*/)
     {
-			if (wxString::FromAscii(MSG_SRC) == ">" || wxString::FromAscii(MSG_SRC) == "</html>") return;
+			if (wxString::FromAscii(MSG_SRC) == ">" || wxString::FromAscii(MSG_SRC) == "</html>" || MSG_SRC[0] == '<' || MSG_SRC[0] == '>') return;
 			WxGrid1->AppendRows(1, true);
 			/*txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);
 			txtchat->ScrollIntoView(txtchat->GetCaretPosition(), WXK_PAGEDOWN);*/
