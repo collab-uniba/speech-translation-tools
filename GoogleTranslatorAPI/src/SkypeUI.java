@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -34,6 +35,19 @@ import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
 	{
@@ -58,7 +72,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	private JScrollPane scrollPane;
 	
 	private JMenuBar menuBar;
-	
+
 	private JMenu menuTranslator;
 	private JMenu menuHelp;
 
