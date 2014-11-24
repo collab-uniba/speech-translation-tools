@@ -33,6 +33,6 @@ Machine translation configuration
 --------------------
 In order to use the machine tranlsation services, you need to obtain the proper API keys and edit the configuration files stored in the `PATH\to\client\conf` dir.
 
-As per Google Translate, this is a paid service. A valid API key can be obtained from the [Google developer console](https://console.developers.google.com), enabling the Translate API and providing correct billing info. Then, paste the valid key in the `API.txt` file.
+As per Google Translate, this is a paid service. A valid API key can be obtained from the [Google developer console](https://console.developers.google.com), enabling the Translate API and providing correct billing info. Then, paste the valid key in the `GOOGLE.txt` file.
 
 As per Microsoft Bing Translator, this is a free service (for up to 2M characters per month). A valid API key can be obtained for free upong registering one's app on [Windows Azure Marketplace](https://datamarket.azure.com/dataset/bing/microsofttranslator). Then, paste the obtained _clientID_ and _clientSecret_ into the `BING.txt` file.
