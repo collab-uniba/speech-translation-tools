@@ -2,19 +2,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -35,19 +33,7 @@ import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
 
-
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
+@SuppressWarnings("unused")
 public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
 	{
@@ -59,9 +45,6 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel painelListaDeAmigos;
 	
@@ -86,6 +69,8 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	private JTabbedPane jTabbedPane2;
 
 	private Chat chat = null;
+	
+	
 
 	/**
 	* Auto-generated main method to display this JFrame
@@ -266,20 +251,33 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
+		
 		if(arg0.getClickCount() == 2) {
-			//System.out.println(listaDeAmigos.getSelectedValue());
 			
 			String idDoContato = (String) listaDeAmigos.getSelectedValue();
-			
+			String texto = "";	
 			try {
 				connect();
 				
-				String texto = JOptionPane.showInputDialog("Digite a mensagem para enviar...");
+				//CustomJOptionPane customJOptionPane = new CustomJOptionPane(idDoContato);
+				//customJOptionPane.setVisible(true);
+				JFrame aux = new JFrame();
+				JWindowChat jWindowChat = new JWindowChat(aux);
+				jWindowChat.criaJanela();
+				texto = jWindowChat.getTexto();
 				
-				//while (true) {
+				
+				//while (texto != null && !texto.equals("EXIT(0)_OPERATION")) {
+					// String saida = v2.execute(texto, Language.PORTUGUESE, Language.ENGLISH);
+
 					
-					//String saida = v2.execute(texto, Language.PORTUGUESE, Language.ENGLISH);
-					sendMessage(idDoContato, texto);
+					
+					//texto = jWindowChat.getTextoInformado();
+					//texto = JOptionPane.showInputDialog("Digite a mensagem para enviar...");
+					
+					
+						sendMessage(idDoContato, texto);
+					
 				//}
 				
 			} catch (Exception e) {
