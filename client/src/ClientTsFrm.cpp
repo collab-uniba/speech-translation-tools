@@ -9,6 +9,7 @@
 ///------------------------------------------------------------------
 
 #include "ClientTsFrm.h"
+#include "AudioWizard.h"
 #include "Login.h"
 #include "utility.h"
 #include <windows.h>
@@ -116,8 +117,9 @@ struct stringa {
 typedef struct message
 {
     wxString nick;
-    wxString msg;
+    wxString msgnew;
     wxString lang;
+	wxString msgold;
 } MESSAGE;
 
 typedef struct header_file
@@ -160,6 +162,7 @@ struct WriteThis {
 	wxString strMessage="";
 	wxDateTime data;
 	wxString StringTranslate="";
+	wxString StringOriginal = "";
 	wxString TESTTTS = "";
 	wxImage *immagine;
 	char SERVER_ADDRESS[20];
@@ -176,6 +179,8 @@ struct WriteThis {
 	wxString strSpeak = "";
 	unsigned short PORT = 9987;
     int cmbel=0;
+	int indice = -1;
+	int VAD_VALUE=1;
     COLORE colori[10];
     unsigned conta_client;
     unsigned short set_color_client;
@@ -186,10 +191,13 @@ struct WriteThis {
 	bool sound_flag = false;
 	bool tts_flag = false;
 	bool rec_flag = false;
+	bool write_flag = false;
+	bool tasto_stt_flag = false;
 	wxRichTextCtrl *chat;
 	unsigned int curRow=0;
 	unsigned int curCol=0;
-
+	MESSAGE diario[1024];
+	wxGrid *griglia;
 
 	void speak(char *LANG, char*MSG)
 	{
@@ -392,9 +400,9 @@ void SetupColor()
     colori[1].green=0;
     colori[1].blue=255;
 	
-	colori[2].red = 139;
-	colori[2].green = 69;
-	colori[2].blue = 19;
+	colori[2].red = 102;
+	colori[2].green = 0;
+	colori[2].blue = 102;
 
 	colori[3].red = 148;
 	colori[3].green = 0;
@@ -613,18 +621,7 @@ char * richiestaBing(wxString StringSource, char * lingua)
 	
     const char *BufferSource=curl_easy_escape(curl3, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
 	
-	/*MultiByteToWideChar(CP_ACP, 0, BufferSource, -1, wString, 4096);
-	MessageBox(NULL, wString, L"CURL_EASY_ESCAPE", MB_OK);*/
 	
-	/*MultiByteToWideChar(CP_ACP, 0, StringSource, -1, wString, 4096);
-	MessageBox(NULL, wString, L"StringSourceReplace", MB_OK);*/
-	/*wxString prova = wxString::FromAscii(BufferSource);
-	prova.Replace("%E8", "%C3%A8", true);
-	prova.Replace("%e8", "%C3%A8", true);
-	prova.Replace(" ", "%20", true);
-	string pr = StringSource.mb_str().data();
-	MultiByteToWideChar(CP_ACP, 0, url_encode(pr).c_str(), -1, wString, 4096);
-	MessageBox(NULL, wString, L"ENCODEC++", MB_OK);*/
     char url3[512]={""};
     strcpy(url3,"http://api.microsofttranslator.com/V2/Http.svc/Translate?text=");
 	
@@ -708,36 +705,6 @@ char* richiestaGoogle(wxString StringSource, char * lingua)
     strcpy(url,"https://www.googleapis.com/language/translate/v2?key=");
     strcat(url,GOOGLE_API_KEY);
     
-    
-        /*StringSource.Replace(" ","%20",true);
-        StringSource.Replace("!","%21",true);
-        StringSource.Replace("\"","%22",true);
-        /*StringSource.Replace("#","%23",true);
-        StringSource.Replace("$","%24",true);
-        StringSource.Replace("%","%25",true);
-        StringSource.Replace("&","%26",true);
-        */
-        /*StringSource.Replace("'","%27",true);
-        StringSource.Replace("(","%28",true);
-        /*StringSource.Replace(")","%29",true);
-        StringSource.Replace("*","%2A",true);
-        StringSource.Replace("+","%2B",true);*/
-        /*StringSource.Replace(",","%2C",true);
-        StringSource.Replace("-","%2D",true);
-        /*
-        StringSource.Replace(".","%2E",true);
-        StringSource.Replace("/","%2F",true);
-        StringSource.Replace(":","%3A",true);
-        StringSource.Replace(";","%3B",true);
-        StringSource.Replace("<","%3C",true);
-        StringSource.Replace("=","%3D",true);
-        StringSource.Replace(">","%3E",true);*/
-        //StringSource.Replace("?","%3F",true);
-		/*StringSource.Replace("è", "%C3%A8", true);
-		StringSource.Replace("é", "%C3%A9", true);
-		StringSource.Replace(" ", "%20", true);*/
-        //StringSource.Replace("@","%40",true);
-        //wxMessageBox(StringSource);*/
     strcat(url,"&q=");
 	const char *BufferSource = curl_easy_escape(curl, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
     strcat(url,BufferSource);
@@ -936,12 +903,12 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
         printf("Client \"%s\" starts talking.\n", name);
 		nome_parla = "Client " + wxString::FromAscii(name);
 		nome_parla = nome_parla + " sta parlando.";
-		if (sound_flag == false)
+		/*if (sound_flag == false /*&& tasto_stt_flag==true)
 		{
 			sound_flag = true;
 			recorder->startRecordingBufferedAudio();
 			printf("Client \"%s\" starts talking.\n", name);
-		}
+		}*/
     } else {
 		for (i = 0; i < MAX; i++)
 		{
@@ -952,7 +919,7 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			}
 		}
 		
-		if (sound_flag == true)
+		if (tasto_stt_flag == true)
 		{
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
@@ -1310,8 +1277,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
     char *name;
     unsigned int error;
     wxString mystring = wxString::FromAscii(message);
-    wxString nome;
-   
+	wxString nome;
     
      if((error = ts3client_getClientVariableAsString(serverConnectionHandlerID, fromID, CLIENT_NICKNAME, &name)) != ERROR_ok) {  /* Query client nickname... */
      printf("Error querying client nickname: %d\n", error);
@@ -1327,45 +1293,52 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
         strGlobale=nome+": "+mystring;
 		strtok((char*)name, "$");
 		strNick = wxString::FromAscii(strtok(NULL, "$"));
-        strMessage=wxString::FromAscii(message);
+        
         
         strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
         strcpy(MSG_SRC,strtok(NULL, "\n"));
-        
+
 		if (MSG_SRC[0] == '<') return;
-		/*if (strcmp(MSG_SRC, "welcome") == 0)
-		{
-			int i;
-			for (i = 0; i < MAX; i++)
-			{
-				if (persona[i].nome == strNick)
-				{
-					persona[i].lingua = LINGUA_MSG_SRC;
-					break;
-				}
-			}
-			StringTranslate = "";
-			return;
-		}*/
+		strMessage = wxString::FromAscii(MSG_SRC);
 
         wxString parsata=wxString::FromAscii(MSG_SRC);
 		if (parsata == "</html>") return;
 		if (parsata == ">") return;
+		
+		griglia->Scroll(curRow+20,curCol+20);
 		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
 		{
 			StringTranslate = wxString::FromAscii(MSG_SRC);
+			indice++;
+			diario[indice].msgold = parsata;
+			diario[indice].msgnew = StringTranslate;
 			return;
 		}
         if(strcmp(SERVIZIO,"google")==0)
         {
 		if (strcmp(MSG_SRC, richiestaGoogle(MSG_SRC, LINGUA_MSG_SRC)) == 0) StringTranslate = wxString::FromAscii(MSG_SRC);
-        else parseGoogle(richiestaGoogle(parsata,LINGUA_MSG_SRC));
+		else
+		{
+			parseGoogle(richiestaGoogle(parsata, LINGUA_MSG_SRC));
+			indice++;
+			diario[indice].msgold = parsata;
+			diario[indice].msgnew = StringTranslate;
+		}
         }
         
         if(strcmp(SERVIZIO,"bing")==0)
         {
 			if (strcmp(MSG_SRC, richiestaBing(MSG_SRC, LINGUA_MSG_SRC)) == 0) StringTranslate = wxString::FromAscii(MSG_SRC);
-			else parseBing(richiestaBing(parsata, LINGUA_MSG_SRC));
+			else
+			{
+				parseBing(richiestaBing(parsata, LINGUA_MSG_SRC));
+				indice++;
+				diario[indice].msgold = parsata;
+				diario[indice].msgnew = StringTranslate;
+				/*stampa((char*)strNick.mb_str().data());
+				stampa((char*)diario[indice].msgold.mb_str().data());
+				stampa((char*)diario[indice].msgnew.mb_str().data());*/
+			}
         }
 
     return;
@@ -1411,6 +1384,7 @@ void showClients(uint64 serverConnectionHandlerID) {
 		persona[i].usato = 0;
 		persona[i].lingua = "";
 		persona[i].parla = 0;
+		
 	}
     for(i=0; ids[i]; i++) {
         char* name;
@@ -1583,25 +1557,34 @@ void toggleVAD(uint64 serverConnectionHandlerID) {
 }
 
 void setVadLevel(uint64 serverConnectionHandlerID) {
-    int vad, n;
-    unsigned int error;
-    char s[100];
+	int vad, n;
+	unsigned int error;
+	char s[100];
 
-    printf("\nEnter VAD level: ");
-    n = scanf("%d", &vad);
-    emptyInputBuffer();
-    if(n == 0) {
-        printf("Invalid input. Please enter a number.\n\n");
-        return;
-    }
+	printf("\nEnter VAD level: ");
+	n = scanf("%d", &vad);
+	emptyInputBuffer();
+	if (n == 0) {
+		printf("Invalid input. Please enter a number.\n\n");
+		return;
+	}
 
-    /* Adjust "voiceactivation_level" preprocessor value */
-    sprintf(s, "100 %d", vad);
-    if((error = ts3client_setPreProcessorConfigValue(serverConnectionHandlerID, "voiceactivation_level", s)) != ERROR_ok) {
-        printf("Error setting VAD level: %d\n", error);
-        return;
-    }
-    printf("\nSet VAD level to %s.\n\n", s);
+	
+	FILE *mic;
+	if (mic = fopen("..\\conf\\mic.txt", "r"))
+	{
+		fscanf(mic, "%d", &vad);
+		fflush(mic);
+		fclose(mic);
+	}
+	else vad = 1;
+	/* Adjust "voiceactivation_level" preprocessor value */
+	snprintf(s, 100, "%d", vad);
+	if ((error = ts3client_setPreProcessorConfigValue(serverConnectionHandlerID, "voiceactivation_level", s)) != ERROR_ok) {
+		printf("Error setting VAD level: %d\n", error);
+		return;
+	}
+	printf("\nSet VAD level to %s.\n\n", s);
 }
 
 void requestWhisperList(uint64 serverConnectionHandlerID) {
@@ -1881,7 +1864,8 @@ DWORD WINAPI myThread(LPVOID lpParameter)
     /* Simple commandline interface */
     printf("\nTeamSpeak 3 client commandline interface\n");
     showHelp();
-
+	//toggleVAD(DEFAULT_VIRTUAL_SERVER);
+	//setVadLevel(DEFAULT_VIRTUAL_SERVER);
     while(!flag) {
 
         int c = getc(stdin);
@@ -1937,7 +1921,7 @@ DWORD WINAPI myThread(LPVOID lpParameter)
                 toggleVAD(DEFAULT_VIRTUAL_SERVER);
                 break;
             case 'V':
-                setVadLevel(DEFAULT_VIRTUAL_SERVER);
+				setVadLevel(DEFAULT_VIRTUAL_SERVER);
 				break;
 			case 'w':
 				requestWhisperList(DEFAULT_VIRTUAL_SERVER);
@@ -2066,9 +2050,11 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	EVT_TIMER(ID_WXTIMER2,ClientTsFrm::WxTimer2Timer)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
 	EVT_BUTTON(ID_WXBUTTON3,ClientTsFrm::txttranslateClick)
-	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::txtsendClick)
+	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::btnsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
 	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
+	EVT_MENU(ID_MNU_ESCI_1003, ClientTsFrm::Debug)
+	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
 	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::WxGrid1CellLeftClick)
 END_EVENT_TABLE()
 ////Event Table End
@@ -2092,31 +2078,37 @@ void ClientTsFrm::CreateGUIControls()
 	//Add the custom code before or after the blocks
 	////GUI Items Creation Start
 
+	FILE * record;
+	FILE * translate;
+	if (record = fopen("recorded.wav", "r"))
+	{
+		remove("");
+		fclose(record);
+	}
+	if (translate = fopen("translate.txt", "r")) 
+	{
+		remove("");
+		fclose(translate);
+	}
 	WxGrid1 = new wxGrid(this, ID_WXGRID1, wxPoint(211, 72), wxSize(722, 350));
 	
-	/*WxGrid1->SetDefaultColSize(250);
-	WxGrid1->SetRowMinimalHeight(0,450);
-	WxGrid1->SetDefaultRowSize(40);
-	WxGrid1->SetRowLabelSize(50);
-	WxGrid1->SetColLabelSize(25);*/
+	
 	WxGrid1->CreateGrid(0, 2, wxGrid::wxGridSelectCells);
 
-	
 	WxGrid1->SetColLabelValue(0, "Message");
 	WxGrid1->SetColLabelValue(1, "Play");
 	
-	//WxGrid1->AppendRows(1, true);
 	WxGrid1->SetRowSize(curRow+1, 40);
 	WxGrid1->SetColSize(curCol, 610);
 	WxGrid1->SetColSize(curCol + 1, 30);
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
-	WxTimer2->Start(1000);
+	WxTimer2->Start(250);
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(2000);
+	WxTimer1->Start(100);
 
 
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
@@ -2143,8 +2135,8 @@ void ClientTsFrm::CreateGUIControls()
 	txtchat->SetInsertionPointEnd();
 	txtchat->SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL, false));*/
 
-	txtsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(830, 450), wxSize(103, 48), 0, wxDefaultValidator, _("txtsend"));
-	txtsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+	btnsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(830, 450), wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
+	btnsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(211, 450), wxSize(600, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
@@ -2154,6 +2146,19 @@ void ClientTsFrm::CreateGUIControls()
 	WxButton1->Show(false);
 	WxButton1->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
+	txttranslate = new wxButton(this, ID_WXBUTTON3, _("Speech to text disabilitato"), wxPoint(10, 450), wxSize(180, 31), 0, wxDefaultValidator, _("WxButton1"));
+	txttranslate->Show(true);
+	txttranslate->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	WxMenuBar1 = new wxMenuBar();
+	wxMenu *ID_MNU_FILE_1001_Mnu_Obj = new wxMenu();
+	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_ESCI_1003, _("Esci"), _(""), wxITEM_NORMAL);
+	WxMenuBar1->Append(ID_MNU_FILE_1001_Mnu_Obj, _("File"));
+
+	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj = new wxMenu();
+	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_AUDIO_1005, _("Audio"), _(""), wxITEM_NORMAL);
+	WxMenuBar1->Append(ID_MNU_OPZIONI_1004_Mnu_Obj, _("Opzioni"));
+	SetMenuBar(WxMenuBar1);
 
 	SetTitle(_("ClientTs"));
 	SetIcon(wxNullIcon);
@@ -2199,6 +2204,7 @@ void ClientTsFrm::CreateGUIControls()
 	//chat = txtchat;
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
+	griglia = WxGrid1;
 	
 
 }
@@ -2219,21 +2225,21 @@ void MyGridCellRenderer::Draw(wxGrid& grid,
 
 void ClientTsFrm::WxGrid1CellLeftClick(wxGridEvent& event)
 {
+	wxToolTip * tooltip = new wxToolTip(diario[event.GetRow()].msgold);
+	tooltip->SetAutoPop(10000);
+	tooltip->SetMaxWidth(200);
 	strSpeak = wxString::FromAscii(strtok((char*)WxGrid1->GetCellValue(event.GetRow(), 0).mb_str().data(), ")"));
 	strSpeak = wxString::FromAscii(strtok(NULL, ":"));
 	/*strSpeak = wxString::FromAscii(strtok(NULL, ":"));
 	strSpeak = wxString::FromAscii(strtok(NULL, ":"));*/
 	if (event.GetCol() == 1) { tts_flag = true; }
+	if (event.GetCol() == 0) { WxGrid1->GetGridWindow()->SetToolTip(tooltip); }
 
 }
 void ClientTsFrm::OnClose(wxCloseEvent& event)
 {
     flag=1;
     Sleep(300);
-	//WxTimer1->Stop();
-	//WxTimer1->~wxTimer();
-	//WxTimer2->Stop();
-	//WxTimer2->~wxTimer();
 	Destroy();
 }
 
@@ -2250,8 +2256,7 @@ void ClientTsFrm::RefreshChat()
     strftime(buf, sizeof(buf), "%X", &tstruct);
     showClients(DEFAULT_VIRTUAL_SERVER);
     txtclient->Clear();
-	/*txtclient->WriteText(nome_parla);
-	txtclient->Newline();*/
+	
     for (i=0;i<MAX;i++)
     {
         if(persona[i].nome!="") 
@@ -2273,8 +2278,13 @@ void ClientTsFrm::RefreshChat()
 				if (persona[i].lingua == "Italiano") txtclient->WriteImage(wxBitmap(italy_xpm));
 				if (persona[i].lingua == "Inglese") txtclient->WriteImage(wxBitmap(usa_xpm));
 				if (persona[i].lingua == "Portoghese") txtclient->WriteImage(wxBitmap(brasil_xpm));
-				txtclient->WriteText("\t");
-				txtclient->WriteImage(wxBitmap(keyboard_xpm));
+				if (write_flag == true)
+				{
+					txtclient->WriteText("\t");
+					txtclient->WriteImage(wxBitmap(keyboard_xpm));
+				}
+				
+				
 			}
             txtclient->EndTextColour();
             txtclient->Newline();
@@ -2323,6 +2333,7 @@ void ClientTsFrm::RefreshChat()
                     txtchat->WriteText(StringTranslate);
                     txtchat->EndTextColour();*/
 					wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
+					WxGrid1->SetCellTextColour(curRow, 0, wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
 					WxGrid1->SetCellValue(messaggio, curRow, 0);
 					WxGrid1->SetRowSize(curRow, 40);
 					WxGrid1->SetColSize(curCol, 578);
@@ -2372,35 +2383,21 @@ void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
 }
 
 /*
- * txtsendClick
+ * btnsendClick
  */
-void ClientTsFrm::txtsendClick(wxCommandEvent& event)
+void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 {
 	
     char str[1024]={""};
       strcpy(str,(const char*)txtmsg->GetValue().mb_str());
       
       wxString parsata=txtmsg->GetValue();
-	  /*parsata.Replace("è", "e'", true);
-	  parsata.Replace("à", "a'", true);
-	  parsata.Replace("ù", "u'", true);
-	  parsata.Replace("ì", "i'", true);
-	  parsata.Replace("ò", "o'", true);*/
-     //wxMessageBox(wxString::FromAscii(buffer2));
-    //parse(richiesta(buffer,LINGUA_MSG_SRC));
-    //wxString buffer3=wxString::FromAscii(buffer2);
+	  if (parsata == "") return;
+	txtmsg->DiscardEdits();
+	write_flag = false;
     if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItaliano\n"+parsata/*+"\nENG: "+StringTranslate*/,(uint64)1,NULL);
 	else if (strcmp(LINGUA, "Inglese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nInglese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
 	else if (strcmp(LINGUA, "Portoghese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nPortoghese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
-    
-    /*char command[512];
-    strcpy(command,"espeak.exe -v it ");
-    strcat(command,str);
-    system(command);*/
-    //aggiorna(strGlobale);
-    //toggleRecordSound(DEFAULT_VIRTUAL_SERVER);
-    //MessageBox(NULL,txtmsg->GetValue(),NULL,NULL);
-	// insert your code here
 	txtmsg->Clear();
 	
 	
@@ -2440,7 +2437,7 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
 	// insert your code here
 	//wxMessageBox("Hai scritto "+txtmsg->GetValue()+" nella TextBox!");
 	//ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,txtmsg->GetValue(),(uint64)1,NULL);
-	txtsendClick(event);
+	btnsendClick(event);
 }
 
 /*
@@ -2449,6 +2446,15 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
 void ClientTsFrm::txttranslateClick(wxCommandEvent& event)
 {
 	//speak(LINGUA,(char*)StringTranslate.mb_str().data());
+	tasto_stt_flag = !tasto_stt_flag;
+	if (tasto_stt_flag==false) txttranslate->SetLabel("Speech to text disabilitato");
+	else
+	{
+		sound_flag = true;
+		recorder->startRecordingBufferedAudio();
+		txttranslate->SetLabel("Speech to text abilitato");
+	}
+	
 	
 }
 
@@ -2474,6 +2480,8 @@ void ClientTsFrm::WxButton2Click(wxCommandEvent& event)
  */
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
+	setVadLevel(DEFAULT_VIRTUAL_SERVER);
+	if (txtmsg->IsModified() == true) 	write_flag = true;
 	// insert your code here
 	 //txtchat->ScrollIntoView(txtchat->GetCaretPosition(),WXK_PAGEDOWN);
 	 
@@ -2482,3 +2490,17 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 	
 }
 
+void ClientTsFrm::Debug(wxCommandEvent& event)
+{
+	// insert your code here
+	flag = 1;
+	Sleep(300);
+	Destroy();
+}
+
+void ClientTsFrm::Wizard(wxCommandEvent& event)
+{
+	// insert your code here
+	AudioWizard* dialog = new AudioWizard(NULL);
+	dialog->Show(true);
+}

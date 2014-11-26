@@ -41,6 +41,9 @@
 #define ClientTsFrm_STYLE wxCAPTION | wxSYSTEM_MENU | wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxCLOSE_BOX
 ////Dialog Style End
 
+#define MENU_ESCI 1800
+#define MENU_OPZIONI 1801
+
 class ClientTsFrm : public wxFrame
 {
 	private:
@@ -51,7 +54,7 @@ class ClientTsFrm : public wxFrame
 		ClientTsFrm(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("ClientTs"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = ClientTsFrm_STYLE);
 		virtual ~ClientTsFrm();
 		void WxButton1Click(wxCommandEvent& event);
-		void txtsendClick(wxCommandEvent& event);
+		void btnsendClick(wxCommandEvent& event);
 		void aggiorna(wxString);
 		void txtchatClick(wxRichTextEvent& event);
 		void txtchatEnter(wxCommandEvent& event);
@@ -64,7 +67,8 @@ class ClientTsFrm : public wxFrame
 		void WxButton2Click(wxCommandEvent& event);
 		void WxTimer2Timer(wxTimerEvent& event);
 		void WxGrid1CellLeftClick(wxGridEvent& event);
-		
+		void Debug(wxCommandEvent& event);
+		void Wizard(wxCommandEvent& event);
 		
 	private:
 		//Do not add custom control declarations between
@@ -80,10 +84,11 @@ class ClientTsFrm : public wxFrame
 		wxStaticText *lblnick;
 		wxTextCtrl *txtnick;
 		wxRichTextCtrl *txtchat;
-		wxButton *txtsend;
+		wxButton *btnsend;
 		wxTextCtrl *txtmsg;
 		wxButton *WxButton1;
 		wxGrid *WxGrid1;
+		wxMenuBar *WxMenuBar1;
 		////GUI Control Declaration End
 		
 	private:
@@ -107,6 +112,10 @@ class ClientTsFrm : public wxFrame
 			ID_WXBUTTON2 = 1004,
 			ID_WXEDIT3 = 1003,
 			ID_WXBUTTON1 = 1001,
+			ID_MNU_FILE_1001 = 1111,
+			ID_MNU_ESCI_1003 = 1113,
+			ID_MNU_OPZIONI_1004 = 1114,
+			ID_MNU_AUDIO_1005 = 1115,
 			////GUI Enum Control ID End
 			ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values
 		};

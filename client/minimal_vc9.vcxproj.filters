@@ -20,6 +20,9 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\AudioWizard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ClientTsFrm.h">
@@ -29,6 +32,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utility.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioWizard.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -54,6 +60,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\usa.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ledrosso.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ledverde.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

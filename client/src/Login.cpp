@@ -10,6 +10,7 @@
 
 #include "Login.h"
 #include "ClientTsFrm.h"
+#include "AudioWizard.h"
 #include <malloc.h>
 #include "utility.h"
 FILE*config;

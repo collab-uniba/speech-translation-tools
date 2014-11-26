@@ -21,6 +21,7 @@
 #include "wx/wxprec.h"
 #include "Login.h"
 #include "ClientTsFrm.h"
+#include "AudioWizard.h"
 
 
 #ifdef __BORLANDC__
@@ -130,6 +131,8 @@ bool MyApp::OnInit()
 	SetTopWindow(dialog);
 	//frame->Show();
 	dialog->Show();
+	/*AudioWizard* frame = new AudioWizard(NULL);
+	frame->Show();*/
 	return true;
     // create the main application window
     //MyFrame *frame = new MyFrame("Minimal wxWidgets App");
