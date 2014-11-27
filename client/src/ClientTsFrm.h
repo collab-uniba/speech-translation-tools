@@ -55,14 +55,13 @@ class ClientTsFrm : public wxFrame
 		virtual ~ClientTsFrm();
 		void WxButton1Click(wxCommandEvent& event);
 		void btnsendClick(wxCommandEvent& event);
-		void aggiorna(wxString);
 		void txtchatClick(wxRichTextEvent& event);
 		void txtchatEnter(wxCommandEvent& event);
 		void OnTimerTimeout(wxTimerEvent& event);
 		void WxTimer1Timer(wxTimerEvent& event);
 		void txtmsgEnter(wxCommandEvent& event);
 		void RefreshChat();
-		void txttranslateClick(wxCommandEvent& event);
+		void btnspeechClick(wxCommandEvent& event);
 		void ClientTsFrmActivate(wxActivateEvent& event);
 		void WxButton2Click(wxCommandEvent& event);
 		void WxTimer2Timer(wxTimerEvent& event);
@@ -77,7 +76,7 @@ class ClientTsFrm : public wxFrame
 		////GUI Control Declaration Start
 		wxTimer *WxTimer2;
 		wxTimer *WxTimer1;
-		wxButton *txttranslate;
+		wxButton *btnspeech;
 		wxRichTextCtrl *txtclient;
 		wxTextCtrl *txtlingua;
 		wxStaticText *lbllingua;
@@ -86,7 +85,6 @@ class ClientTsFrm : public wxFrame
 		wxRichTextCtrl *txtchat;
 		wxButton *btnsend;
 		wxTextCtrl *txtmsg;
-		wxButton *WxButton1;
 		wxGrid *WxGrid1;
 		wxMenuBar *WxMenuBar1;
 		////GUI Control Declaration End

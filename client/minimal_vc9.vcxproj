@@ -511,6 +511,7 @@
   <ItemGroup>
     <ClInclude Include="src\AudioWizard.h" />
     <ClInclude Include="src\ClientTsFrm.h" />
+    <ClInclude Include="src\GlobalVariables.h" />
     <ClInclude Include="src\Login.h" />
     <ClInclude Include="src\utility.h" />
   </ItemGroup>
