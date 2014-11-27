@@ -104,8 +104,9 @@ struct user
 {
     wxString nome;
     unsigned short colore;
-    unsigned short usato;
-	unsigned short parla;
+    unsigned short usato=0;
+	unsigned short parla=0;
+	unsigned short scrive=0;
 	wxString lingua;
 };
 
@@ -162,6 +163,7 @@ struct WriteThis {
 	wxString strMessage="";
 	wxDateTime data;
 	wxString StringTranslate="";
+	wxString oldStringTranslate = "";
 	wxString StringOriginal = "";
 	wxString TESTTTS = "";
 	wxImage *immagine;
@@ -1288,30 +1290,61 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
 	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);*/
        
-	 
-        nome=wxString::FromAscii(name);
-        strGlobale=nome+": "+mystring;
 		strtok((char*)name, "$");
 		strNick = wxString::FromAscii(strtok(NULL, "$"));
+	    strcpy(LINGUA_MSG_SRC, strtok((char*)message, "\n"));
+		strcpy(MSG_SRC, strtok(NULL, "\n"));
+
+		wxString parsata = wxString::FromAscii(MSG_SRC);
+		if (parsata == "write1")
+		{
+			int i;
+			for (i = 0; i < MAX; i++)
+			{
+				if (persona[i].nome == strNick)
+				{
+					persona[i].scrive = 1;
+				}
+			}
+			return;
+		}
+
+		if (parsata == "write0")
+		{
+			int i;
+			for (i = 0; i < MAX; i++)
+			{
+				if (persona[i].nome == strNick)
+				{
+					persona[i].scrive = 0;
+
+				}
+			}
+			return;
+		}
+
+        nome=wxString::FromAscii(name);
+        strGlobale=nome+": "+mystring;
+		
+		
         
         
-        strcpy(LINGUA_MSG_SRC,strtok((char*)message, "\n"));
-        strcpy(MSG_SRC,strtok(NULL, "\n"));
+       
 
 		if (MSG_SRC[0] == '<') return;
 		strMessage = wxString::FromAscii(MSG_SRC);
 
-        wxString parsata=wxString::FromAscii(MSG_SRC);
+        
 		if (parsata == "</html>") return;
 		if (parsata == ">") return;
+
 		
+
 		griglia->Scroll(curRow+20,curCol+20);
 		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
 		{
-			StringTranslate = wxString::FromAscii(MSG_SRC);
 			indice++;
-			diario[indice].msgold = parsata;
-			diario[indice].msgnew = StringTranslate;
+			StringTranslate = wxString::FromAscii(MSG_SRC);
 			return;
 		}
         if(strcmp(SERVIZIO,"google")==0)
@@ -1321,7 +1354,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 		{
 			parseGoogle(richiestaGoogle(parsata, LINGUA_MSG_SRC));
 			indice++;
-			diario[indice].msgold = parsata;
+			diario[indice].msgold = wxString::FromUTF8(parsata);
 			diario[indice].msgnew = StringTranslate;
 		}
         }
@@ -1333,7 +1366,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 			{
 				parseBing(richiestaBing(parsata, LINGUA_MSG_SRC));
 				indice++;
-				diario[indice].msgold = parsata;
+				diario[indice].msgold = wxString::FromUTF8(parsata);
 				diario[indice].msgnew = StringTranslate;
 				/*stampa((char*)strNick.mb_str().data());
 				stampa((char*)diario[indice].msgold.mb_str().data());
@@ -2256,7 +2289,6 @@ void ClientTsFrm::RefreshChat()
     strftime(buf, sizeof(buf), "%X", &tstruct);
     showClients(DEFAULT_VIRTUAL_SERVER);
     txtclient->Clear();
-	
     for (i=0;i<MAX;i++)
     {
         if(persona[i].nome!="") 
@@ -2278,7 +2310,7 @@ void ClientTsFrm::RefreshChat()
 				if (persona[i].lingua == "Italiano") txtclient->WriteImage(wxBitmap(italy_xpm));
 				if (persona[i].lingua == "Inglese") txtclient->WriteImage(wxBitmap(usa_xpm));
 				if (persona[i].lingua == "Portoghese") txtclient->WriteImage(wxBitmap(brasil_xpm));
-				if (write_flag == true)
+				if (persona[i].scrive == 1)
 				{
 					txtclient->WriteText("\t");
 					txtclient->WriteImage(wxBitmap(keyboard_xpm));
@@ -2290,7 +2322,7 @@ void ClientTsFrm::RefreshChat()
             txtclient->Newline();
         }
     }
-        if(strGlobale!="" && StringTranslate!=""/*&& strGlobale!=oldstrGlobale*/)
+        if(strGlobale!="" && StringTranslate!="" && StringTranslate!=oldStringTranslate/* strGlobale!=oldstrGlobale*/)
     {
 			if (wxString::FromAscii(MSG_SRC) == ">" || wxString::FromAscii(MSG_SRC) == "</html>" || MSG_SRC[0] == '<' || MSG_SRC[0] == '>') return;
 			WxGrid1->AppendRows(1, true);
@@ -2304,7 +2336,8 @@ void ClientTsFrm::RefreshChat()
             txtchat->WriteText("): \n");
             txtchat->WriteText(MSG_SRC);
             txtchat->Newline();*/
-			wxString messaggio = "Me(" + wxString::FromAscii(buf) + "): " + wxString::FromAscii(MSG_SRC);
+			
+			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
 			WxGrid1->SetCellValue(messaggio,curRow,0);
 			/*WxGrid1->SetRowSize(curRow, 40);
 			WxGrid1->SetColSize(curCol, 578);
@@ -2339,15 +2372,12 @@ void ClientTsFrm::RefreshChat()
 					WxGrid1->SetColSize(curCol, 578);
 					WxGrid1->SetColSize(curCol + 1, 60);
 					WxGrid1->SetCellRenderer(curRow++, 1, new MyGridCellRenderer());
-                    oldstrGlobale=strGlobale;
-                    strGlobale="";
-                   
-					
-                    return;
+                    
                 }
             }
         }
         //wxMessageBox(strGlobale.BeforeFirst(ch,nick));
+		oldStringTranslate = StringTranslate;
         oldstrGlobale=strGlobale;
         strGlobale="";
     }
@@ -2391,13 +2421,15 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
     char str[1024]={""};
       strcpy(str,(const char*)txtmsg->GetValue().mb_str());
       
-      wxString parsata=txtmsg->GetValue();
+      wxString parsata=txtmsg->GetValue().ToUTF8();
 	  if (parsata == "") return;
 	txtmsg->DiscardEdits();
 	write_flag = false;
     if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItaliano\n"+parsata/*+"\nENG: "+StringTranslate*/,(uint64)1,NULL);
 	else if (strcmp(LINGUA, "Inglese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nInglese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
 	else if (strcmp(LINGUA, "Portoghese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nPortoghese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
+	wxString scrive_msg = "\n" + wxString::FromAscii(LINGUA) + "\n" + "write0";
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 	txtmsg->Clear();
 	
 	
@@ -2482,6 +2514,18 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	setVadLevel(DEFAULT_VIRTUAL_SERVER);
 	if (txtmsg->IsModified() == true) 	write_flag = true;
+	int i;
+	for (i = 0; i < MAX; i++)
+	{
+		if (persona[i].nome == NICK)
+		{
+			if (persona[i].scrive == 0 && write_flag==true)
+			{
+				wxString scrive_msg = "\n" + wxString::FromAscii(LINGUA) + "\n" + "write1";
+				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
+			}
+		}
+	}
 	// insert your code here
 	 //txtchat->ScrollIntoView(txtchat->GetCaretPosition(),WXK_PAGEDOWN);
 	 

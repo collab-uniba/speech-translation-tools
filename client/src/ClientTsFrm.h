@@ -38,7 +38,7 @@
 
 ////Dialog Style Start
 #undef ClientTsFrm_STYLE
-#define ClientTsFrm_STYLE wxCAPTION | wxSYSTEM_MENU | wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxCLOSE_BOX
+#define ClientTsFrm_STYLE wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX
 ////Dialog Style End
 
 #define MENU_ESCI 1800
