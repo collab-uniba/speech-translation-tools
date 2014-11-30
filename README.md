@@ -9,10 +9,10 @@ It is available under MPL license.
 How to build WxWidgets
 ------------------------
 Before compiling TeamTranslate, you will have to compile and install WxWidgets library in your system.
-* Download and install [WxWidgets 3.0] (https://www.wxwidgets.org/downloads) (pick the Windows installer). Install it into a location without whitespaces, such as `C:\WxWidgets-3.0.2`.
-* Add a new system variable, named `WXWIN` with path value `C:\WxWidgets-3.0.2` (or whatever path was chosed before).
+* Download and install [WxWidgets 2.9.3] (http://sourceforge.net/projects/wxwindows/files/2.9.3/wxMSW-Setup-2.9.3.exe/download) (pick the Windows installer). Install it into a location without whitespaces, such as `C:\WxWidgets-2.9.3`.
+* Add a new system variable, named `WXWIN` with path value `C:\WxWidgets-2.9.3` (or whatever path was chosed before).
 * Open solution file located in `\build\msw\wx_vc10.sln`.
-* Open solution file located in `C:\WxWidgets-3.0.2\build\msw\wx_vc10.sln`.
+* Open solution file located in `C:\WxWidgets-2.9.3\build\msw\wx_vc9.sln`.
 * Build the solution in _Release_ configuration, not _Debug_ (look for _Configuration Manager_ command under the _*Build*_ menu). 
 
 How to build
