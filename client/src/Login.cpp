@@ -82,11 +82,11 @@ void Login::CreateGUIControls()
 	//Add the custom code before or after the blocks
 	////GUI Items Creation Start
 
-	radbing = new wxRadioButton(this, ID_WXRADIOBUTTON2, _("Bing Translator"), wxPoint(32, 272), wxSize(161, 17), 0, wxDefaultValidator, _("radbing"));
+	radbing = new wxRadioButton(this, ID_WXRADIOBUTTON2, _("Bing Translate"), wxPoint(32, 272), wxSize(161, 17), 0, wxDefaultValidator, _("radbing"));
 
-	radgoogle = new wxRadioButton(this, ID_WXRADIOBUTTON1, _("Google Translator"), wxPoint(32, 240), wxSize(153, 17), 0, wxDefaultValidator, _("radgoogle"));
+	radgoogle = new wxRadioButton(this, ID_WXRADIOBUTTON1, _("Google Translate"), wxPoint(32, 240), wxSize(153, 17), 0, wxDefaultValidator, _("radgoogle"));
 
-	lbltrad = new wxStaticText(this, ID_WXSTATICTEXT4, _("Seleziona il Traduttore:"), wxPoint(32, 192), wxDefaultSize, 0, _("lbltrad"));
+	lbltrad = new wxStaticText(this, ID_WXSTATICTEXT4, _("Servizio:"), wxPoint(32, 192), wxDefaultSize, 0, _("lbltrad"));
 
 	wxArrayString arrayStringFor_cmblingua;
 	arrayStringFor_cmblingua.Add(_("Inglese"));
@@ -94,19 +94,19 @@ void Login::CreateGUIControls()
 	arrayStringFor_cmblingua.Add(_("Portoghese"));
 	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 128), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Seleziona una lingua:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Lingua:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
 
-	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Login"), wxPoint(451, 332), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
+	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Conferma"), wxPoint(451, 332), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
 
 	txtnick = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(248, 86), wxSize(121, 22), 0, wxDefaultValidator, _("txtnick"));
 
-	lblnick = new wxStaticText(this, ID_WXSTATICTEXT2, _("Inserisci un nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
+	lblnick = new wxStaticText(this, ID_WXSTATICTEXT2, _("Nickname: "), wxPoint(30, 87), wxDefaultSize, 0, _("lblnick"));
 
 	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("127.0.0.1"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
 
-	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Inserisci l'indirizzo del server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
+	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nome/Indirizzo del server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
 
-	SetTitle(_("Login"));
+	SetTitle(_("Panello di Login"));
 	SetIcon(wxNullIcon);
 	SetSize(8,8,640,480);
 	Center();

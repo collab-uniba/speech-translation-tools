@@ -187,6 +187,8 @@ bool tts_flag = false;
 bool rec_flag = false;
 bool write_flag = false;
 bool tasto_stt_flag = false;
+bool finish_ctrl_flag = false;
+bool rilascia = false;
 wxRichTextCtrl *chat;
 unsigned int curRow = 0;
 unsigned int curCol = 0;

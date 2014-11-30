@@ -684,7 +684,7 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
  */
 void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	printf("ClientID %u timeouts with message %s\n", clientID, timeoutMessage);
-	//conta_client--;
+	conta_client--;
 }
 
 /*
@@ -711,15 +711,12 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 				persona[i].parla = 1;
 			}
 		}
-        printf("Client \"%s\" starts talking.\n", name);
-		nome_parla = "Client " + wxString::FromAscii(name);
-		nome_parla = nome_parla + " sta parlando.";
-		/*if (sound_flag == false /*&& tasto_stt_flag==true)
+        
+		if (sound_flag == false && tasto_stt_flag==true)
 		{
 			sound_flag = true;
 			recorder->startRecordingBufferedAudio();
-			printf("Client \"%s\" starts talking.\n", name);
-		}*/
+		}
     } else {
 		for (i = 0; i < MAX; i++)
 		{
@@ -730,47 +727,33 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			}
 		}
 		
-		if (tasto_stt_flag == true)
+		if (tasto_stt_flag == true || sound_flag==true || finish_ctrl_flag==true)
 		{
+			if (recorder->isRecording() == false) return;
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 			
 			if(strcmp(LINGUA,"Italiano")==0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
 			if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
 			if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
-			/*FILE *trad;
-			a:
-			Sleep(100);
-			if (trad = fopen("translate.txt", "r"))
-			{
-				fgets(traduzione_jar, 256, trad);
-				fflush(trad);
-				fclose(trad);
-				if (strcmp(traduzione_jar, "") != 0)
-				{
-					//fscanf(trad, "%s", &traduzione);
-					//wxMessageBox(wxString::FromAscii(traduzione_jar));
-					wxString prova = "\n" + wxString::FromAscii(LINGUA) + "\n";
-					wxString final = prova + wxString::FromUTF8(traduzione_jar);
-					ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL);
-					strcpy(traduzione_jar, "");
-					WinExec("Taskkill /IM java.exe /F", SW_HIDE);
-					Sleep(50);
-					WinExec("del /F translate.txt", SW_HIDE);
-					//WinExec("del /F recorded.wav", SW_HIDE);
-					remove("recorded.wav");
-					remove("translate.txt");
-					sound_flag = false;
-				}
 
-				
+			if (rilascia == true)
+			{
+				if (strcmp(LINGUA, "Italiano") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+				if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+				if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
 			}
-			else goto a;*/
 		}
-		
-        printf("Client \"%s\" stops talking.\n", name);
-		nome_parla = "Client " + wxString::FromAscii(name);
-		nome_parla = nome_parla + " non parla piu";
+		/*else if (finish_ctrl_flag == true)
+		{
+			recorder->stopRecordingAudio();
+			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
+
+			if (strcmp(LINGUA, "Italiano") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+			if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+			if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			finish_ctrl_flag = false;
+		}*/
 		
     }
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
@@ -1228,7 +1211,8 @@ void showClients(uint64 serverConnectionHandlerID) {
 		persona[i].parla = 0;
 		
 	}
-    for(i=0; ids[i]; i++) {
+    for(i=0; ids[i]; i++) 
+	{
         char* name;
         int talkStatus;
 
@@ -1566,7 +1550,7 @@ void showHelp() {
 unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID,  const char *message,
 anyID targetChannelID, const char *returnCode);
 
-DWORD WINAPI myThread(LPVOID lpParameter)
+DWORD WINAPI ClientStart(LPVOID lpParameter)
 {
     uint64 scHandlerID;
 	unsigned int error;
@@ -1757,6 +1741,9 @@ DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 				remove("recorded.wav");
 				remove("translate.txt");
 				sound_flag = false;
+				finish_ctrl_flag=false;
+				rilascia = false;
+				
 			}
 
 
@@ -1779,6 +1766,27 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 	return 0;
 }
 
+
+DWORD WINAPI CTRL_STT(LPVOID lpParameter)
+{
+
+	while (1 == 1)
+	{
+		if (GetAsyncKeyState(VK_CONTROL) && finish_ctrl_flag==false)
+		{
+			if (recorder->isRecording() == false)
+			{
+				recorder->startRecordingBufferedAudio();
+				finish_ctrl_flag = true;
+			}
+				Sleep(50);
+		}
+		
+		Sleep(50);
+
+	}
+	return 0;
+}
 //Do not add custom headers between
 //Header Include Start and Header Include End
 //wxDev-C++ designer will remove them
@@ -1798,13 +1806,14 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	EVT_CLOSE(ClientTsFrm::OnClose)
 	EVT_TIMER(ID_WXTIMER2,ClientTsFrm::WxTimer2Timer)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
-	EVT_BUTTON(ID_WXBUTTON3,ClientTsFrm::btnspeechClick)
+	EVT_BUTTON(ID_WXBITMAPBUTTON1,ClientTsFrm::btnspeechClick)
 	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::btnsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
 	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
 	EVT_MENU(ID_MNU_ESCI_1003, ClientTsFrm::Debug)
 	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
-	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::WxGrid1CellLeftClick)
+	EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
+	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 END_EVENT_TABLE()
 ////Event Table End
 
@@ -1839,17 +1848,35 @@ void ClientTsFrm::CreateGUIControls()
 		remove("");
 		fclose(translate);
 	}
-	WxGrid1 = new wxGrid(this, ID_WXGRID1, wxPoint(211, 72), wxSize(722, 350));
-	
-	
-	WxGrid1->CreateGrid(0, 2, wxGrid::wxGridSelectCells);
+	gridchat = new wxGrid(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350));
 
-	WxGrid1->SetColLabelValue(0, "Message");
-	WxGrid1->SetColLabelValue(1, "Play");
+	gridclient = new wxGrid(this, ID_GRIDCLIENT, wxPoint(10, 250), wxSize(184, 155));
+	gridclient->CreateGrid(0, 3, wxGrid::wxGridSelectCells);
+	gridclient->SetColLabelValue(0, "Nickname");
+	gridclient->SetColLabelValue(1, "Country");
+	gridclient->SetColLabelValue(2, "Status");
+
+	gridclient->SetRowLabelSize(0);
 	
-	WxGrid1->SetRowSize(curRow+1, 40);
-	WxGrid1->SetColSize(curCol, 610);
-	WxGrid1->SetColSize(curCol + 1, 30);
+	gridclient->AppendRows(4, true);
+	gridclient->SetRowSize(0, 40);
+	gridclient->SetRowSize(1, 40);
+	gridclient->SetRowSize(2, 40);
+	gridclient->SetRowSize(3, 40);
+
+	gridclient->SetColSize(0, 75);
+	gridclient->SetColSize(1, 60);
+	gridclient->SetColSize(2, 60);
+	
+
+	gridchat->CreateGrid(0, 2, wxGrid::wxGridSelectCells);
+
+	gridchat->SetColLabelValue(0, "Message");
+	gridchat->SetColLabelValue(1, "Play");
+	
+	gridchat->SetRowSize(curRow+1, 40);
+	gridchat->SetColSize(curCol, 610);
+	gridchat->SetColSize(curCol + 1, 30);
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
@@ -1887,22 +1914,26 @@ void ClientTsFrm::CreateGUIControls()
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 	txtmsg->SetFocus();
 
+	wxBitmap WxBitmapButton1_BITMAP(NULL);
+	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(10, 450), wxSize(28, 25), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
+	WxBitmapButton1->SetToolTip(_("Abilita SpeechToText Service"));
 
-	btnspeech = new wxButton(this, ID_WXBUTTON3, _("Speech to text disabilitato"), wxPoint(10, 450), wxSize(180, 31), 0, wxDefaultValidator, _("WxButton1"));
+	/*btnspeech = new wxButton(this, ID_WXBUTTON3, _("Speech to text disabilitato"), wxPoint(10, 450), wxSize(180, 31), 0, wxDefaultValidator, _("WxButton1"));
 	btnspeech->Show(true);
-	btnspeech->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+	btnspeech->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));*/
 
 	WxMenuBar1 = new wxMenuBar();
-	wxMenu *ID_MNU_FILE_1001_Mnu_Obj = new wxMenu();
+	ID_MNU_FILE_1001_Mnu_Obj = new wxMenu();
 	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_ESCI_1003, _("Esci"), _(""), wxITEM_NORMAL);
 	WxMenuBar1->Append(ID_MNU_FILE_1001_Mnu_Obj, _("File"));
 
-	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj = new wxMenu();
+	ID_MNU_OPZIONI_1004_Mnu_Obj = new wxMenu();
 	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_AUDIO_1005, _("Audio"), _(""), wxITEM_NORMAL);
+	ID_MNU_OPZIONI_1004_Mnu_Obj->AppendCheckItem(ID_MNU_SPEECH_1006, _("Abilita SpeechToText Service"), _(""));
 	WxMenuBar1->Append(ID_MNU_OPZIONI_1004_Mnu_Obj, _("Opzioni"));
 	SetMenuBar(WxMenuBar1);
 
-	SetTitle(_("ClientTs"));
+	SetTitle(_("TeamTranslate"));
 	SetIcon(wxNullIcon);
 	SetSize(8,8,1024,600);
 	Center();
@@ -1939,13 +1970,14 @@ void ClientTsFrm::CreateGUIControls()
 
 	txtnick->AppendText(NICK);
 	txtlingua->AppendText(LINGUA);
-	HANDLE myHandle = CreateThread(0, 0, myThread, NULL, 0, &myThreadID);
+	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
+	HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);
 	SetupColor();
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
-	griglia = WxGrid1;
+	griglia = gridchat;
 	
 
 }
@@ -1959,20 +1991,25 @@ void MyGridCellRenderer::Draw(wxGrid& grid,
 {
 	wxGridCellStringRenderer::Draw(grid, attr, dc, rect, row, col, isSelected);
 
-	wxBitmap* bitmap = new wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP);
 	dc.DrawBitmap(*bitmap, 0, 0, 0);
 	dc.DrawBitmap(*bitmap, rect.x+6, rect.y + 4);
 }
 
-void ClientTsFrm::WxGrid1CellLeftClick(wxGridEvent& event)
+void MyGridCellRenderer::setPicture(wxString nome)
+{
+
+	return;
+}
+
+void ClientTsFrm::gridchatCellLeftClick(wxGridEvent& event)
 {
 	wxToolTip * tooltip = new wxToolTip(diario[event.GetRow()].msgold);
 	tooltip->SetAutoPop(10000);
 	tooltip->SetMaxWidth(200);
-	strSpeak = wxString::FromAscii(strtok((char*)WxGrid1->GetCellValue(event.GetRow(), 0).mb_str().data(), ")"));
+	strSpeak = wxString::FromAscii(strtok((char*)gridchat->GetCellValue(event.GetRow(), 0).mb_str().data(), ")"));
 	strSpeak = wxString::FromAscii(strtok(NULL, ":"));
 	if (event.GetCol() == 1) { tts_flag = true; }
-	if (event.GetCol() == 0) { WxGrid1->GetGridWindow()->SetToolTip(tooltip); }
+	if (event.GetCol() == 0) { gridchat->GetGridWindow()->SetToolTip(tooltip); }
 
 }
 void ClientTsFrm::OnClose(wxCloseEvent& event)
@@ -1999,26 +2036,33 @@ void ClientTsFrm::RefreshChat()
     {
         if(persona[i].nome!="") 
         {
+			if (persona[i].parla == 0 && persona[i].scrive == 0) gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L""));
             txtclient->BeginTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue));
 			if (persona[i].parla == 1)
 			{
-				txtclient->WriteText(persona[i].nome+" ");
-				if (persona[i].lingua=="Italiano") txtclient->WriteImage(wxBitmap(italy_xpm));
-				if (persona[i].lingua == "Inglese") txtclient->WriteImage(wxBitmap(usa_xpm));
-				if (persona[i].lingua == "Portoghese") txtclient->WriteImage(wxBitmap(brasil_xpm));
+				gridclient->SetCellTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue), i, 0);
+				gridclient->SetCellValue(i, 0, persona[i].nome);
+				txtclient->WriteText(persona[i].nome + "\t");
+				if (persona[i].lingua == "Italiano") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/italy.bmp")); txtclient->WriteImage(wxBitmap(italy_xpm)); }
+				if (persona[i].lingua == "Inglese")  { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); txtclient->WriteImage(wxBitmap(usa_xpm)); }
+				if (persona[i].lingua == "Portoghese") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp")); txtclient->WriteImage(wxBitmap(brasil_xpm)); }
 				txtclient->WriteText("\t");
 				txtclient->WriteImage(wxBitmap(microphone_xpm));
+				gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/microphone.bmp"));
 			}
 			else if (persona[i].parla == 0)
 			{
-				txtclient->WriteText(persona[i].nome + " ");
-				if (persona[i].lingua == "Italiano") txtclient->WriteImage(wxBitmap(italy_xpm));
-				if (persona[i].lingua == "Inglese") txtclient->WriteImage(wxBitmap(usa_xpm));
-				if (persona[i].lingua == "Portoghese") txtclient->WriteImage(wxBitmap(brasil_xpm));
+				gridclient->SetCellTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue), i, 0);
+				gridclient->SetCellValue(i, 0, persona[i].nome);
+				txtclient->WriteText(persona[i].nome + "\t");
+				if (persona[i].lingua == "Italiano") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/italy.bmp")); txtclient->WriteImage(wxBitmap(italy_xpm)); }
+				if (persona[i].lingua == "Inglese") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); txtclient->WriteImage(wxBitmap(usa_xpm));}
+				if (persona[i].lingua == "Portoghese") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp")); txtclient->WriteImage(wxBitmap(brasil_xpm)); }
 				if (persona[i].scrive == 1)
 				{
 					txtclient->WriteText("\t");
 					txtclient->WriteImage(wxBitmap(keyboard_xpm));
+					gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/keyboard.bmp"));
 				}
 				
 				
@@ -2030,15 +2074,15 @@ void ClientTsFrm::RefreshChat()
         if(strGlobale!="" && StringTranslate!="" && StringTranslate!=oldStringTranslate/* strGlobale!=oldstrGlobale*/)
     {
 			if (wxString::FromAscii(MSG_SRC) == ">" || wxString::FromAscii(MSG_SRC) == "</html>" || MSG_SRC[0] == '<' || MSG_SRC[0] == '>') return;
-			WxGrid1->AppendRows(1, true);
+			gridchat->AppendRows(1, true);
         if(strNick==NICK)
         {
 			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-			WxGrid1->SetCellValue(messaggio,curRow,0);
-			WxGrid1->SetCellRenderer(curRow++, 1, new MyGridCellRenderer());
+			gridchat->SetCellValue(messaggio,curRow,0);
+			gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
 			
-			WxGrid1->AutoSizeRow(curRow - 1, true);
-			WxGrid1->SetColSize(curCol + 1, 30);
+			gridchat->AutoSizeRow(curRow - 1, true);
+			gridchat->SetColSize(curCol + 1, 30);
         }
         else
         {
@@ -2048,12 +2092,12 @@ void ClientTsFrm::RefreshChat()
                 {
                    
 					wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-					WxGrid1->SetCellTextColour(curRow, 0, wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
-					WxGrid1->SetCellValue(messaggio, curRow, 0);
-					WxGrid1->SetRowSize(curRow, 40);
-					WxGrid1->SetColSize(curCol, 578);
-					WxGrid1->SetColSize(curCol + 1, 60);
-					WxGrid1->SetCellRenderer(curRow++, 1, new MyGridCellRenderer());
+					gridchat->SetCellTextColour(curRow, 0, wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
+					gridchat->SetCellValue(messaggio, curRow, 0);
+					gridchat->SetRowSize(curRow, 40);
+					gridchat->SetColSize(curCol, 578);
+					gridchat->SetColSize(curCol + 1, 60);
+					gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
                     
                 }
             }
@@ -2121,12 +2165,19 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 {
 	//speak(LINGUA,(char*)StringTranslate.mb_str().data());
 	tasto_stt_flag = !tasto_stt_flag;
-	if (tasto_stt_flag==false) btnspeech->SetLabel("Speech to text disabilitato");
+	if (tasto_stt_flag == false)
+	{
+		ID_MNU_OPZIONI_1004_Mnu_Obj->SetLabel(ID_MNU_SPEECH_1006, "Speech to text disabilitato");
+		ID_MNU_OPZIONI_1004_Mnu_Obj->Check(ID_MNU_SPEECH_1006, false);
+		WxBitmapButton1->SetBitmap(NULL);
+	}
 	else
 	{
 		sound_flag = true;
 		recorder->startRecordingBufferedAudio();
-		btnspeech->SetLabel("Speech to text abilitato");
+		ID_MNU_OPZIONI_1004_Mnu_Obj->SetLabel(ID_MNU_SPEECH_1006, "Speech to text abilitato");
+		WxBitmapButton1->SetBitmap(microphone_xpm);
+		ID_MNU_OPZIONI_1004_Mnu_Obj->Check(ID_MNU_SPEECH_1006, true);
 	}
 	
 	
@@ -2167,4 +2218,10 @@ void ClientTsFrm::Wizard(wxCommandEvent& event)
 	// insert your code here
 	AudioWizard* dialog = new AudioWizard(NULL);
 	dialog->Show(true);
+}
+
+void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
+{
+	// insert your code here
+	btnspeechClick(event);
 }

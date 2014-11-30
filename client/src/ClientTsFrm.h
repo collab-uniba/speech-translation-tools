@@ -38,11 +38,12 @@
 
 ////Dialog Style Start
 #undef ClientTsFrm_STYLE
-#define ClientTsFrm_STYLE wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX
+#define ClientTsFrm_STYLE  wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX
 ////Dialog Style End
 
 #define MENU_ESCI 1800
 #define MENU_OPZIONI 1801
+#define MENU_SPEECH 1802
 
 class ClientTsFrm : public wxFrame
 {
@@ -51,7 +52,7 @@ class ClientTsFrm : public wxFrame
 		double conta;
 		
 	public:
-		ClientTsFrm(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("ClientTs"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = ClientTsFrm_STYLE);
+		ClientTsFrm(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = ClientTsFrm_STYLE);
 		virtual ~ClientTsFrm();
 		void WxButton1Click(wxCommandEvent& event);
 		void btnsendClick(wxCommandEvent& event);
@@ -65,9 +66,10 @@ class ClientTsFrm : public wxFrame
 		void ClientTsFrmActivate(wxActivateEvent& event);
 		void WxButton2Click(wxCommandEvent& event);
 		void WxTimer2Timer(wxTimerEvent& event);
-		void WxGrid1CellLeftClick(wxGridEvent& event);
+		void gridchatCellLeftClick(wxGridEvent& event);
 		void Debug(wxCommandEvent& event);
 		void Wizard(wxCommandEvent& event);
+		void WxBitmapButton1Click(wxCommandEvent& event);
 		
 	private:
 		//Do not add custom control declarations between
@@ -85,8 +87,14 @@ class ClientTsFrm : public wxFrame
 		wxRichTextCtrl *txtchat;
 		wxButton *btnsend;
 		wxTextCtrl *txtmsg;
-		wxGrid *WxGrid1;
+		wxGrid *gridchat;
+		wxGrid *gridclient;
+		wxBoxSizer *sizer;
+		wxGridSizer *gridsizer;
 		wxMenuBar *WxMenuBar1;
+		wxMenu *ID_MNU_FILE_1001_Mnu_Obj;
+		wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
+		wxBitmapButton *WxBitmapButton1;
 		////GUI Control Declaration End
 		
 	private:
@@ -97,7 +105,8 @@ class ClientTsFrm : public wxFrame
 		enum
 		{
 			////GUI Enum Control ID Start
-			ID_WXGRID1 = 1033,
+			ID_GRIDCLIENT=1034,
+			ID_GRIDCHAT = 1033,
 			ID_WXTIMER2 = 1014,
 			ID_WXTIMER1 = 1006,
 			ID_WXBUTTON3 = 1013,
@@ -114,6 +123,8 @@ class ClientTsFrm : public wxFrame
 			ID_MNU_ESCI_1003 = 1113,
 			ID_MNU_OPZIONI_1004 = 1114,
 			ID_MNU_AUDIO_1005 = 1115,
+			ID_MNU_SPEECH_1006 = 1116,
+			ID_WXBITMAPBUTTON1 = 1024,
 			////GUI Enum Control ID End
 			ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values
 		};
@@ -124,6 +135,8 @@ class ClientTsFrm : public wxFrame
 };
 class MyGridCellRenderer : public wxGridCellStringRenderer
 {
+private:
+	wxBitmap* bitmap;
 public:
 	virtual void Draw(wxGrid& grid,
 		wxGridCellAttr& attr,
@@ -131,5 +144,12 @@ public:
 		const wxRect& rect,
 		int row, int col,
 		bool isSelected);
+		void setPicture(wxString);
+
+		MyGridCellRenderer(wxString nome)
+		{
+			if (nome == "") bitmap = new wxBitmap(NULL);
+			else bitmap = new wxBitmap(nome, wxBITMAP_TYPE_BMP);
+		}
 };
 #endif

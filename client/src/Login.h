@@ -68,7 +68,7 @@ class Login : public wxDialog
 		wxStaticText *lblserver;
 		////GUI Control Declaration End
 		/*char *SERVER_ADDRESS;
-		char *NICK;*/
+		char *CURRENT_NICK;*/
 		
 	private:
 		//Note: if you receive any error with these enum IDs, then you need to
