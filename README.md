@@ -2,7 +2,7 @@ TeamTranslate
 ========================
 A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Microsoft Bing Translator, speech conversion by Nuance Dragon. The tool is intended to support multilanguage group communcation and collaboration. 
 
-TeamTranslate is written in C/C++ and uses WxWidgets for the UI.
+TeamTranslate is written in C/C++ and uses WxWidgets for the UI. You can download the client installer from [here](https://github.com/xandros90/speech-translation-tools/blob/teamspeak/client/installer/TeamTranslate.msi?raw=true).
 
 It is available under MPL license.
 
