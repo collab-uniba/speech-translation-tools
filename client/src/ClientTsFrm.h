@@ -146,10 +146,10 @@ public:
 		bool isSelected);
 		void setPicture(wxString);
 
-		MyGridCellRenderer(wxString nome)
+		MyGridCellRenderer(wxString name)
 		{
-			if (nome == "") bitmap = new wxBitmap(NULL);
-			else bitmap = new wxBitmap(nome, wxBITMAP_TYPE_BMP);
+			if (name == "") bitmap = new wxBitmap(NULL);
+			else bitmap = new wxBitmap(name, wxBITMAP_TYPE_BMP);
 		}
 };
 #endif

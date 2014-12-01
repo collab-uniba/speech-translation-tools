@@ -85,7 +85,7 @@ struct WaveHeader {
 	unsigned int dataLen;
 };
 
-typedef struct colore
+typedef struct color
 {
 	unsigned short red;
 	unsigned short green;
@@ -94,12 +94,12 @@ typedef struct colore
 
 struct user
 {
-	wxString nome;
-	unsigned short colore;
-	unsigned short usato = 0;
-	unsigned short parla = 0;
-	unsigned short scrive = 0;
-	wxString lingua;
+	wxString name;
+	unsigned short color;
+	unsigned short used = 0;
+	unsigned short speak = 0;
+	unsigned short write = 0;
+	wxString lang;
 };
 
 struct stringa {
@@ -145,52 +145,46 @@ DWORD myThreadID3;
 DWORD myThreadID4;
 
 int iresult;
-int numero;
-int max;
-short flag = 0;
+short flag = 0; //Flag to exit from client
 
 wxString strGlobale = "";
 wxString oldstrGlobale = "";
 wxString strNick = "";
 wxString strMessage = "";
-wxDateTime data;
 wxString StringTranslate = "";
 wxString oldStringTranslate = "";
 wxString StringOriginal = "";
-wxString TESTTTS = "";
-wxImage *immagine;
+wxString strSpeak = "";
+
 char SERVER_ADDRESS[20];
 char NICK[50];
-char LINGUA[20];
-char SERVIZIO[20];
-char LINGUA_MSG_SRC[20] = { "" };
+char CURRENT_LANG[20];
+char SERVICE[20];
+char LANG_MSG_SRC[20] = { "" };
 char MSG_SRC[50] = { "" };
 char GOOGLE_API_KEY[50] = { "" };
 char url[256] = { "" };
 char MSG_PARSE[1024] = { "" };
-char traduzione_jar[512] = { "" };
-wxString nome_parla = "";
-wxString strSpeak = "";
-unsigned short PORT = 9987;
-int cmbel = 0;
-int indice = -1;
-int VAD_VALUE = 1;
-COLORE colori[10];
-unsigned conta_client;
-unsigned short set_color_client;
-unsigned short coloreClient[MAX];
-struct user persona[MAX];
-ISoundEngine* engine;
-IAudioRecorder* recorder;
-bool sound_flag = false;
-bool tts_flag = false;
-bool rec_flag = false;
-bool write_flag = false;
-bool tasto_stt_flag = false;
-bool finish_ctrl_flag = false;
-bool rilascia = false;
-wxRichTextCtrl *chat;
-unsigned int curRow = 0;
-unsigned int curCol = 0;
-MESSAGE diario[1024];
-wxGrid *griglia;
+char translate_jar[512] = { "" };
+
+
+unsigned short PORT = 9987;	//Number port of server
+int cmbel = 0;				//Index of comboBox choose
+int index = -1;
+int VAD_VALUE = 1;			//Minimum value to record audio
+COLORE colors[10];
+unsigned count_client;
+unsigned short set_color_client;	//Own client color name
+struct user person[MAX];			//Array of user to record client's information
+ISoundEngine* engine;				//Audio Engine to record sound
+IAudioRecorder* recorder;			//Flow of audio daa
+bool sound_flag = false;			//Flag to start/stop 
+bool tts_flag = false;				//Flag to start/stop TextToSpeech 		
+bool write_flag = false;			//Flag to recognize Typing
+bool tasto_stt_flag = false;		//Flag to activate Automatic SpeechToText
+bool finish_ctrl_flag = false;		//Flag to recognize CTRL press button
+wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
+unsigned int curRow = 0;			//Initialize Row index
+unsigned int curCol = 0;			//Initialize Column index
+MESSAGE diary[1024];				//Structure to record log chatptr
+wxGrid *gridptr;					//Pointer to edit the chatptr grid

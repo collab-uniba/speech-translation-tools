@@ -10,21 +10,26 @@
 
 #include "GlobalVariables.h"
 
+
+/*
+This procedure allows the use of TextToSpeech offered by Microsoft
+it has two parameters: the language of message and body of message
+*/
 	void speak(char *LANG, char*MSG)
 	{
-		char CODE[3] = { "" };
+		
 		HRESULT hr = S_OK;
 		CComPtr <ISpVoice>		cpVoice;
 		CComPtr <ISpObjectToken>	cpToken;
 		CComPtr <IEnumSpObjectTokens>	cpEnum;
-		wchar_t* voce = new wchar_t[1024];
-		wcscpy(voce, L"Gender=Female;Language=");
+		wchar_t* voice = new wchar_t[1024];
+		wcscpy(voice, L"Gender=Female;Language=");
 		hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
-		if (strcmp(LANG, "Italiano") == 0) wcscat(voce, L"410");
-		if (strcmp(LANG, "Inglese") == 0) wcscat(voce, L"809");
-		if (strcmp(LANG, "Portoghese") == 0) wcscat(voce, L"416");
+		if (strcmp(LANG, "Italian") == 0) wcscat(voice, L"410");
+		if (strcmp(LANG, "English") == 0) wcscat(voice, L"809");
+		if (strcmp(LANG, "Portuguese") == 0) wcscat(voice, L"416");
 			
-			if (SUCCEEDED(hr)) hr = SpEnumTokens(SPCAT_VOICES, voce, NULL, &cpEnum);
+			if (SUCCEEDED(hr)) hr = SpEnumTokens(SPCAT_VOICES, voice, NULL, &cpEnum);
 			if (SUCCEEDED(hr)) hr = cpEnum->Next(1, &cpToken, NULL);
 			if (SUCCEEDED(hr)) hr = cpVoice->SetVoice(cpToken);
 
@@ -42,12 +47,14 @@
 			cpToken.Release();
 			
 	}
-	void stampa(char*parola)
+
+	void Print(char*word)
 	{
 		wchar_t* wString = new wchar_t[4096];
-		MultiByteToWideChar(CP_ACP, 0, parola, -1, wString, 4096);
+		MultiByteToWideChar(CP_ACP, 0, word, -1, wString, 4096);
 		MessageBox(NULL, wString, L"Test print handler", MB_OK);
 	}
+
 	static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 	{
 		struct WriteThis *pooh = (struct WriteThis *)userp;
@@ -64,6 +71,10 @@
 
 		return 0;                          /* no more data left to deliver */
 	}
+
+	/*
+	This procedure save the audio recorded into the file
+	*/
 	void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
 	{
 		if (!data)
@@ -117,33 +128,17 @@
 			printf("Could not open %s to write audio data\n", filename);
 	}
 
-	std::string hex(unsigned int c)
-	{
-		std::ostringstream stm;
-		stm << '%' << std::hex << std::uppercase << c;
-		return stm.str();
-	}
 
-	std::string url_encode(const std::string& str)
-	{
-		static const std::string unreserved = "0123456789"
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-			"abcdefghijklmnopqrstuvwxyz"
-			"-_.~";
-		std::string result;
-
-		for (unsigned char c : str)
-		{
-			if (unreserved.find(c) != std::string::npos) result += c;
-			else result += hex(c);
-		}
-
-		return result;
-	}
-
+	/*
+	This function save into the file the access_key value for the bing
+	translation transitions
+	*/
 int JSON()
 {
     const char json[2048*2]={""};
+	/*
+	Load json string to parse
+	*/
 	FILE * jfile;
 	if (jfile = fopen("..\\conf\\pagina.htm", "r"))
 	{
@@ -164,8 +159,6 @@ int JSON()
 	if (document.ParseInsitu<0>(buffer).HasParseError())
 		return 1;
 #endif
-
-	//wxMessageBox("\nParsing to document succeeded.\n");
 
 	////////////////////////////////////////////////////////////////////////////
 	// 2. Access values in document. 
@@ -189,43 +182,51 @@ int JSON()
 	assert(document["scope"].IsString());
 	printf("hello = %s\n", document["scope"].GetString());
 	
+	/*
+	Save into JSON.txt the access_key
+	*/
 	FILE*js;
 	if (js = fopen("..\\conf\\JSON.txt", "w"))
 	{
-		//fprintf(js,"%s\n",document["token_type"].GetString());
 		fprintf(js, "%s", document["access_token"].GetString());
-		//fprintf(js,"%s\n",document["expires_in"].GetString());
-		//fprintf(js,"%s\n",document["scope"].GetString());
 		fclose(js);
 	}
 	//return document["access_token"].GetString();
 	return 0;
 }
+
+/*
+	Initialize Client's label colors,the values are RGB
+*/
 void SetupColor()
 {
-    colori[0].red=255;
-    colori[0].green=0;
-    colori[0].blue=0;
+    colors[0].red=255;
+    colors[0].green=0;
+    colors[0].blue=0;
     
-    colori[1].red=0;
-    colori[1].green=0;
-    colori[1].blue=255;
+    colors[1].red=0;
+    colors[1].green=0;
+    colors[1].blue=255;
 	
-	colori[2].red = 102;
-	colori[2].green = 0;
-	colori[2].blue = 102;
+	colors[2].red = 102;
+	colors[2].green = 0;
+	colors[2].blue = 102;
 
-	colori[3].red = 148;
-	colori[3].green = 0;
-	colori[3].blue = 211;
+	colors[3].red = 148;
+	colors[3].green = 0;
+	colors[3].blue = 211;
 	
-	colori[4].red = 0;
-	colori[4].green = 100;
-	colori[4].blue = 0;
+	colors[4].red = 0;
+	colors[4].green = 100;
+	colors[4].blue = 0;
 
 	int i;
-	for (i = 0; i < MAX;i++) persona[i].parla = 0;
+	for (i = 0; i < MAX;i++) person[i].speak = 0;
 }
+
+/*
+	Initialize string structure for HTTP interactions
+*/
 void init_string(struct stringa *s) {
   s->len = 0;
   s->ptr = (char*)malloc(s->len+1);
@@ -236,6 +237,9 @@ void init_string(struct stringa *s) {
   s->ptr[0] = '\0';
 }
 
+/*
+	Save data from http request into string
+*/
 size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringa *s)
 {
   size_t new_len = s->len + size*nmemb;
@@ -251,41 +255,23 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringa *s)
   return size*nmemb;
 }
 
-/*static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+
+void parseBing(char *word)
 {
-	size_t retcode;
-	curl_off_t nread;
 
-	intptr_t fd = (intptr_t)stream;
-
-	retcode = read(fd, ptr, size * nmemb);
-
-	nread = (curl_off_t)retcode;
-
-	fprintf(stderr, "*** We read %" CURL_FORMAT_CURL_OFF_T
-		" bytes from file\n", nread);
-
-	return retcode;
-}*/
-
-void parseBing(char *parola)
-{
-	/*wchar_t* wString = new wchar_t[4096];
-	MultiByteToWideChar(CP_ACP, 0, parola, -1, wString, 4096);
-	MessageBox(NULL, wString, L"Test print handler", MB_OK);*/
     char *buffer;
     unsigned int i;
 	int result;
-    buffer=strstr(parola,">");
-	result = (int)(buffer - parola + 1);
+    buffer=strstr(word,">");
+	result = (int)(buffer - word + 1);
 	if (buffer != NULL)
-		printf("%s found at position %d\n", parola, result);
+		printf("%s found at position %d\n", word, result);
 	else
 		
 		return;
     for(i=1;i<strlen(buffer);i++) buffer[i-1]=buffer[i];
     buffer[strlen(buffer)-10]='\0';
-    StringTranslate=wxString::FromAscii(buffer);
+    StringTranslate=wxString::FromAscii(buffer); // StringTranslate contains the text translate
 }
 
 void parseGoogle(char *str)
@@ -302,8 +288,6 @@ void parseGoogle(char *str)
   while (pch != NULL)
   {
     strcat(buffer,pch);
-    //strcat(buffer,"%20");
-    //printf ("%s\n",pch);
     pch = strtok (NULL, ",.:\"'{}();200[]");
   }
 
@@ -312,9 +296,6 @@ void parseGoogle(char *str)
 	char * p = strstr(buffer, "Text");
 	if (p == NULL)
 	{
-		
-		//MessageBox(NULL, LPCWSTR(str), LPCWSTR("STR"), NULL);
-		//MessageBox(NULL, LPCWSTR(p), LPCWSTR("P"), NULL);
 		return;
 	}
 	else
@@ -328,13 +309,13 @@ void parseGoogle(char *str)
 			finale[j] = stringalpha[i];
 			j++;
 		}
-		StringTranslate = wxString::FromAscii(finale);
+		StringTranslate = wxString::FromAscii(finale);	//StringTranslate contains the message translate
 	}
 }
 
-char * richiestaBing(wxString StringSource, char * lingua)
+char * richiestaBing(wxString StringSource, char * lang)
 {
-    if(strcmp(lingua,LINGUA)==0) return (char*)StringSource.mb_str().data();
+    if(strcmp(lang,CURRENT_LANG)==0) return (char*)StringSource.mb_str().data();	//If the message is written in client's language then return
     
     CURL *curl2;
     CURL *curl3;
@@ -352,13 +333,13 @@ char * richiestaBing(wxString StringSource, char * lingua)
     if(curl2) 
     {
   
-    curl_easy_setopt(curl2, CURLOPT_URL, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13");
-    curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(curl2, CURLOPT_WRITEFUNCTION, writefunc);
-    curl_easy_setopt(curl2, CURLOPT_WRITEDATA, &f);
-    curl_easy_setopt(curl2, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl2, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    curl_easy_setopt(curl2, CURLOPT_URL, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13"); //Set the url of http request
+    curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYHOST, 0L);	//Use SSL Protocol
+    curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYPEER, 0L);	//Use SSL protocol
+    curl_easy_setopt(curl2, CURLOPT_WRITEFUNCTION, writefunc);	//Function to handle http request
+    curl_easy_setopt(curl2, CURLOPT_WRITEDATA, &f);				//Save answer into string 
+    curl_easy_setopt(curl2, CURLOPT_POST, 1L);					//Inform the server to a post request
+    curl_easy_setopt(curl2, CURLOPT_USERAGENT, "libcurl-agent/1.0");	//Fill user-agent to not decline our request
     curl_easy_setopt(curl2, CURLOPT_VERBOSE, 1L);
      
     FILE *bing;
@@ -371,7 +352,7 @@ char * richiestaBing(wxString StringSource, char * lingua)
     fscanf(bing,"%s",CLIENT_ID);
     fscanf(bing,"%s",CLIENT_SECRET);
     
-    char * encode_key=curl_easy_escape(curl2,CLIENT_SECRET,strlen(CLIENT_SECRET));
+    char * encode_key=curl_easy_escape(curl2,CLIENT_SECRET,strlen(CLIENT_SECRET));	//Leave incorrect url characters from CLIENT_ID nad CLIENT_SECRET
     char url2[1024]={""};
     strcpy(url2,"client_id=");
     strcat(url2,CLIENT_ID);
@@ -382,6 +363,9 @@ char * richiestaBing(wxString StringSource, char * lingua)
 	}
     
     res2 = curl_easy_perform(curl2);
+	/*
+	Save into pagina.htm the json answer of access_token
+	*/
 	FILE *html;
 	if (html = fopen("..\\conf\\pagina.htm", "w"))
 	{
@@ -390,7 +374,7 @@ char * richiestaBing(wxString StringSource, char * lingua)
 		fclose(html);
 	}
 
-    JSON();
+    JSON(); //Parse answer for access_token value to start the translation
     char auth[2048]={""};
     char header[2048+512]={""};
     
@@ -405,29 +389,29 @@ char * richiestaBing(wxString StringSource, char * lingua)
     strcat(header,auth);
     char languagesrc[30]={""};
     char languagedst[30]={""};
-    if(strcmp(lingua,"Italiano")==0)
+    if(strcmp(lang,"Italian")==0)
     {
         strcpy(languagesrc,"it");
-        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
-        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
-        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+        if(strcmp(CURRENT_LANG,"English")==0) strcpy(languagedst,"en");
+        if(strcmp(CURRENT_LANG,"Italian")==0) strcpy(languagedst,"it");
+        if(strcmp(CURRENT_LANG,"Portuguese")==0) strcpy(languagedst,"pt");
     }
-    else if(strcmp(lingua,"Inglese")==0)
+    else if(strcmp(lang,"English")==0)
     {
         strcpy(languagesrc,"en");
-        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
-        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
-        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+        if(strcmp(CURRENT_LANG,"English")==0) strcpy(languagedst,"en");
+        if(strcmp(CURRENT_LANG,"Italian")==0) strcpy(languagedst,"it");
+        if(strcmp(CURRENT_LANG,"Portuguese")==0) strcpy(languagedst,"pt");
     }
-    else if(strcmp(lingua,"Portoghese")==0)
+    else if(strcmp(lang,"Portuguese")==0)
     {
         strcpy(languagesrc,"pt");
-        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
-        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
-        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+        if(strcmp(CURRENT_LANG,"English")==0) strcpy(languagedst,"en");
+        if(strcmp(CURRENT_LANG,"Italian")==0) strcpy(languagedst,"it");
+        if(strcmp(CURRENT_LANG,"Portuguese")==0) strcpy(languagedst,"pt");
     }
     curl3 = curl_easy_init();
-    char *veroheader=curl_easy_unescape(curl3 , header , 0 , NULL);
+    char *trueheader=curl_easy_unescape(curl3 , header , 0 , NULL);
 	
 	
     const char *BufferSource=curl_easy_escape(curl3, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
@@ -444,10 +428,8 @@ char * richiestaBing(wxString StringSource, char * lingua)
     strcat(url3,languagedst);
   
     curl_easy_setopt(curl3, CURLOPT_URL, url3);
-    //curl_easy_setopt(curl3, CURLOPT_POST, 1L);
     curl_easy_setopt(curl3, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     chunk = curl_slist_append(chunk, header);
-    //chunk = curl_slist_append(chunk, "Content-Type: text/xml");
     res2 = curl_easy_setopt(curl3, CURLOPT_HTTPHEADER, chunk);
     curl_easy_setopt(curl3, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(curl3, CURLOPT_WRITEFUNCTION, writefunc);
@@ -473,11 +455,12 @@ char * richiestaBing(wxString StringSource, char * lingua)
 }
 
 
-char* richiestaGoogle(wxString StringSource, char * lingua)
+char* richiestaGoogle(wxString StringSource, char * lang)
 {
   
-    if(strcmp(lingua,LINGUA)==0) return (char*)StringSource.mb_str().data();
-    CURL *curl;
+    if(strcmp(lang,CURRENT_LANG)==0) return (char*)StringSource.mb_str().data();
+    
+	CURL *curl;
     CURLcode res;
 
     strcpy(url,"");
@@ -488,26 +471,26 @@ char* richiestaGoogle(wxString StringSource, char * lingua)
     curl = curl_easy_init();
     struct stringa s;
     init_string(&s);
-    if(strcmp(lingua,"Italiano")==0)
+    if(strcmp(lang,"Italian")==0)
     {
         strcpy(languagesrc,"it");
-        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
-        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
-        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+        if(strcmp(CURRENT_LANG,"English")==0) strcpy(languagedst,"en");
+        if(strcmp(CURRENT_LANG,"Italian")==0) strcpy(languagedst,"it");
+        if(strcmp(CURRENT_LANG,"Portuguese")==0) strcpy(languagedst,"pt");
     }
-    else if(strcmp(lingua,"Inglese")==0)
+    else if(strcmp(lang,"English")==0)
     {
         strcpy(languagesrc,"en");
-        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
-        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
-        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+        if(strcmp(CURRENT_LANG,"English")==0) strcpy(languagedst,"en");
+        if(strcmp(CURRENT_LANG,"Italian")==0) strcpy(languagedst,"it");
+        if(strcmp(CURRENT_LANG,"Portuguese")==0) strcpy(languagedst,"pt");
     }
-    else if(strcmp(lingua,"Portoghese")==0)
+    else if(strcmp(lang,"Portuguese")==0)
     {
         strcpy(languagesrc,"pt");
-        if(strcmp(LINGUA,"Inglese")==0) strcpy(languagedst,"en");
-        if(strcmp(LINGUA,"Italiano")==0) strcpy(languagedst,"it");
-        if(strcmp(LINGUA,"Portoghese")==0) strcpy(languagedst,"pt");
+        if(strcmp(CURRENT_LANG,"English")==0) strcpy(languagedst,"en");
+        if(strcmp(CURRENT_LANG,"Italian")==0) strcpy(languagedst,"it");
+        if(strcmp(CURRENT_LANG,"Portuguese")==0) strcpy(languagedst,"pt");
     }
     
     
@@ -684,7 +667,7 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
  */
 void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	printf("ClientID %u timeouts with message %s\n", clientID, timeoutMessage);
-	conta_client--;
+	count_client--;
 }
 
 /*
@@ -706,9 +689,9 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
         {
 		for (i = 0; i < MAX; i++)
 		{
-			if (persona[i].nome==name)
+			if (person[i].name==name)
 			{
-				persona[i].parla = 1;
+				person[i].speak = 1;
 			}
 		}
         
@@ -720,9 +703,9 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
     } else {
 		for (i = 0; i < MAX; i++)
 		{
-			if (persona[i].nome == name && persona[i].parla==1)
+			if (person[i].name == name && person[i].speak==1)
 			{
-				persona[i].parla = 0;
+				person[i].speak = 0;
 				break;
 			}
 		}
@@ -733,25 +716,19 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 			
-			if(strcmp(LINGUA,"Italiano")==0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-			if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
-			if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			if(strcmp(CURRENT_LANG,"Italian")==0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+			if (strcmp(CURRENT_LANG, "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+			if (strcmp(CURRENT_LANG, "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
 
-			if (rilascia == true)
-			{
-				if (strcmp(LINGUA, "Italiano") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-				if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
-				if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
-			}
 		}
 		/*else if (finish_ctrl_flag == true)
 		{
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 
-			if (strcmp(LINGUA, "Italiano") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-			if (strcmp(LINGUA, "Inglese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
-			if (strcmp(LINGUA, "Portoghese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			if (strcmp(CURRENT_LANG, "Italian") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+			if (strcmp(CURRENT_LANG, "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+			if (strcmp(CURRENT_LANG, "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
 			finish_ctrl_flag = false;
 		}*/
 		
@@ -1071,57 +1048,62 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
     char *name;
     unsigned int error;
     wxString mystring = wxString::FromAscii(message);
-	wxString nome;
     
      if((error = ts3client_getClientVariableAsString(serverConnectionHandlerID, fromID, CLIENT_NICKNAME, &name)) != ERROR_ok) {  /* Query client nickname... */
      printf("Error querying client nickname: %d\n", error);
      return;
         }
         
-	 /*chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
-	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);
-	 chat->ScrollIntoView(chat->GetCaretPosition(), WXK_PAGEDOWN);*/
+		
        
-		strtok((char*)name, "$");
+		strtok((char*)name, "$");	//Extract from entire message the name value example: $Adam -> Adam
 		strNick = wxString::FromAscii(strtok(NULL, "$"));
-	    strcpy(LINGUA_MSG_SRC, strtok((char*)message, "\n"));
-		strcpy(MSG_SRC, strtok(NULL, "\n"));
+	    strcpy(LANG_MSG_SRC, strtok((char*)message, "\n"));	//Extract from entire message the language field
+		strcpy(MSG_SRC, strtok(NULL, "\n"));				//Extract the body of message
 
-		wxString parsata = wxString::FromAscii(MSG_SRC);
-		if (parsata == "write1")
+		/*Example $Adam$English$How are you?
+		strNick= Adam;
+		LANG_MSG_SRC=English
+		MSG_SRC=How are you?
+		*/
+
+		wxString parsata = wxString::FromAscii(MSG_SRC); //convert char * to wxString
+		
+		if (parsata == "write1")	//if it is true the client is typing a message
 		{
 			int i;
 			for (i = 0; i < MAX; i++)
 			{
-				if (persona[i].nome == strNick)
+				if (person[i].name == strNick)
 				{
-					persona[i].scrive = 1;
+					person[i].write = 1;	//this person is writing
 				}
 			}
 			return;
 		}
 
-		if (parsata == "write0")
+		if (parsata == "write0")	//if it is true the client has stopped to write
 		{
 			int i;
 			for (i = 0; i < MAX; i++)
 			{
-				if (persona[i].nome == strNick)
+				if (person[i].name == strNick)
 				{
-					persona[i].scrive = 0;
+					person[i].write = 0;
 
 				}
 			}
 			return;
 		}
 
-        nome=wxString::FromAscii(name);
-        strGlobale=nome+": "+mystring;
+        strGlobale=wxString::FromAscii(name)+": "+mystring;
 		
 		
         
         
-       
+		/*
+		Ignore Debug value from Translation Service
+		*/
 
 		if (MSG_SRC[0] == '<') return;
 		strMessage = wxString::FromAscii(MSG_SRC);
@@ -1132,37 +1114,36 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID,  anyID targetMode,  an
 
 		
 
-		griglia->Scroll(curRow+20,curCol+20);
-		if (strcmp(LINGUA_MSG_SRC, LINGUA) == 0)
+		gridptr->Scroll(curRow+20,curCol+20);	//ScrollDown chat when message is arrived
+		
+		if (strcmp(LANG_MSG_SRC, CURRENT_LANG) == 0)	//if the message's language is equal with my language then display without translation
 		{
-			indice++;
+			index++;
 			StringTranslate = wxString::FromAscii(MSG_SRC);
 			return;
 		}
-        if(strcmp(SERVIZIO,"google")==0)
+
+        if(strcmp(SERVICE,"google")==0)
         {
-		if (strcmp(MSG_SRC, richiestaGoogle(MSG_SRC, LINGUA_MSG_SRC)) == 0) StringTranslate = wxString::FromAscii(MSG_SRC);
+		if (strcmp(MSG_SRC, richiestaGoogle(MSG_SRC, LANG_MSG_SRC)) == 0) StringTranslate = wxString::FromAscii(MSG_SRC);
 		else
 		{
-			parseGoogle(richiestaGoogle(parsata, LINGUA_MSG_SRC));
-			indice++;
-			diario[indice].msgold = wxString::FromUTF8(parsata);
-			diario[indice].msgnew = StringTranslate;
+			parseGoogle(richiestaGoogle(parsata, LANG_MSG_SRC));
+			index++;
+			diary[index].msgold = wxString::FromUTF8(parsata);	//Save original message
+			diary[index].msgnew = StringTranslate;				//Save translate message
 		}
         }
         
-        if(strcmp(SERVIZIO,"bing")==0)
+        if(strcmp(SERVICE,"bing")==0)
         {
-			if (strcmp(MSG_SRC, richiestaBing(MSG_SRC, LINGUA_MSG_SRC)) == 0) StringTranslate = wxString::FromAscii(MSG_SRC);
+			if (strcmp(MSG_SRC, richiestaBing(MSG_SRC, LANG_MSG_SRC)) == 0) StringTranslate = wxString::FromAscii(MSG_SRC);
 			else
 			{
-				parseBing(richiestaBing(parsata, LINGUA_MSG_SRC));
-				indice++;
-				diario[indice].msgold = wxString::FromUTF8(parsata);
-				diario[indice].msgnew = StringTranslate;
-				/*stampa((char*)strNick.mb_str().data());
-				stampa((char*)diario[indice].msgold.mb_str().data());
-				stampa((char*)diario[indice].msgnew.mb_str().data());*/
+				parseBing(richiestaBing(parsata, LANG_MSG_SRC));
+				index++;
+				diary[index].msgold = wxString::FromUTF8(parsata);	//Save original message
+				diary[index].msgnew = StringTranslate;				//Save translate message
 			}
         }
 
@@ -1184,7 +1165,7 @@ void showClients(uint64 serverConnectionHandlerID) {
     int i;
     
     unsigned int error;
-    conta_client=0;
+    count_client=0;
 
     printf("\nList of all visible clients on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
     if((error = ts3client_getClientList(serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of client IDs */
@@ -1203,14 +1184,18 @@ void showClients(uint64 serverConnectionHandlerID) {
 		return;
 	}
 
+	/*
+	Reset informations about clients
+	*/
 	for (i = 0; i < MAX; i++)
 	{
-		persona[i].nome = "";
-		persona[i].usato = 0;
-		persona[i].lingua = "";
-		persona[i].parla = 0;
+		person[i].name = "";
+		person[i].used = 0;
+		person[i].lang = "";
+		person[i].speak = 0;
 		
 	}
+
     for(i=0; ids[i]; i++) 
 	{
         char* name;
@@ -1234,18 +1219,18 @@ void showClients(uint64 serverConnectionHandlerID) {
 		}
 		
 		
-        if(strcmp(name,NICK)==0) set_color_client=i;
-        printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
-        conta_client++;
-        coloreClient[i]=i;
+        //if(strcmp(name,NICK)==0) set_color_client=i;
+        
+		printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
+        count_client++;
+        
 		
-        //persona[i].nome=name;
-		persona[i].lingua = strtok((char*)name, "$");
-		persona[i].nome = strtok(NULL, "$");
-        persona[i].colore=i;
-        persona[i].usato=1;
-		if (talkStatus == STATUS_TALKING) persona[i].parla = 1;
-		//if (persona[i].nome == NICK) persona[i].lingua = LINGUA;
+		person[i].lang = strtok((char*)name, "$");
+		person[i].name = strtok(NULL, "$");
+        person[i].color=i;
+        person[i].used=1;
+		if (talkStatus == STATUS_TALKING) person[i].speak = 1;
+
         ts3client_freeMemory(name);
     }
     printf("\n");
@@ -1396,6 +1381,9 @@ void setVadLevel(uint64 serverConnectionHandlerID) {
 	}
 
 	
+	/*
+	Load vad value from file
+	*/
 	FILE *mic;
 	if (mic = fopen("..\\conf\\mic.txt", "r"))
 	{
@@ -1403,7 +1391,7 @@ void setVadLevel(uint64 serverConnectionHandlerID) {
 		fflush(mic);
 		fclose(mic);
 	}
-	else vad = 1;
+	else vad = 1;	//if the file isnt exist set vad to 1
 	/* Adjust "voiceactivation_level" preprocessor value */
 	snprintf(s, 100, "%d", vad);
 	if ((error = ts3client_setPreProcessorConfigValue(serverConnectionHandlerID, "voiceactivation_level", s)) != ERROR_ok) {
@@ -1558,9 +1546,6 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	char** device;
 	char *version;
 	char identity[IDENTITY_BUFSIZE];
-
-    /*wxString strLingua = wxString::FromAscii(LINGUA);
-    wxMessageBox(strLingua);*/
     
 	/* Create struct for callback function pointers */
 	struct ClientUIFunctions funcs;
@@ -1662,7 +1647,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
     printf("Using identity: %s\n", identity);
 
 	char final_nick[50] = { "" };
-	strcpy(final_nick, LINGUA);
+	strcpy(final_nick, CURRENT_LANG);
 	strcat(final_nick,"$");
 	strcat(final_nick, NICK);
 	strcat(final_nick, "$");
@@ -1685,6 +1670,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 
 	SLEEP(300);
 
+	/*While flagg==false the client is running*/
     while(!flag) 
 	{
         SLEEP(50);
@@ -1724,25 +1710,24 @@ DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 		FILE *trad;
 		a:
 		Sleep(100);
-		if (trad = fopen("translate.txt", "r"))
+		if (trad = fopen("translate.txt", "r")) //if file exist read the string from nuance dragon service
 		{
-			fgets(traduzione_jar, 256, trad);
+			fgets(translate_jar, 256, trad);
 			fflush(trad);
 			fclose(trad);
-			if (strcmp(traduzione_jar, "") != 0)
+			if (strcmp(translate_jar, "") != 0)	//if translate_jar isn't empty
 			{
-				wxString prova = "\n" + wxString::FromAscii(LINGUA) + "\n";
-				wxString final = prova + wxString::FromUTF8(traduzione_jar);
-				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL);
-				strcpy(traduzione_jar, "");
-				WinExec("Taskkill /IM java.exe /F", SW_HIDE);
+				wxString final = "\n" + wxString::FromAscii(CURRENT_LANG) + "\n" + wxString::FromUTF8(translate_jar);
+				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL); //Send other clients the speechtotext message from dragon transaction
+				strcpy(translate_jar, "");
+				WinExec("Taskkill /IM java.exe /F", SW_HIDE);	//Kill java
 				Sleep(50);
-				WinExec("del /F translate.txt", SW_HIDE);
+				WinExec("del /F translate.txt", SW_HIDE);		//Delete translate file
 				remove("recorded.wav");
 				remove("translate.txt");
-				sound_flag = false;
-				finish_ctrl_flag=false;
-				rilascia = false;
+				sound_flag = false;								//Inform all thread to finish operation
+				finish_ctrl_flag=false;							//Inform the pushtotalk thread to finish operation
+				
 				
 			}
 
@@ -1757,7 +1742,7 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 	{
 		if (tts_flag == true)
 		{
-			speak(LINGUA, (char*)strSpeak.mb_str().data());
+			speak(CURRENT_LANG, (char*)strSpeak.mb_str().data());
 			Sleep(300);
 			tts_flag = false;
 		}
@@ -1787,22 +1772,10 @@ DWORD WINAPI CTRL_STT(LPVOID lpParameter)
 	}
 	return 0;
 }
-//Do not add custom headers between
-//Header Include Start and Header Include End
-//wxDev-C++ designer will remove them
-////Header Include Start
-////Header Include End
 
-//----------------------------------------------------------------------------
-// ClientTsFrm
-//----------------------------------------------------------------------------
-//Add Custom Events only in the appropriate block.
-//Code added in other places will be removed by wxDev-C++
-////Event Table Start
-BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
-	////Manual Code Start
-	////Manual Code End
-	
+
+	BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
+		
 	EVT_CLOSE(ClientTsFrm::OnClose)
 	EVT_TIMER(ID_WXTIMER2,ClientTsFrm::WxTimer2Timer)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
@@ -1814,8 +1787,9 @@ BEGIN_EVENT_TABLE(ClientTsFrm,wxFrame)
 	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
 	EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
 	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
-END_EVENT_TABLE()
-////Event Table End
+
+	END_EVENT_TABLE()
+
 
 ClientTsFrm::ClientTsFrm(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
@@ -1830,11 +1804,6 @@ ClientTsFrm::~ClientTsFrm()
 
 void ClientTsFrm::CreateGUIControls()
 {
-	//Do not add custom code between
-	//GUI Items Creation Start and GUI Items Creation End
-	//wxDev-C++ designer will remove them.
-	//Add the custom code before or after the blocks
-	////GUI Items Creation Start
 
 	FILE * record;
 	FILE * translate;
@@ -1850,7 +1819,7 @@ void ClientTsFrm::CreateGUIControls()
 	}
 	gridchat = new wxGrid(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350));
 
-	gridclient = new wxGrid(this, ID_GRIDCLIENT, wxPoint(10, 250), wxSize(184, 155));
+	/*gridclient = new wxGrid(this, ID_GRIDCLIENT, wxPoint(10, 250), wxSize(184, 155));
 	gridclient->CreateGrid(0, 3, wxGrid::wxGridSelectCells);
 	gridclient->SetColLabelValue(0, "Nickname");
 	gridclient->SetColLabelValue(1, "Country");
@@ -1866,7 +1835,7 @@ void ClientTsFrm::CreateGUIControls()
 
 	gridclient->SetColSize(0, 75);
 	gridclient->SetColSize(1, 60);
-	gridclient->SetColSize(2, 60);
+	gridclient->SetColSize(2, 60);*/
 	
 
 	gridchat->CreateGrid(0, 2, wxGrid::wxGridSelectCells);
@@ -1896,7 +1865,7 @@ void ClientTsFrm::CreateGUIControls()
 	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
 	txtlingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT2, _("Lingua:"), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT2, _("Language:"), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
 	lbllingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
@@ -1958,8 +1927,8 @@ void ClientTsFrm::CreateGUIControls()
     fscanf(config,"%s",&SERVER_ADDRESS);
     fscanf(config,"%s",&NICK);
     fscanf(config,"%d",&cmbel);
-    fscanf(config,"%s",&LINGUA);
-    fscanf(config,"%s",&SERVIZIO);
+    fscanf(config,"%s",&CURRENT_LANG);
+    fscanf(config,"%s",&SERVICE);
     fclose(config);
 	}
 	if (api = fopen("..\\conf\\GOOGLE.txt", "r"))
@@ -1969,7 +1938,7 @@ void ClientTsFrm::CreateGUIControls()
 	}
 
 	txtnick->AppendText(NICK);
-	txtlingua->AppendText(LINGUA);
+	txtlingua->AppendText(CURRENT_LANG);
 	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
@@ -1977,7 +1946,7 @@ void ClientTsFrm::CreateGUIControls()
 	SetupColor();
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
-	griglia = gridchat;
+	gridptr = gridchat;
 	
 
 }
@@ -1995,15 +1964,14 @@ void MyGridCellRenderer::Draw(wxGrid& grid,
 	dc.DrawBitmap(*bitmap, rect.x+6, rect.y + 4);
 }
 
-void MyGridCellRenderer::setPicture(wxString nome)
+void MyGridCellRenderer::setPicture(wxString name)
 {
-
 	return;
 }
 
 void ClientTsFrm::gridchatCellLeftClick(wxGridEvent& event)
 {
-	wxToolTip * tooltip = new wxToolTip(diario[event.GetRow()].msgold);
+	wxToolTip * tooltip = new wxToolTip(diary[event.GetRow()].msgold);
 	tooltip->SetAutoPop(10000);
 	tooltip->SetMaxWidth(200);
 	strSpeak = wxString::FromAscii(strtok((char*)gridchat->GetCellValue(event.GetRow(), 0).mb_str().data(), ")"));
@@ -2020,6 +1988,7 @@ void ClientTsFrm::OnClose(wxCloseEvent& event)
 }
 
 
+/*Refresh chat for new message or new clients*/
 void ClientTsFrm::RefreshChat()
 {
     int i;
@@ -2031,38 +2000,38 @@ void ClientTsFrm::RefreshChat()
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%X", &tstruct);
     showClients(DEFAULT_VIRTUAL_SERVER);
-    txtclient->Clear();
+    txtclient->Clear();	//Clear client window
     for (i=0;i<MAX;i++)
     {
-        if(persona[i].nome!="") 
+        if(person[i].name!="") //if there is a client name
         {
-			if (persona[i].parla == 0 && persona[i].scrive == 0) gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L""));
-            txtclient->BeginTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue));
-			if (persona[i].parla == 1)
+			if (person[i].speak == 0 && person[i].write == 0) //gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L""));
+            txtclient->BeginTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue));
+			if (person[i].speak == 1)	//if this client is speaking show microphone 
 			{
-				gridclient->SetCellTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue), i, 0);
-				gridclient->SetCellValue(i, 0, persona[i].nome);
-				txtclient->WriteText(persona[i].nome + "\t");
-				if (persona[i].lingua == "Italiano") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/italy.bmp")); txtclient->WriteImage(wxBitmap(italy_xpm)); }
-				if (persona[i].lingua == "Inglese")  { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); txtclient->WriteImage(wxBitmap(usa_xpm)); }
-				if (persona[i].lingua == "Portoghese") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp")); txtclient->WriteImage(wxBitmap(brasil_xpm)); }
+				/*gridclient->SetCellTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue), i, 0);
+				gridclient->SetCellValue(i, 0, person[i].name);*/
+				txtclient->WriteText(person[i].name + "\t");
+				if (person[i].lang == "Italian") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/italy.bmp"));*/ txtclient->WriteImage(wxBitmap(italy_xpm)); }
+				if (person[i].lang == "English")  { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp"));*/ txtclient->WriteImage(wxBitmap(usa_xpm)); }
+				if (person[i].lang == "Portuguese") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp"));*/ txtclient->WriteImage(wxBitmap(brasil_xpm)); }
 				txtclient->WriteText("\t");
 				txtclient->WriteImage(wxBitmap(microphone_xpm));
-				gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/microphone.bmp"));
+				//gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/microphone.bmp"));
 			}
-			else if (persona[i].parla == 0)
+			else if (person[i].speak == 0)	//if this client is writing show keayboard
 			{
-				gridclient->SetCellTextColour(wxColour(colori[i].red, colori[i].green, colori[i].blue), i, 0);
-				gridclient->SetCellValue(i, 0, persona[i].nome);
-				txtclient->WriteText(persona[i].nome + "\t");
-				if (persona[i].lingua == "Italiano") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/italy.bmp")); txtclient->WriteImage(wxBitmap(italy_xpm)); }
-				if (persona[i].lingua == "Inglese") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); txtclient->WriteImage(wxBitmap(usa_xpm));}
-				if (persona[i].lingua == "Portoghese") { gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp")); txtclient->WriteImage(wxBitmap(brasil_xpm)); }
-				if (persona[i].scrive == 1)
+				/*gridclient->SetCellTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue), i, 0);
+				gridclient->SetCellValue(i, 0, person[i].name);*/
+				txtclient->WriteText(person[i].name + "\t");
+				if (person[i].lang == "Italian") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/italy.bmp"));*/ txtclient->WriteImage(wxBitmap(italy_xpm)); }
+				if (person[i].lang == "English") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); */txtclient->WriteImage(wxBitmap(usa_xpm));}
+				if (person[i].lang == "Portuguese") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp"));*/ txtclient->WriteImage(wxBitmap(brasil_xpm)); }
+				if (person[i].write == 1)
 				{
 					txtclient->WriteText("\t");
 					txtclient->WriteImage(wxBitmap(keyboard_xpm));
-					gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/keyboard.bmp"));
+					//gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/keyboard.bmp"));
 				}
 				
 				
@@ -2072,36 +2041,36 @@ void ClientTsFrm::RefreshChat()
         }
     }
         if(strGlobale!="" && StringTranslate!="" && StringTranslate!=oldStringTranslate/* strGlobale!=oldstrGlobale*/)
-    {
+		{
 			if (wxString::FromAscii(MSG_SRC) == ">" || wxString::FromAscii(MSG_SRC) == "</html>" || MSG_SRC[0] == '<' || MSG_SRC[0] == '>') return;
-			gridchat->AppendRows(1, true);
-        if(strNick==NICK)
-        {
-			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-			gridchat->SetCellValue(messaggio,curRow,0);
-			gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-			
-			gridchat->AutoSizeRow(curRow - 1, true);
-			gridchat->SetColSize(curCol + 1, 30);
-        }
-        else
-        {
-            for (i=0;i<MAX;i++)
-            {
-                if(strNick==persona[i].nome && persona[i].usato==1)
-                {
-                   
+			gridchat->AppendRows(1, true); //Add a new message row
+			if(strNick==NICK)
+			{
 					wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-					gridchat->SetCellTextColour(curRow, 0, wxColour(colori[persona[i].colore].red, colori[persona[i].colore].green, colori[persona[i].colore].blue));
-					gridchat->SetCellValue(messaggio, curRow, 0);
-					gridchat->SetRowSize(curRow, 40);
-					gridchat->SetColSize(curCol, 578);
-					gridchat->SetColSize(curCol + 1, 60);
+					gridchat->SetCellValue(messaggio,curRow,0);
 					gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+			
+					gridchat->AutoSizeRow(curRow - 1, true);
+					gridchat->SetColSize(curCol + 1, 30);
+			}
+			else
+			{
+					for (i=0;i<MAX;i++)
+					{
+						if(strNick==person[i].name && person[i].used==1)
+						{
+                   
+							wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
+							gridchat->SetCellTextColour(curRow, 0, wxColour(colors[person[i].color].red, colors[person[i].color].green, colors[person[i].color].blue));
+							gridchat->SetCellValue(messaggio, curRow, 0);
+							gridchat->SetRowSize(curRow, 40);
+							gridchat->SetColSize(curCol, 578);
+							gridchat->SetColSize(curCol + 1, 60);
+							gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
                     
-                }
-            }
-        }
+						}
+					}
+			}
        
 		oldStringTranslate = StringTranslate;
         oldstrGlobale=strGlobale;
@@ -2126,14 +2095,16 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 {
 	char str[1024]={""};
     strcpy(str,(const char*)txtmsg->GetValue().mb_str());
-	wxString parsata=txtmsg->GetValue().ToUTF8();
-	if (parsata == "") return;
-	txtmsg->DiscardEdits();
+	wxString parsata=txtmsg->GetValue().ToUTF8(); //convert write message into UTF8
+	if (parsata == "") return;	//if the message is empty exit
+	txtmsg->DiscardEdits();		//Clear buffer of textbox
 	write_flag = false;
-    if(strcmp(LINGUA,"Italiano")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItaliano\n"+parsata/*+"\nENG: "+StringTranslate*/,(uint64)1,NULL);
-	else if (strcmp(LINGUA, "Inglese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nInglese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
-	else if (strcmp(LINGUA, "Portoghese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nPortoghese\n" + parsata/*+"\nITA: "+StringTranslate*/, (uint64)1, NULL);
-	wxString scrive_msg = "\n" + wxString::FromAscii(LINGUA) + "\n" + "write0";
+
+    if(strcmp(CURRENT_LANG,"Italian")==0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER,"\nItalian\n"+parsata,(uint64)1,NULL);
+	else if (strcmp(CURRENT_LANG, "English") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nEnglish\n" + parsata, (uint64)1, NULL);
+	else if (strcmp(CURRENT_LANG, "Portuguese") == 0) ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\nPortuguese\n" + parsata, (uint64)1, NULL);
+	
+	wxString scrive_msg = "\n" + wxString::FromAscii(CURRENT_LANG) + "\n" + "write0";	//Inform other clients that we have finish to write
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 	txtmsg->Clear();
 	
@@ -2163,7 +2134,7 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
  */
 void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 {
-	//speak(LINGUA,(char*)StringTranslate.mb_str().data());
+	//speak(CURRENT_LANG,(char*)StringTranslate.mb_str().data());
 	tasto_stt_flag = !tasto_stt_flag;
 	if (tasto_stt_flag == false)
 	{
@@ -2193,11 +2164,11 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 	int i;
 	for (i = 0; i < MAX; i++)
 	{
-		if (persona[i].nome == NICK)
+		if (person[i].name == NICK)
 		{
-			if (persona[i].scrive == 0 && write_flag==true)
+			if (person[i].write == 0 && write_flag==true)
 			{
-				wxString scrive_msg = "\n" + wxString::FromAscii(LINGUA) + "\n" + "write1";
+				wxString scrive_msg = "\n" + wxString::FromAscii(CURRENT_LANG) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 			}
 		}

@@ -86,17 +86,17 @@ void Login::CreateGUIControls()
 
 	radgoogle = new wxRadioButton(this, ID_WXRADIOBUTTON1, _("Google Translate"), wxPoint(32, 240), wxSize(153, 17), 0, wxDefaultValidator, _("radgoogle"));
 
-	lbltrad = new wxStaticText(this, ID_WXSTATICTEXT4, _("Servizio:"), wxPoint(32, 192), wxDefaultSize, 0, _("lbltrad"));
+	lbltrad = new wxStaticText(this, ID_WXSTATICTEXT4, _("Service:"), wxPoint(32, 192), wxDefaultSize, 0, _("lbltrad"));
 
 	wxArrayString arrayStringFor_cmblingua;
-	arrayStringFor_cmblingua.Add(_("Inglese"));
-	arrayStringFor_cmblingua.Add(_("Italiano"));
-	arrayStringFor_cmblingua.Add(_("Portoghese"));
+	arrayStringFor_cmblingua.Add(_("English"));
+	arrayStringFor_cmblingua.Add(_("Italian"));
+	arrayStringFor_cmblingua.Add(_("Portuguese"));
 	cmblingua = new wxComboBox(this, ID_WXCOMBOBOX1, _(""), wxPoint(248, 128), wxSize(145, 28), arrayStringFor_cmblingua, 0, wxDefaultValidator, _("cmblingua"));
 
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Lingua:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
+	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT3, _("Language:"), wxPoint(32, 136), wxDefaultSize, 0, _("lbllingua"));
 
-	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Conferma"), wxPoint(451, 332), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
+	btnlogin = new wxButton(this, ID_WXBUTTON1, _("Confirm"), wxPoint(451, 332), wxSize(89, 25), 0, wxDefaultValidator, _("btnlogin"));
 
 	txtnick = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(248, 86), wxSize(121, 22), 0, wxDefaultValidator, _("txtnick"));
 
@@ -104,9 +104,9 @@ void Login::CreateGUIControls()
 
 	txtserver = new wxTextCtrl(this, ID_WXEDIT1, _("127.0.0.1"), wxPoint(249, 46), wxSize(121, 22), 0, wxDefaultValidator, _("txtserver"));
 
-	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nome/Indirizzo del server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
+	lblserver = new wxStaticText(this, ID_WXSTATICTEXT1, _("Name/Host server: "), wxPoint(32, 45), wxDefaultSize, 0, _("lblserver"));
 
-	SetTitle(_("Panello di Login"));
+	SetTitle(_("Login Form"));
 	SetIcon(wxNullIcon);
 	SetSize(8,8,640,480);
 	Center();
