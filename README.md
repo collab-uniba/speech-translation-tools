@@ -25,7 +25,7 @@ To test the client, you will need a TeamSpeak server. To compile it, open the se
 
 Speech to text requirements
 ---------------------------
-For the speech to text to work properly in your language of choice, make sure that you have installed
+For the speech to text to work properly in your language of choice, make sure that you have installed:
 * Java 7+ 
 * The Microsoft Speech API package for your language. In Windows 8.1 the package for your current language is typically installed already. To add more or to configure earlier Windows version (< 8.1), go to _Control Panel > Language_ and pick yours to download.
 
