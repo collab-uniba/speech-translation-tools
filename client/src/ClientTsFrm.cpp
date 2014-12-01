@@ -1883,9 +1883,9 @@ void ClientTsFrm::CreateGUIControls()
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 	txtmsg->SetFocus();
 
-	wxBitmap WxBitmapButton1_BITMAP(NULL);
+	/*wxBitmap WxBitmapButton1_BITMAP(NULL);
 	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(10, 450), wxSize(28, 25), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
-	WxBitmapButton1->SetToolTip(_("Abilita SpeechToText Service"));
+	WxBitmapButton1->SetToolTip(_("Abilita SpeechToText Service"));*/
 
 	/*btnspeech = new wxButton(this, ID_WXBUTTON3, _("Speech to text disabilitato"), wxPoint(10, 450), wxSize(180, 31), 0, wxDefaultValidator, _("WxButton1"));
 	btnspeech->Show(true);
@@ -2140,14 +2140,14 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 	{
 		ID_MNU_OPZIONI_1004_Mnu_Obj->SetLabel(ID_MNU_SPEECH_1006, "Speech to text disabilitato");
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Check(ID_MNU_SPEECH_1006, false);
-		WxBitmapButton1->SetBitmap(NULL);
+		//WxBitmapButton1->SetBitmap(NULL);
 	}
 	else
 	{
 		sound_flag = true;
 		recorder->startRecordingBufferedAudio();
 		ID_MNU_OPZIONI_1004_Mnu_Obj->SetLabel(ID_MNU_SPEECH_1006, "Speech to text abilitato");
-		WxBitmapButton1->SetBitmap(microphone_xpm);
+		//WxBitmapButton1->SetBitmap(microphone_xpm);
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Check(ID_MNU_SPEECH_1006, true);
 	}
 	
@@ -2194,5 +2194,5 @@ void ClientTsFrm::Wizard(wxCommandEvent& event)
 void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
 {
 	// insert your code here
-	btnspeechClick(event);
+	//btnspeechClick(event);
 }
