@@ -687,6 +687,11 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 		return;
     if(status == STATUS_TALKING)
         {
+		if (automatic_stt_flag == true)
+		{
+			sound_flag = true;
+			recorder->startRecordingBufferedAudio();
+		}
 		for (i = 0; i < MAX; i++)
 		{
 			if (person[i].name==name)
@@ -1779,7 +1784,7 @@ DWORD WINAPI CTRL_STT(LPVOID lpParameter)
 	EVT_CLOSE(ClientTsFrm::OnClose)
 	EVT_TIMER(ID_WXTIMER2,ClientTsFrm::WxTimer2Timer)
 	EVT_TIMER(ID_WXTIMER1,ClientTsFrm::WxTimer1Timer)
-	EVT_BUTTON(ID_WXBITMAPBUTTON1,ClientTsFrm::btnspeechClick)
+	EVT_BUTTON(ID_WXBITMAPBUTTON1, ClientTsFrm::WxBitmapButton1Click)
 	EVT_BUTTON(ID_WXBUTTON2,ClientTsFrm::btnsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3,ClientTsFrm::txtmsgEnter)
 	EVT_BUTTON(ID_WXBUTTON1,ClientTsFrm::WxButton1Click)
@@ -1879,13 +1884,13 @@ void ClientTsFrm::CreateGUIControls()
 	btnsend = new wxButton(this, ID_WXBUTTON2, _("Invia"), wxPoint(830, 450), wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
 	btnsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
-	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(211, 450), wxSize(600, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
+	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(211, 450), wxSize(570, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 	txtmsg->SetFocus();
 
-	/*wxBitmap WxBitmapButton1_BITMAP(NULL);
-	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(10, 450), wxSize(28, 25), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
-	WxBitmapButton1->SetToolTip(_("Abilita SpeechToText Service"));*/
+	wxBitmap WxBitmapButton1_BITMAP(NULL);
+	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(211+570, 450), wxSize(50, 45), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
+	WxBitmapButton1->SetToolTip(_("Abilita SpeechToText Service"));
 
 	/*btnspeech = new wxButton(this, ID_WXBUTTON3, _("Speech to text disabilitato"), wxPoint(10, 450), wxSize(180, 31), 0, wxDefaultValidator, _("WxButton1"));
 	btnspeech->Show(true);
@@ -2134,24 +2139,19 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
  */
 void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 {
-	//speak(CURRENT_LANG,(char*)StringTranslate.mb_str().data());
-	tasto_stt_flag = !tasto_stt_flag;
-	if (tasto_stt_flag == false)
+	automatic_stt_flag = !automatic_stt_flag;
+	if (automatic_stt_flag == false)
 	{
 		ID_MNU_OPZIONI_1004_Mnu_Obj->SetLabel(ID_MNU_SPEECH_1006, "Speech to text disabilitato");
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Check(ID_MNU_SPEECH_1006, false);
-		//WxBitmapButton1->SetBitmap(NULL);
+		WxBitmapButton1->Enable(true);
 	}
 	else
 	{
-		sound_flag = true;
-		recorder->startRecordingBufferedAudio();
 		ID_MNU_OPZIONI_1004_Mnu_Obj->SetLabel(ID_MNU_SPEECH_1006, "Speech to text abilitato");
-		//WxBitmapButton1->SetBitmap(microphone_xpm);
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Check(ID_MNU_SPEECH_1006, true);
+		WxBitmapButton1->Enable(false);
 	}
-	
-	
 }
 
 /*
@@ -2193,6 +2193,17 @@ void ClientTsFrm::Wizard(wxCommandEvent& event)
 
 void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
 {
-	// insert your code here
-	//btnspeechClick(event);
+	tasto_stt_flag = !tasto_stt_flag;
+	if (tasto_stt_flag == false)
+	{
+		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, true);
+		WxBitmapButton1->SetBitmap(NULL);
+	}
+	else
+	{
+		sound_flag = true;
+		recorder->startRecordingBufferedAudio();
+		WxBitmapButton1->SetBitmap(microphone_xpm);
+		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, false);
+	}
 }

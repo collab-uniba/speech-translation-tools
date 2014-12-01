@@ -183,6 +183,7 @@ bool tts_flag = false;				//Flag to start/stop TextToSpeech
 bool write_flag = false;			//Flag to recognize Typing
 bool tasto_stt_flag = false;		//Flag to activate Automatic SpeechToText
 bool finish_ctrl_flag = false;		//Flag to recognize CTRL press button
+bool automatic_stt_flag = false;
 wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
 unsigned int curRow = 0;			//Initialize Row index
 unsigned int curCol = 0;			//Initialize Column index
