@@ -7,11 +7,10 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		JWindowChat jWindowChat = new JWindowChat();
+		//JWindowChat jWindowChat = new JWindowChat("bernardo.estacio");
 		
-		jWindowChat.criaJanela("durand_patricia_");
-		
-		System.out.println("rodou!!");
+		//jWindowChat.criaJanela();
+		//jWindowChat.setVisible(true);
 	}
 
 }

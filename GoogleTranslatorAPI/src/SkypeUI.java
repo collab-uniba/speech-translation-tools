@@ -70,8 +70,6 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 
 	private Chat chat = null;
 	
-	
-
 	/**
 	* Auto-generated main method to display this JFrame
 	*/
@@ -189,9 +187,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 		}
 	}
 
-	static {
-		Connector.useJNIConnector(true);
-	}
+	
 	
 	/* The methods below are used to connect
 	 * to skype communication layer. */
@@ -260,30 +256,27 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 			String idDoContato = (String) listaDeAmigos.getSelectedValue();
 			String texto = "";	
 			
-				//connect();
-		
-				//CustomJOptionPane customJOptionPane = new CustomJOptionPane(idDoContato);
-				//customJOptionPane.setVisible(true);
-				//JFrame aux = new JFrame();
-				JWindowChat jWindowChat = new JWindowChat();
-				jWindowChat.criaJanela(idDoContato);
-				//texto = jWindowChat.getTexto();
-				
-				
-				//while (texto != null && !texto.equals("EXIT(0)_OPERATION")) {
-					// String saida = v2.execute(texto, Language.PORTUGUESE, Language.ENGLISH);
-
-					
-					
-					//texto = jWindowChat.getTextoInformado();
-					//texto = JOptionPane.showInputDialog("Digite a mensagem para enviar...");
-					
-					
-						//sendMessage(idDoContato, texto);
-					
-				//}
-				
+			//connect();
+			//CustomJOptionPane customJOptionPane = new CustomJOptionPane(idDoContato);
+			//customJOptionPane.setVisible(true);
+			//JFrame aux = new JFrame();
+			//JWindowChat jWindowChat = new JWindowChat();
+			//jWindowChat.criaJanela(idDoContato);
+			//texto = jWindowChat.getTexto();
 			
+			JWindowChat jWindowChat = new JWindowChat(idDoContato);
+			jWindowChat.setVisible(true);
+				
+			//while (texto != null && !texto.equals("EXIT(0)_OPERATION")) {
+				// String saida = v2.execute(texto, Language.PORTUGUESE, Language.ENGLISH);
+
+				//texto = jWindowChat.getTextoInformado();
+				//texto = JOptionPane.showInputDialog("Digite a mensagem para enviar...");
+					
+					
+				//sendMessage(idDoContato, texto);
+					
+			//}
 		}
 	}
 

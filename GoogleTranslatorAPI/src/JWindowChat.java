@@ -1,11 +1,12 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.InputMethodListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
@@ -18,8 +19,21 @@ import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 @SuppressWarnings("serial")
-public class JWindowChat extends javax.swing.JDialog implements KeyListener, ActionListener {
+public class JWindowChat extends javax.swing.JDialog implements KeyListener, ActionListener, InputMethodListener {
 	private JButton botaoSend;
 	private JTextArea areaDeTexto;
 	private JTextArea textAreaUserInput;
@@ -31,26 +45,20 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	private String textoEnviando = "";
 	
 	private Chat chat = null;
+
+	public static void criaJanela(final String idDoContato) {
+		//SwingUtilities.invokeLater(new Runnable() {
+		//	public void run() {
+				JWindowChat inst = new JWindowChat(idDoContato);
+				inst.setVisible(true);
+			//}
+		//});
+	}
 	
-	static {
-		Connector.useJNIConnector(true);
-	}
-
-	public void criaJanela(String idDoContato) {
-		JFrame frame = new JFrame();
-		JWindowChat inst = new JWindowChat(frame);
-		inst.setVisible(true);
-		this.idDoContato = idDoContato;
-		inst.setTitle(this.idDoContato);
-	}
-
-	public JWindowChat(JFrame frame) {
-		super(frame);
+	public JWindowChat(String idDoContato) {
 		initGUI();
-
+		this.idDoContato = idDoContato;
 	}
-	
-	public JWindowChat(){}
 
 	private void initGUI() {
 		try {
@@ -78,6 +86,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 					/* Wraps the text and the end of the text area. */
 					areaDeTexto.setLineWrap(true);		
 					areaDeTexto.setEditable(false);
+					areaDeTexto.addInputMethodListener(this);
 				}
 			}
 			{
@@ -121,7 +130,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 				if(idDoContato != null && !idDoContato.equals("")) {
 					sendMessage(idDoContato, textoEnviando);
 				}
-				
+				getMessages();
 				
 			} catch (Exception e) {
 				
@@ -147,7 +156,6 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 	
 	public String getTexto() {
@@ -156,11 +164,20 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	
 	/* The methods below are used to connect
 	 * to skype communication layer. */
-	
+	static {
+		//Connector.useJNIConnector(true);
+	}
 	
 	public void sendMessage(String id, String text) throws SkypeException {
 		chat = (null == chat ? Skype.chat(id) : chat);
 		chat.send(text);
+	}
+	
+	public void getMessages() throws SkypeException {
+		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
+		for(int i = 0; i < listaDeMensagens.length; i++) {
+			System.out.println(listaDeMensagens[i].toString());
+		}
 	}
 
 	public void connect() throws Exception {
@@ -202,4 +219,16 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 					+ chatMessage.getContent());
 		}
 	};
+
+	@Override
+	public void caretPositionChanged(InputMethodEvent arg0) {
+		
+		
+	}
+
+	@Override
+	public void inputMethodTextChanged(InputMethodEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
