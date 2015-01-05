@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.Vector;
 
 import com.skype.ContactList;
@@ -5,12 +6,11 @@ import com.skype.Friend;
 import com.skype.Skype;
 import com.skype.SkypeException;
 
-
 public class FriendsList {
 	
 	public FriendsList() {};
 
-	public Friend[] getAllFriend() throws SkypeException, InterruptedException {
+	public Friend[] getAllFriends() throws SkypeException, InterruptedException {
 		// Get all skype friends of a user.
 		ContactList list = Skype.getContactList();
 	
@@ -38,11 +38,12 @@ public class FriendsList {
 		for(int i=0; i < fr.length; i++)
 		{
 			nomesDosAmigos.add(fr[i].getId());
+			Collections.sort(nomesDosAmigos);
 		}
 		return nomesDosAmigos;
 	}
 	
-	public int getNumberOfFriends() throws SkypeException {
+	public static int getNumberOfFriends() throws SkypeException {
 		ContactList list = Skype.getContactList();
 		Friend fr[] = list.getAllFriends();
 		return fr.length + 1;

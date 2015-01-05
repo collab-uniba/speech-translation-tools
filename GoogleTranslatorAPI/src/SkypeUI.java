@@ -33,6 +33,19 @@ import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 @SuppressWarnings("unused")
 public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
@@ -55,6 +68,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	private JScrollPane scrollPane;
 	
 	private JMenuBar menuBar;
+	private JLabel labelNumeroDeAmigos;
 
 	private JMenu menuTranslator;
 	private JMenu menuHelp;
@@ -134,9 +148,9 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 				{
 					labelFriendsList = new JLabel();
 					painelListaDeAmigos.add(labelFriendsList);
-					labelFriendsList.setText("Contact List");
-					labelFriendsList.setBounds(58, 9, 80, 17);
-					labelFriendsList.setFont(new java.awt.Font("Baskerville Old Face",0,16));
+					labelFriendsList.setText("Number of Contacts:");
+					labelFriendsList.setBounds(38, 9, 115, 17);
+					labelFriendsList.setFont(new java.awt.Font("Tahoma",0,11));
 				}
 				{
 					scrollPane = new JScrollPane();
@@ -155,6 +169,12 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 						listaDeAmigos.setBounds(184, 14, 155, 444);
 						listaDeAmigos.addMouseListener(this);
 					}
+				}
+				{
+					labelNumeroDeAmigos = new JLabel();
+					painelListaDeAmigos.add(labelNumeroDeAmigos);
+					labelNumeroDeAmigos.setBounds(144, 9, 32, 17);
+					labelNumeroDeAmigos.setText(String.valueOf(FriendsList.getNumberOfFriends()));
 				}
 			}
 			{

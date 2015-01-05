@@ -96,6 +96,5 @@ public class SkypeListOfFriends {
 			System.out.println("Friend ID :"+f.getId());
 			//Thread.sleep(100);
 		}
-
 	}
 }

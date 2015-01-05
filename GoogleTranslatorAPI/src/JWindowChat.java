@@ -176,7 +176,8 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	public void getMessages() throws SkypeException {
 		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
 		for(int i = 0; i < listaDeMensagens.length; i++) {
-			System.out.println(listaDeMensagens[i].toString());
+			System.out.println(listaDeMensagens[i].getContent());
+			
 		}
 	}
 
