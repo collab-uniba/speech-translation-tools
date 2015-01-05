@@ -176,9 +176,15 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	public void getMessages() throws SkypeException {
 		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
 		for(int i = 0; i < listaDeMensagens.length; i++) {
-			System.out.println(listaDeMensagens[i].getContent());
+			System.out.println("aaa " + listaDeMensagens[i].getContent());
 			
 		}
+	}
+	
+	public String getLastMessage() throws SkypeException {
+		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
+		
+		return  listaDeMensagens[listaDeMensagens.length -1].getContent();
 	}
 
 	public void connect() throws Exception {
@@ -218,6 +224,8 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 			System.out.println(chatMessage.getSenderDisplayName() + "("
 					+ chatMessage.getSenderId() + "): "
 					+ chatMessage.getContent());
+			areaDeTexto.append("\n" + getLastMessage());
+			
 		}
 	};
 
