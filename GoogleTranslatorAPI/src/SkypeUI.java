@@ -286,6 +286,12 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 			
 			JWindowChat jWindowChat = new JWindowChat(idDoContato);
 			jWindowChat.setVisible(true);
+			try {
+				jWindowChat.connect();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 				
 			//while (texto != null && !texto.equals("EXIT(0)_OPERATION")) {
 				// String saida = v2.execute(texto, Language.PORTUGUESE, Language.ENGLISH);

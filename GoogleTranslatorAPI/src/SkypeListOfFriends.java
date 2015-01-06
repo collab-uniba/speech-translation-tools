@@ -12,7 +12,7 @@ import com.skype.Skype;
 import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
-
+/*
 public class SkypeListOfFriends {
 	private Chat chat = null;
 
@@ -97,4 +97,4 @@ public class SkypeListOfFriends {
 			//Thread.sleep(100);
 		}
 	}
-}
+}*/

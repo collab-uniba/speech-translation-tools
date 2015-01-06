@@ -12,7 +12,7 @@ import com.skype.connector.ConnectorException;
 
 //DO NOT RUN THE CLASS AND CLOSE APPLICATION OR WILL HANG THE SKYPE.
 // STILL WORKING
-
+/*
 public class SkypeGroups {
 
 	private Chat chatEmGrupo = null;
@@ -92,3 +92,4 @@ public class SkypeGroups {
 		System.out.println("Connected, Skype ver. " + Skype.getVersion());
 	}
 }
+*/

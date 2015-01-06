@@ -21,8 +21,8 @@ public class FriendsList {
 		for(int i=0; i < fr.length; i++)
 		{
 			Friend f = fr[i];
-			//Getting the friend ID
-			System.out.println("Friend ID :"+f.getId());
+			//Getting the friends ID
+			System.out.println("Friend ID :" + f.getId());
 			//Thread.sleep(100);
 		}
 		return fr;

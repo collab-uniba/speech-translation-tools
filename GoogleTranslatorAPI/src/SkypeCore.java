@@ -11,7 +11,7 @@ import com.skype.Skype;
 import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
-	
+	/*
 public class SkypeCore {
 	
 	private Chat chat = null;
@@ -68,7 +68,7 @@ public class SkypeCore {
 					"Please install Skype from www.skype.com and run it."));
 
 		/* Add Skype4Java listeners. */
-		try {
+	/*	try {
 			Skype.addChatMessageListener(chatMessageListener);
 		} catch (SkypeException e) {
 			e.printStackTrace();
@@ -92,3 +92,4 @@ public class SkypeCore {
 		}
 	};
 }
+*/

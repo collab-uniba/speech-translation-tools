@@ -33,7 +33,7 @@ import com.skype.connector.ConnectorException;
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
 @SuppressWarnings("serial")
-public class JWindowChat extends javax.swing.JDialog implements KeyListener, ActionListener, InputMethodListener {
+public class JWindowChat extends javax.swing.JDialog implements KeyListener, ActionListener {
 	private JButton botaoSend;
 	private JTextArea areaDeTexto;
 	private JTextArea textAreaUserInput;
@@ -45,6 +45,8 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	private String textoEnviando = "";
 	
 	private Chat chat = null;
+	
+	private Connector conn = Connector.getInstance();
 
 	public static void criaJanela(final String idDoContato) {
 		//SwingUtilities.invokeLater(new Runnable() {
@@ -86,7 +88,6 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 					/* Wraps the text and the end of the text area. */
 					areaDeTexto.setLineWrap(true);		
 					areaDeTexto.setEditable(false);
-					areaDeTexto.addInputMethodListener(this);
 				}
 			}
 			{
@@ -125,7 +126,8 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 			textAreaUserInput.setText("");
 			
 			try {
-				connect();
+
+				
 				
 				if(idDoContato != null && !idDoContato.equals("")) {
 					sendMessage(idDoContato, textoEnviando);
@@ -176,7 +178,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	public void getMessages() throws SkypeException {
 		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
 		for(int i = 0; i < listaDeMensagens.length; i++) {
-			System.out.println("aaa " + listaDeMensagens[i].getContent());
+			//System.out.println("aaa " + listaDeMensagens[i].getContent());
 			
 		}
 	}
@@ -188,9 +190,10 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	}
 
 	public void connect() throws Exception {
+		
 		Connector.Status status = null;
-		Connector conn = Connector.getInstance();
-
+		//Connector conn = Connector.getInstance();
+		
 		try {
 			status = conn.connect();
 		} catch (ConnectorException e1) {
@@ -210,6 +213,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 		}
 
 		System.out.println("Connected, Skype ver. " + Skype.getVersion());
+		
 	}
 
 	private ChatMessageListener chatMessageListener = new ChatMessageListener() {
@@ -219,25 +223,9 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 		}
 
 		@Override
-		public void chatMessageReceived(ChatMessage chatMessage)
-				throws SkypeException {
-			System.out.println(chatMessage.getSenderDisplayName() + "("
-					+ chatMessage.getSenderId() + "): "
-					+ chatMessage.getContent());
+		public void chatMessageReceived(ChatMessage chatMessage) throws SkypeException {
+			//System.out.println(chatMessage.getSenderDisplayName() + "(" + chatMessage.getSenderId() + "): "	+ chatMessage.getContent());
 			areaDeTexto.append("\n" + getLastMessage());
-			
 		}
 	};
-
-	@Override
-	public void caretPositionChanged(InputMethodEvent arg0) {
-		
-		
-	}
-
-	@Override
-	public void inputMethodTextChanged(InputMethodEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 }
