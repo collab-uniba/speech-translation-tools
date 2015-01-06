@@ -5,6 +5,13 @@ import java.awt.event.InputMethodEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
@@ -39,6 +46,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	private JTextArea textAreaUserInput;
 	private JScrollPane scrollPaneUserInput;
 	private JScrollPane scrollPane;
+	private JButton botaoSalvarConversa;
 	
 	private String idDoContato = "";
 	
@@ -60,6 +68,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	public JWindowChat(String idDoContato) {
 		initGUI();
 		this.idDoContato = idDoContato;
+		this.setTitle("conversatition with: " + idDoContato);
 	}
 
 	private void initGUI() {
@@ -107,6 +116,13 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 					textAreaUserInput.setEnabled(true);
 				}
 			}
+			{
+				botaoSalvarConversa = new JButton();
+				getContentPane().add(botaoSalvarConversa);
+				botaoSalvarConversa.setText("Save Log");
+				botaoSalvarConversa.setBounds(450, 298, 80, 28);
+				botaoSalvarConversa.addActionListener(this);
+			}
 			this.setSize(552, 406);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -127,17 +143,41 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 			
 			try {
 
-				
-				
 				if(idDoContato != null && !idDoContato.equals("")) {
 					sendMessage(idDoContato, textoEnviando);
 				}
-				getMessages();
+				//getMessages();
 				
 			} catch (Exception e) {
 				
 				e.printStackTrace();
 			}
+		}
+		
+		if(arg0.getSource() == botaoSalvarConversa) {
+			//	Salva o conteudo da textArea num arquivo no caminho do projeto
+			//com o nome do contato e a hora. O nome do arquivo sera o ID do contato.
+			//Se o arquivo jah existir faz append 
+			//do conteudo atual no arquivo, caso contrario cria um novo arquivo.
+			
+			//Para ter as vantagens dos writers, faco um wrap de todos eles juntos.
+			
+			try {
+				
+				PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("" + idDoContato + ".txt", true)));
+				Date d = new Date();
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+				String data = sdf.format(d);
+				pw.println("Conversation History - " + data + " - " + idDoContato);
+				pw.println(areaDeTexto.getText());
+				pw.flush();
+				pw.close();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 	}
 
@@ -178,14 +218,12 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	public void getMessages() throws SkypeException {
 		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
 		for(int i = 0; i < listaDeMensagens.length; i++) {
-			//System.out.println("aaa " + listaDeMensagens[i].getContent());
-			
+			//System.out.println("" + listaDeMensagens[i].getContent());
 		}
 	}
 	
 	public String getLastMessage() throws SkypeException {
 		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
-		
 		return  listaDeMensagens[listaDeMensagens.length -1].getContent();
 	}
 
@@ -228,4 +266,5 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 			areaDeTexto.append("\n" + getLastMessage());
 		}
 	};
+	
 }

@@ -187,7 +187,8 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 				{
 					painelTabs = new JTabbedPane();
 					painelPrincipal.add(painelTabs);
-					painelTabs.setBounds(7, 6, 454, 221);
+					painelTabs.setBounds(6, 6, 457, 409);
+					painelTabs.setSize(456, 409);
 					{
 						jTabbedPane1 = new JTabbedPane();
 						painelTabs.addTab("jTabbedPane1", null, jTabbedPane1, null);
