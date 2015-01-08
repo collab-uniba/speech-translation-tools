@@ -56,7 +56,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	
 	private Connector conn = Connector.getInstance();
 
-	public static void criaJanela(final String idDoContato) {
+	public static void criaJanela(final String idDoContato) throws SkypeException {
 		//SwingUtilities.invokeLater(new Runnable() {
 		//	public void run() {
 				JWindowChat inst = new JWindowChat(idDoContato);
@@ -65,10 +65,11 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 		//});
 	}
 	
-	public JWindowChat(String idDoContato) {
+	public JWindowChat(String idDoContato) throws SkypeException {
 		initGUI();
 		this.idDoContato = idDoContato;
 		this.setTitle("conversatition with: " + idDoContato);
+		this.adicionaListener();
 	}
 
 	private void initGUI() {
@@ -227,7 +228,7 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 		return  listaDeMensagens[listaDeMensagens.length -1].getContent();
 	}
 
-	public void connect() throws Exception {
+	/*public void connect() throws Exception {
 		
 		Connector.Status status = null;
 		//Connector conn = Connector.getInstance();
@@ -243,19 +244,19 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 			throw new Exception(new Exception(
 					"Please install Skype from www.skype.com and run it."));
 
-		/* Add Skype4Java listeners. */
+		// Add Skype4Java listeners.
 		try {
-			Skype.addChatMessageListener(chatMessageListener);
+			
 		} catch (SkypeException e) {
 			e.printStackTrace();
 		}
 
 		System.out.println("Connected, Skype ver. " + Skype.getVersion());
 		
-	}
+	}*/
 
 	private ChatMessageListener chatMessageListener = new ChatMessageListener() {
-
+		
 		@Override
 		public void chatMessageSent(ChatMessage arg0) throws SkypeException {
 		}
@@ -266,5 +267,9 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 			areaDeTexto.append("\n" + getLastMessage());
 		}
 	};
+	
+	public void adicionaListener() throws SkypeException {
+		Skype.addChatMessageListener(chatMessageListener);
+	}
 	
 }

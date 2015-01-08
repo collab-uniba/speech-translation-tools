@@ -212,7 +212,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 	
 	/* The methods below are used to connect
 	 * to skype communication layer. */
-	/*static {
+	static {
 		Connector.useJNIConnector(true);
 	}
 	
@@ -237,7 +237,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 					"Please install Skype from www.skype.com and run it."));
 
 		/* Add Skype4Java listeners. */
-		/*try {
+		try {
 			Skype.addChatMessageListener(chatMessageListener);
 		} catch (SkypeException e) {
 			e.printStackTrace();
@@ -259,7 +259,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 					+ chatMessage.getSenderId() + "): "
 					+ chatMessage.getContent());
 		}
-	};*/
+	};
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
@@ -285,10 +285,16 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 			//jWindowChat.criaJanela(idDoContato);
 			//texto = jWindowChat.getTexto();
 			
-			JWindowChat jWindowChat = new JWindowChat(idDoContato);
+			JWindowChat jWindowChat = null;
+			try {
+				jWindowChat = new JWindowChat(idDoContato);
+			} catch (SkypeException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			jWindowChat.setVisible(true);
 			try {
-				jWindowChat.connect();
+				//jWindowChat.connect();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
