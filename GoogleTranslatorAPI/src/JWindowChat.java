@@ -27,18 +27,6 @@ import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
 
 
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
 @SuppressWarnings("serial")
 public class JWindowChat extends javax.swing.JDialog implements KeyListener, ActionListener {
 	private JButton botaoSend;
@@ -54,16 +42,16 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 	
 	private Chat chat = null;
 	
-	private Connector conn = Connector.getInstance();
+	//private Connector conn = Connector.getInstance();
 
-	public static void criaJanela(final String idDoContato) throws SkypeException {
+	//public static void criaJanela(final String idDoContato) throws SkypeException {
 		//SwingUtilities.invokeLater(new Runnable() {
 		//	public void run() {
-				JWindowChat inst = new JWindowChat(idDoContato);
-				inst.setVisible(true);
+		//		JWindowChat inst = new JWindowChat(idDoContato);
+		//		inst.setVisible(true);
 			//}
 		//});
-	}
+//	}
 	
 	public JWindowChat(String idDoContato) throws SkypeException {
 		initGUI();
@@ -223,9 +211,12 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 		}
 	}
 	
-	public String getLastMessage() throws SkypeException {
+	public String[] getLastMessage() throws SkypeException {
 		ChatMessage[] listaDeMensagens = chat.getRecentChatMessages();
-		return  listaDeMensagens[listaDeMensagens.length -1].getContent();
+		String idAndMessage[] = new String[2];
+		idAndMessage[0] = listaDeMensagens[listaDeMensagens.length -1].getSenderId();
+		idAndMessage[1] = listaDeMensagens[listaDeMensagens.length -1].getContent();
+		return idAndMessage;
 	}
 
 	/*public void connect() throws Exception {
@@ -264,12 +255,16 @@ public class JWindowChat extends javax.swing.JDialog implements KeyListener, Act
 		@Override
 		public void chatMessageReceived(ChatMessage chatMessage) throws SkypeException {
 			//System.out.println(chatMessage.getSenderDisplayName() + "(" + chatMessage.getSenderId() + "): "	+ chatMessage.getContent());
-			areaDeTexto.append("\n" + getLastMessage());
+			
+			String idAndMessage[] = getLastMessage();
+			
+			if(chatMessage.getSenderId().equals(idAndMessage[0])) {
+				areaDeTexto.append("\n" + idAndMessage[1]);
+			}
 		}
 	};
 	
 	public void adicionaListener() throws SkypeException {
 		Skype.addChatMessageListener(chatMessageListener);
 	}
-	
 }

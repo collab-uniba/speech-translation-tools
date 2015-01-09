@@ -33,19 +33,6 @@ import com.skype.SkypeException;
 import com.skype.connector.Connector;
 import com.skype.connector.ConnectorException;
 
-
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
 @SuppressWarnings("unused")
 public class SkypeUI extends javax.swing.JFrame implements ActionListener, MouseListener {
 
@@ -84,9 +71,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 
 	private Chat chat = null;
 	
-	/**
-	* Auto-generated main method to display this JFrame
-	*/
+	//MAIN, run this class!
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -269,6 +254,7 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 		}
 	}
 
+	//Opens the chat window with the selected contact.
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		
@@ -276,27 +262,15 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 			
 			String idDoContato = (String) listaDeAmigos.getSelectedValue();
 			String texto = "";	
-			
-			//connect();
-			//CustomJOptionPane customJOptionPane = new CustomJOptionPane(idDoContato);
-			//customJOptionPane.setVisible(true);
-			//JFrame aux = new JFrame();
-			//JWindowChat jWindowChat = new JWindowChat();
-			//jWindowChat.criaJanela(idDoContato);
-			//texto = jWindowChat.getTexto();
-			
 			JWindowChat jWindowChat = null;
+			
 			try {
 				jWindowChat = new JWindowChat(idDoContato);
+				jWindowChat.setVisible(true);
+				
 			} catch (SkypeException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
-			jWindowChat.setVisible(true);
-			try {
-				//jWindowChat.connect();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 				
@@ -305,7 +279,6 @@ public class SkypeUI extends javax.swing.JFrame implements ActionListener, Mouse
 
 				//texto = jWindowChat.getTextoInformado();
 				//texto = JOptionPane.showInputDialog("Digite a mensagem para enviar...");
-					
 					
 				//sendMessage(idDoContato, texto);
 					

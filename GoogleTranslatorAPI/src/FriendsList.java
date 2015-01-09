@@ -23,7 +23,6 @@ public class FriendsList {
 			Friend f = fr[i];
 			//Getting the friends ID
 			System.out.println("Friend ID :" + f.getId());
-			//Thread.sleep(100);
 		}
 		return fr;
 	}
