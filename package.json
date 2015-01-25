@@ -27,11 +27,14 @@
     "time-grunt": "^0.4.0"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.10.11",
+    "npm": ">=1.4.28"
   },
   "dependencies": {
-    "node-static": "^0.7.6",
-    "socket.io": "^1.2.1",
+    "express": "^4.11.1",
+    "fs": "0.0.2",
+    "mstranslator": "^1.1.0",
+    "request": "^2.51.0",
     "websocket": "^1.0.14"
   }
 }

@@ -34,7 +34,7 @@ function Translator() {
             textToSpeak = textToSpeak.substr(1, textToSpeak.length - 1);
         }
 
-        var audio_url = 'https://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=' + textToSpeak.length + '&tl=' + targetLanguage + '&q=' + textToSpeak;
+        var audio_url =  SERVER_PATH + '/api/tts?q=' + textToSpeak + '&tl=' + targetLanguage;
 
         if (args.callback) args.callback(audio_url);
         else {
@@ -43,6 +43,26 @@ function Translator() {
             audio.autoplay = true;
             audio.play();
         }
+    };
+
+    this.speakTextUsingMicrosoftSpeaker = function(args) {
+      var textToSpeak = args.textToSpeak;
+      var targetLanguage = args.targetLanguage;
+
+      textToSpeak = textToSpeak.replace( /%20| /g , '+');
+      if (textToSpeak.substr(0, 1) == ' ' || textToSpeak.substr(0, 1) == '+') {
+        textToSpeak = textToSpeak.substr(1, textToSpeak.length - 1);
+      }
+
+      var audio_url =  'http://api.microsofttranslator.com/v2/http.svc/speak?appId=T4a9FDWxEAXKa9qCpKWra4gxYdvhWqATP3yCVqXdgXqU*&language=' + targetLanguage + '&format=audio/mp3&options=MinSize&text=' + textToSpeak;
+
+      if (args.callback) args.callback(audio_url);
+      else {
+        var audio = document.createElement('audio');
+        audio.src = audio_url;
+        audio.autoplay = true;
+        audio.play();
+      }
     };
 
     this.translateLanguage = function(text, config) {
@@ -84,7 +104,7 @@ function Translator() {
         console.log('SpeechRecognition Language', recognition.lang);
 
         recognition.continuous = true;
-        recognition.interimResults = true;
+        recognition.interimResults = false;
 
         recognition.onresult = function(event) {
             for (var i = event.resultIndex; i < event.results.length; ++i) {
@@ -95,7 +115,7 @@ function Translator() {
         };
 
         recognition.onend = function() {
-            //initTranscript(callback, language);
+            initTranscript(callback, language);
         };
 
         recognition.onerror = function(e) {

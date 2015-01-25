@@ -8,8 +8,6 @@ rtcMultiConnection.sdpConstraints.mandatory = {
 };
 
 // using websockets for signaling!
-//var SIGNALING_SERVER = location.origin.replace(/^http/, 'ws');  //enable this for Heroku
-var SIGNALING_SERVER = 'ws://' + document.domain + ':12034';
 rtcMultiConnection.openSignalingChannel = function(config) {
     config.channel = config.channel || this.channel;
     var websocket = new WebSocket(SIGNALING_SERVER);
@@ -39,38 +37,6 @@ rtcMultiConnection.openSignalingChannel = function(config) {
         }));
     };
 };
-
-/*var onMessageCallbacks = {};
-
-var SIGNALING_SERVER = '/';
-rtcMultiConnection.openSignalingChannel = function (config) {
-  var channel = config.channel || this.channel;
-  var sender = Math.round(Math.random() * 9999999999) + 9999999999;
-
-  io.connect(SIGNALING_SERVER).emit('new-channel', {
-    channel: channel,
-    sender : sender
-  });
-
-  var socket = io.connect(SIGNALING_SERVER + channel);
-  socket.channel = channel;
-
-  socket.on('connect', function () {
-    if (config.callback) config.callback(socket);
-  });
-
-  socket.send = function (message) {
-    socket.emit('message', {
-      sender: sender,
-      data  : message
-    });
-  };
-
-  socket.on('message', config.onmessage);
-};
-
-rtcMultiConnection.connect();*/
-
 
 rtcMultiConnection.customStreams = { };
 
@@ -108,92 +74,42 @@ rtcMultiConnection.onopen = function(e) {
 
 
 rtcMultiConnection.onmessage = function(e) {
-    var whoIsTyping = document.getElementById(e.userid).lastChild;
-    if (e.data.typing) {
-        whoIsTyping.innerHTML = ' is typing ...';
-        return;
-    }
+  var whoIsTyping = document.getElementById(e.userid).lastChild;
+  if (e.data.typing) {
+    whoIsTyping.innerHTML = ' is typing ...';
+    return;
+  }
 
-    if (e.data.stoppedTyping) {
-        whoIsTyping.innerHTML = '';
-        return;
-    }
-
+  if (e.data.stoppedTyping) {
     whoIsTyping.innerHTML = '';
+    return;
+  }
 
-    //translate the incoming message only if the message language is different from the user language
-    //and it's not transcribed with the speech recognition
-    if(e.extra.language===rtcMultiConnection.extra.language || !e.data.transcribed) {
-      addNewMessage({
-        header: e.extra.username,
-        message: e.data,
-        userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
-        color: e.extra.color
-      });
+  whoIsTyping.innerHTML = '';
 
-      document.title = e.data;
-    }
-    else{
+  //translate the incoming message only if the message language is different from the user language
+  //and it's not transcribed with the speech recognition
+  if(e.extra.language===rtcMultiConnection.extra.language || !e.data.transcribed) {
+    addNewMessage({
+      header: e.extra.username,
+      message: e.data.message,
+      userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
+      color: e.extra.color
+    });
 
+    document.title = e.data.message;
+  }
+  else {
 
+    var engine = getElement('#MTengine').value;
 
-
-/*      var websocket1 = new WebSocket(SIGNALING_SERVER);
-      websocket1.channel = '1';
-      websocket1.onopen = function() {
-        websocket1.push(JSON.stringify({
-          open: true,
-          channel: '1'
-        }));
-*//*        if (config.callback)
-          config.callback(websocket1);*//*
-      };
-      websocket1.push = websocket1.send;
-
-
-  websocket1.send = function(data) {
-    console.log('send');
-    if (websocket1.readyState != 1) {
-      return setTimeout(function() {
-        websocket1.send(JSON.stringify({
-            translate: true,
-            channel: '1',
-            from: e.extra.language,
-            to: rtcMultiConnection.extra.language,
-            text: e.data.message
-          })
-        );
-      }, 1000);
-    }
-
-    websocket1.push(JSON.stringify({
-      data: e.data.message,
-      channel: '1'
-    }));
-
-      };
-
-      websocket1.onmessage = function(event){
-        alert('onmessage');
-        addNewMessage({
-          header: e.extra.username,
-          message: e.data.message,
-          userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
-          color: e.extra.color,
-          translated: JSON.parse(event.data)
-        });
-      };*/
-
-
-
-
-
+    if (engine === '0') {
 
       //Google translator
       var translator = new Translator();
       translator.translateLanguage(e.data.message, {
-        from: e.extra.language.substring(0,2),
-        to: rtcMultiConnection.extra.language.substring(0,2),
+        from: e.extra.language.substring(0, 2),
+        to: rtcMultiConnection.extra.language.substring(0, 2),
         api_key: 'AIzaSyAs8hCMuWBOOfOo3kbnUWqzuu10r1j1-io', // use your own key
         callback: function (translatedText) {
           addNewMessage({
@@ -202,14 +118,40 @@ rtcMultiConnection.onmessage = function(e) {
             userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
             color: e.extra.color,
             translated: translatedText,
-            lastMessageUUID:  Math.round(Math.random() * 999999999) + 9995000
+            lastMessageUUID: Math.round(Math.random() * 999999999) + 9995000
           });
 
           document.title = translatedText;
         }
       });
     }
+    else {
+      //Microsoft Translator
+      var bingAPIpath = SERVER_PATH + '/api/bing?callback=?';
+      $.ajax({
+        url: bingAPIpath,
+        dataType: 'jsonp',
+        data: 'q=' + e.data.message + '&tl=' + rtcMultiConnection.extra.language + '&sl=' + e.extra.language,
+        jsonp: 'callback',
+        success: function (data) {
+          addNewMessage({
+            header: e.extra.username,
+            message: e.data.message,
+            userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
+            color: e.extra.color,
+            translated: data,
+            lastMessageUUID: Math.round(Math.random() * 999999999) + 9995000
+          });
 
+          document.title = data;
+        },
+        error: function () {
+          console.log('Bing Translator error!!');
+          alert("Error");
+        }
+      });
+    }
+  }
 };
 
 var sessions = { };
