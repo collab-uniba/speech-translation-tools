@@ -123,11 +123,12 @@
     <IntDir>bin\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <GenerateManifest>true</GenerateManifest>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\</OutDir>
     <IntDir>bin\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universal Debug|Win32'">
@@ -197,7 +198,7 @@
       <AdditionalDependencies>wsock32.lib;odbc32.lib;opengl32.lib;ts3client_win32.lib;ts3client_win64.lib;ts3server_win32.lib;ts3server_win64.lib;libcrypto.a;libcrypto.dll.a;libcurl.a;libcurldll.a;libidn.a;libidn.dll.a;librtmp.a;libssh2.a;libssh2dll.a;libssl.a;libssl.dll.a;libz.a;libz.dll.a;libzdll.a;audiere.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wininet.lib;irrKlang.lib;wxbase29ud_xml.lib;wxmsw29ud_html.lib;wxmsw29ud_richtext.lib;wxmsw29ud_propgrid.lib;wxmsw29ud_adv.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>bin\TeamTranslateDebug.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>.\lib;.\lib\wxd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\lib;.\lib\wx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>obj\TeamTranslate.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -218,17 +219,22 @@
     </Midl>
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>.\include;.\include\mswud;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\include;.\include\mswud;.\include\ck;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <ObjectFileName>obj\</ObjectFileName>
-      <ProgramDataBaseFileName>obj\TeamTranslate.pdb</ProgramDataBaseFileName>
+      <ObjectFileName>bin\</ObjectFileName>
+      <ProgramDataBaseFileName>bin\TeamTranslate.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>
+      </CompileAsManaged>
+      <CompileAsWinRT>
+      </CompileAsWinRT>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -237,16 +243,21 @@
       <ResourceOutputFileName>.\res\%(Filename).res</ResourceOutputFileName>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;wxmsw29u_core.lib;wxbase29u.lib;wxmsw29u_richtext.lib;wxmsw29u_gl.lib;wxmsw29u_propgrid.lib;wxmsw29u_adv.lib;wxmsw29u_html.lib;wxbase29u_xml.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wxscintilla.lib;odbc32.lib;opengl32.lib;ts3client_win32.lib;ts3client_win64.lib;ts3server_win32.lib;ts3server_win64.lib;libcrypto.a;libcrypto.dll.a;libcurl.a;libcurldll.a;libidn.a;libidn.dll.a;librtmp.a;libssh2.a;libssh2dll.a;libssl.a;libssl.dll.a;libz.a;libz.dll.a;libzdll.a;audiere.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wininet.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>crypt32.lib;ws2_32.lib;wxmsw29u_core.lib;wxbase29u.lib;wxmsw29u_richtext.lib;wxmsw29u_gl.lib;wxmsw29u_propgrid.lib;wxmsw29u_adv.lib;wxmsw29u_html.lib;wxbase29u_xml.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wxscintilla.lib;odbc32.lib;opengl32.lib;ts3client_win32.lib;ts3client_win64.lib;ts3server_win32.lib;ts3server_win64.lib;libcrypto.a;libcrypto.dll.a;libcurl.a;libcurldll.a;libidn.a;libidn.dll.a;librtmp.a;libssh2.a;libssh2dll.a;libssl.a;libssl.dll.a;libz.a;libz.dll.a;libzdll.a;audiere.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wininet.lib;irrKlang.lib;ChilkatDbg.lib;ChilkatDbgDll.lib;ChilkatRel.lib;ChilkatRelDll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>bin\TeamTranslate.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>.\lib;.\lib\wx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\lib;.\lib\wx;.\lib\ck;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>obj\TeamTranslate.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AssemblyDebug>
+      </AssemblyDebug>
+      <GenerateMapFile>
+      </GenerateMapFile>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Bscmake>
       <OutputFile>obj\TeamTranslate.bsc</OutputFile>
@@ -503,30 +514,60 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\AudioWizard.cpp" />
-    <ClCompile Include="src\ClientTsFrm.cpp" />
-    <ClCompile Include="src\Login.cpp" />
+    <ClCompile Include="src\ArchiveLog.cpp" />
+    <ClCompile Include="src\connectionController\connectionController.cpp" />
+    <ClCompile Include="src\GUI\AudioWizard.cpp" />
+    <ClCompile Include="src\GUI\ClientTsFrm.cpp" />
+    <ClCompile Include="src\gui\FrmMailSending.cpp" />
+    <ClCompile Include="src\gui\FrmSaveChat.cpp" />
+    <ClCompile Include="src\gui\FrmSettingMail.cpp" />
+    <ClCompile Include="src\GUI\Login.cpp" />
+    <ClCompile Include="src\gui\LoginWarnings.cpp" />
+    <ClCompile Include="src\gui\NationInfo.cpp" />
+    <ClCompile Include="src\gui\NationList.cpp" />
+    <ClCompile Include="src\gui\SplashScreen.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\tinyxml2.cpp" />
+    <ClCompile Include="src\translateController\translateController.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\AudioWizard.h" />
-    <ClInclude Include="src\ClientTsFrm.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="res\resource.h" />
+    <ClInclude Include="src\ArchiveLog.h" />
+    <ClInclude Include="src\connectionController\connectionController.h" />
     <ClInclude Include="src\GlobalVariables.h" />
-    <ClInclude Include="src\Login.h" />
+    <ClInclude Include="src\GUI\AudioWizard.h" />
+    <ClInclude Include="src\GUI\ClientTsFrm.h" />
+    <ClInclude Include="src\gui\FrmMailSending.h" />
+    <ClInclude Include="src\gui\FrmSaveChat.h" />
+    <ClInclude Include="src\gui\FrmSettingMail.h" />
+    <ClInclude Include="src\GUI\Login.h" />
+    <ClInclude Include="src\gui\LoginWarnings.h" />
+    <ClInclude Include="src\gui\NationInfo.h" />
+    <ClInclude Include="src\gui\NationList.h" />
+    <ClInclude Include="src\gui\SplashScreen.h" />
+    <ClInclude Include="src\tinyxml2.h" />
+    <ClInclude Include="src\translateController\translateController.h" />
+    <ClInclude Include="src\translateController\translateVariable.h" />
     <ClInclude Include="src\utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="res\sample.rc" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="res\connect.xpm" />
     <None Include="res\brasil.xpm" />
     <None Include="res\italy.xpm" />
     <None Include="res\keyboard.xpm" />
     <None Include="res\ledrosso.xpm" />
     <None Include="res\ledverde.xpm" />
+    <None Include="res\mail-settings-icon.xpm" />
     <None Include="res\microphone.xpm" />
     <None Include="res\sample.xpm" />
+    <None Include="res\sendemail.xpm" />
+    <None Include="res\Splash.xpm" />
     <None Include="res\usa.xpm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="bitmap1.bmp" />
+    <Image Include="res\sample.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

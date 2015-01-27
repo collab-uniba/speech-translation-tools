@@ -1,0 +1,45 @@
+<language>
+    <nameHostServer>Nome</nameHostServer>
+    <language>Lingua</language>
+    <service>Servizio</service>
+    <confirm>Conferma</confirm>
+    <gridMessage>Messaggio</gridMessage>
+    <send>Invia</send>
+    <saveMenu>Salva sessione di chat</saveMenu>
+    <mailMenu>Invia chat per e-mail</mailMenu>
+    <exitMenu>Esci</exitMenu>
+    <options>Opzioni</options>
+    <audioMenu>Audio</audioMenu>
+    <enable>Abilita</enable>
+    <disable>Disabilita</disable>
+    <microphone>Regola la sensibilità del microfono.</microphone>
+    <min>Il valore minimo cattura tutti i suoni dal microfono senza filtri,</min>
+    <max>mentre il valore massimo non cattura nessun suono.</max>
+    <saveMessage>Vuoi salvare questa sessione di chat?</saveMessage>
+    <no>No</no>
+    <yes>Si</yes>
+    <saveFormatMessage>In che formato vuoi salvare?</saveFormatMessage>
+    <formatCsv>Formato CSV</formatCsv>
+    <formatTxt>Formato TXT</formatTxt>
+    <saveIn>Salva in</saveIn>
+    <saveSuccess>Sessione di chat salvata con successo!</saveSuccess>
+    <saveError>Sessione di chat non salvata! Si è verificato un errore durante il salvataggio!</saveError>
+    <mailTo>A</mailTo>
+    <mailSubject>Oggetto</mailSubject>
+    <mailBody>Testo</mailBody>
+    <mailAttachmentTxt>Allegato</mailAttachmentTxt>
+    <mailAttachmentCsv>Allegato</mailAttachmentCsv>
+    <fileSelect>Seleziona il file</fileSelect>
+    <dirSelect>Seleziona la directory</dirSelect>
+    <mailSuccess>E-mail inviata con successo!</mailSuccess>
+    <mailError>E-mail non inviata! Si è verificato un errore durante l'invio!</mailError>
+    <emailSetting>Impostazioni E-mail</emailSetting>
+    <serverName>SMTP Server</serverName>
+    <serverPort>Porta</serverPort>
+    <messageSecure>Usa connessione protetta</messageSecure>
+    <noSecure>No</noSecure>
+    <messageEmailSetting>Configurazione Salvata</messageEmailSetting>
+    <noSave>Niente da salvare</noSave>
+    <btnBrowse>Sfoglia</btnBrowse>
+    <btnCancel>Annulla</btnCancel>	
+</language>

@@ -132,7 +132,7 @@ protected:
 
     // create a new dialog using the given dialog template from resources,
     // return false if it couldn't be created
-    bool CreateDialog(const void *dlgTemplate,
+    bool CreateDialog_topLevel(const void *dlgTemplate,
                       const wxString& title,
                       const wxPoint& pos,
                       const wxSize& size);
