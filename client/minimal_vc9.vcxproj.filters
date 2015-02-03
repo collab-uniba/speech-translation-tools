@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files\connectionController">
+      <UniqueIdentifier>{3abff4cf-c017-482b-8a36-1955b87892a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\translateController">
+      <UniqueIdentifier>{f90e4d02-27c1-4ef8-897d-9075937b8231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{e7257350-8165-4d86-a32b-fd007d315096}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\connectionController\connectionController.cpp">
+      <Filter>Source Files\connectionController</Filter>
+    </ClCompile>
+    <ClCompile Include="src\translateController\translateController.cpp">
+      <Filter>Source Files\translateController</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\AudioWizard.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\ClientTsFrm.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\Login.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\FrmMailSending.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\FrmSaveChat.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\FrmSettingMail.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\SplashScreen.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\NationInfo.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\NationList.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ArchiveLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\LoginWarnings.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\utility.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GlobalVariables.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="res\resource.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\connectionController\connectionController.h">
+      <Filter>Source Files\connectionController</Filter>
+    </ClInclude>
+    <ClInclude Include="src\translateController\translateController.h">
+      <Filter>Source Files\translateController</Filter>
+    </ClInclude>
+    <ClInclude Include="src\translateController\translateVariable.h">
+      <Filter>Source Files\translateController</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\AudioWizard.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\ClientTsFrm.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\Login.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\FrmMailSending.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\FrmSaveChat.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyxml2.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\FrmSettingMail.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\SplashScreen.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\NationInfo.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\NationList.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ArchiveLog.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\LoginWarnings.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\keyboard.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\microphone.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\sample.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\italy.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\brasil.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\usa.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ledrosso.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ledverde.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\connect.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\sendemail.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\mail-settings-icon.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Splash.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\sample.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

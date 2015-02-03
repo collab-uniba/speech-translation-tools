@@ -1,0 +1,5 @@
+smtp.gmail.com
+465
+
+
+true
