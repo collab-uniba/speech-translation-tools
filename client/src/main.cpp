@@ -192,7 +192,7 @@ MyFrame::MyFrame(const wxString& title)
 void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
     // true is to force the frame to close
-    Close(true);
+    Close();
 }
 
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))

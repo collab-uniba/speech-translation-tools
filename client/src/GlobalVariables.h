@@ -73,7 +73,6 @@ struct WaveHeader {
 	char riffId[4];
 	unsigned int len;
 	char riffType[4];
-
 	/* Format chunk */
 	char fmtId[4];  // 'fmt '
 	unsigned int fmtLen;
@@ -83,7 +82,6 @@ struct WaveHeader {
 	unsigned int avgBytesPerSec;
 	unsigned short blockAlign;
 	unsigned short bitsPerSample;
-
 	/* Data chunk */
 	char dataId[4];  // 'data'
 	unsigned int dataLen;
@@ -117,7 +115,6 @@ typedef struct message
 	wxString msgnew;
 	wxString lang;
 	wxString msgold;
-
 	wxString timestamp;
 	wxString msgDir;
 } MESSAGE;
@@ -145,8 +142,6 @@ struct WriteThis {
 	const char *readptr;
 	long sizeleft;
 };
-
-
 
 static DWORD myThreadID;
 static DWORD myThreadID2;
