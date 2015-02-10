@@ -63,6 +63,8 @@ int ConnectionController::JSON()
 		return 1;
 #endif
 
+	// http://rapidjson.googlecode.com/svn-history/r95/trunk/example/tutorial/tutorial.cpp
+
 	////////////////////////////////////////////////////////////////////////////
 	// 2. Access values in document. 
 

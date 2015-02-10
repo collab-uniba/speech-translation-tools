@@ -11,6 +11,15 @@ Labels labels;
 char CURRENT_LANG[20] = { "English" };
 wxString StringTranslate = "";
 
+
+BEGIN_EVENT_TABLE(Login, wxDialog)
+	EVT_CLOSE(Login::OnClose)
+	EVT_BUTTON(ID_WXBUTTON1, Login::btnloginClick)
+	EVT_COMBOBOX(ID_WXCOMBOBOX1, Login::cmblingua_SelectionChange)
+END_EVENT_TABLE()
+
+
+
 int hostname_to_ip(char * hostname, char* ip)
 {
 	struct hostent *he;
@@ -36,11 +45,7 @@ int hostname_to_ip(char * hostname, char* ip)
 	return 1;
 }
 
-BEGIN_EVENT_TABLE(Login, wxDialog)
-EVT_CLOSE(Login::OnClose)
-EVT_BUTTON(ID_WXBUTTON1, Login::btnloginClick)
-EVT_COMBOBOX(ID_WXCOMBOBOX1, Login::cmblingua_SelectionChange)
-END_EVENT_TABLE()
+
 
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
@@ -49,25 +54,18 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	this->Centre(wxBOTH);
-
 	this->SetSize(wxSize(600, 400));
 
-	wxBoxSizer* bSizer2;
-	bSizer2 = new wxBoxSizer(wxVERTICAL);
-
-	wxBoxSizer* bSizer5;
-	bSizer5 = new wxBoxSizer(wxHORIZONTAL);
-
+	wxBoxSizer* bSizer2 = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* bSizer5 = new wxBoxSizer(wxHORIZONTAL);
 	bSizer5->Add(0, 0, 1, wxEXPAND, 5);
 
 	m_bitmap1 = new wxStaticBitmap(this, wxID_ANY, wxBitmap(connect_xpm), wxDefaultPosition, wxSize(75, 75), 0);
 	bSizer5->Add(m_bitmap1, 0, wxALL, 5);
 
-
 	bSizer2->Add(bSizer5, 1, wxEXPAND, 5);
 
-	wxBoxSizer* bSizer3;
-	bSizer3 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bSizer3 = new wxBoxSizer(wxHORIZONTAL);
 
 	lblNameHost = new wxStaticText(this, wxID_ANY, wxT("Login"), wxDefaultPosition, wxSize(150, -1), 0);
 	lblNameHost->Wrap(-1);
@@ -76,11 +74,9 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	txtNameHost = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer3->Add(txtNameHost, 1, wxALL, 5);
 
-
 	bSizer2->Add(bSizer3, 0, wxALIGN_CENTER | wxEXPAND, 5);
 
-	wxBoxSizer* bSizer31;
-	bSizer31 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bSizer31  = new wxBoxSizer(wxHORIZONTAL);
 
 	lblNickName = new wxStaticText(this, wxID_ANY, wxT("Nickname:"), wxDefaultPosition, wxSize(150, -1), 0);
 	lblNickName->Wrap(-1);
@@ -92,8 +88,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 
 	bSizer2->Add(bSizer31, 0, wxEXPAND, 5);
 
-	wxBoxSizer* bSizer311;
-	bSizer311 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bSizer311  = new wxBoxSizer(wxHORIZONTAL);
 
 	lblLanguage = new wxStaticText(this, wxID_ANY, labels.language, wxDefaultPosition, wxSize(150, -1), 0);
 	lblLanguage->Wrap(-1);
@@ -128,9 +123,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	
 	bSizer311->Add(cmbLingua, 1, wxALL, 5);
 
-
 	bSizer2->Add(bSizer311, 0, wxEXPAND, 5);
-
 
 	bSizer2->Add(20, 20, 0, wxEXPAND, 5);
 
@@ -152,15 +145,12 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	wxBoxSizer* bSizer6;
 	bSizer6 = new wxBoxSizer(wxHORIZONTAL);
 
-
 	bSizer6->Add(0, 0, 1, wxEXPAND, 5);
 
 	cmdConfirm = new wxButton(this, wxID_ANY, labels.confirm, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer6->Add(cmdConfirm, 0, wxALL, 5);
 
-
 	bSizer2->Add(bSizer6, 0, wxEXPAND, 5);
-
 
 	this->SetSizer(bSizer2);
 	this->Layout();
@@ -194,9 +184,9 @@ void Login::OnClose(wxCloseEvent& /*event*/)
 
 void Login::ReadConfig()
 {
-	ifstream file("..\\bin\\conf\\config.txt", ios::in);
+	ifstream file("conf\\config.txt", ios::in);
 	if (file.is_open()){
-		if (config = fopen("..\\bin\\conf\\config.txt", "r"))
+		if (config = fopen("conf\\config.txt", "r"))
 		{
 
 			fscanf(config, "%s", &StringLoginServer);
@@ -241,7 +231,7 @@ void Login::cmblingua_SelectionChange(wxCommandEvent& event)
 	char lang[20] = { "" };
 	strcpy(lang, (char*)cmbLingua->GetStringSelection().mb_str().data());
 
-	TranslateController::InitLanguageVariable(lang);;
+	TranslateController::InitLanguageVariable(lang);
 	Login::SetLabel();
 }
 
@@ -262,7 +252,7 @@ void Login::btnloginClick(wxCommandEvent& event)
 	char ip[20];
 	hostname_to_ip(StringLoginServer, ip);
 
-	config = fopen("..\\bin\\conf\\config.txt", "w");
+	config = fopen("conf\\config.txt", "w");
 	fprintf(config, "%s\n", ip);
 	fprintf(config, "%s\n", StringLoginNick);
 	fprintf(config, "%d\n", cmbLingua->GetSelection());

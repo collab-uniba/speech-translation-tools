@@ -13,7 +13,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-MyPanel2::MyPanel2(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
+FrmSettingMail::FrmSettingMail(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
 	CenterOnScreen();
 	wxBoxSizer* bSizer8;
@@ -151,8 +151,8 @@ MyPanel2::MyPanel2(wxWindow* parent, wxWindowID id, const wxString& title, const
 	this->Layout();
 	
 	// Connect Events
-	frmOptionsMail_cmdOK->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyPanel2::cmdOKClick ), NULL, this );
-	frmOptionsMail_cmdCancel->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyPanel2::cmdCancelClick ), NULL, this );
+	frmOptionsMail_cmdOK->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdOKClick ), NULL, this );
+	frmOptionsMail_cmdCancel->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdCancelClick ), NULL, this );
 
 	struct serverdata
 	{
@@ -192,19 +192,19 @@ MyPanel2::MyPanel2(wxWindow* parent, wxWindowID id, const wxString& title, const
 
 }
 
-MyPanel2::~MyPanel2()
+FrmSettingMail::~FrmSettingMail()
 {
 	// Disconnect Events
-	frmOptionsMail_cmdOK->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyPanel2::cmdOKClick ), NULL, this );
-	frmOptionsMail_cmdCancel->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyPanel2::cmdCancelClick ), NULL, this );
+	frmOptionsMail_cmdOK->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdOKClick ), NULL, this );
+	frmOptionsMail_cmdCancel->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdCancelClick ), NULL, this );
 	
 }
 
-void MyPanel2::chkUserPsw_Check(wxCommandEvent& event){
+void FrmSettingMail::chkUserPsw_Check(wxCommandEvent& event){
 
 }
 
-void MyPanel2::cmdOKClick(wxCommandEvent& event){
+void FrmSettingMail::cmdOKClick(wxCommandEvent& event){
 	struct serverdata
 	{
 		char smtpservertxt[100];
@@ -237,6 +237,6 @@ void MyPanel2::cmdOKClick(wxCommandEvent& event){
 
 
 }
-void MyPanel2::cmdCancelClick(wxCommandEvent& event){
+void FrmSettingMail::cmdCancelClick(wxCommandEvent& event){
 	this->Close();
 }

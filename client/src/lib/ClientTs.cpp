@@ -1,15 +1,25 @@
 #include "ClientTs.h"
 
 list<MESSAGE> diary;
+ 
 bool flagSave = true;
+
+
+bool getFlagSave(){
+	return flagSave;
+}
+
+void setFlagSave(bool flg){
+	flagSave = flg;
+}
 
 /*
 This procedure allows the use of TextToSpeech offered by Microsoft
 it has two parameters: the language of message and body of message
 */
+
 void speak(char *LANG, char*MSG)
 {
-
 	HRESULT hr = S_OK;
 	CComPtr <ISpVoice>		cpVoice;
 	CComPtr <ISpObjectToken>	cpToken;
@@ -41,12 +51,14 @@ void speak(char *LANG, char*MSG)
 
 }
 
+
 void Print(char*word)
 {
 	wchar_t* wString = new wchar_t[4096];
 	MultiByteToWideChar(CP_ACP, 0, word, -1, wString, 4096);
 	MessageBox(NULL, wString, L"Test print handler", MB_OK);
 }
+
 
 static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 {
@@ -69,6 +81,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 This procedure save the audio recorded into the file
 http://www.cplusplusdevelop.com/1399_16286382/
 */
+
 void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
 {
 	if (!data)
@@ -125,6 +138,7 @@ void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
 /*
 Initialize Client's label colors,the values are RGB
 */
+
 void SetupColor()
 {
 	colors[0].red = 255;
@@ -172,6 +186,7 @@ int recordSound = 0;
 *   errorNumber               - Error code. Should be zero when connecting or actively disconnection.
 *                               Contains error state when losing connection.
 */
+
 void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
 	printf("Connect status changed: %llu %d %d\n", (unsigned long long)serverConnectionHandlerID, newStatus, errorNumber);
 	/* Failed to connect ? */
@@ -188,8 +203,10 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 * Parameters:
 *   serverConnectionHandlerID - Server connection handler ID
 *   channelID                 - ID of the announced channel
-*    channelParentID           - ID of the parent channel
+*   channelParentID           - ID of the parent channel
 */
+
+
 void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID) {
 	/* Query channel name from channel ID */
 	char* name;
@@ -216,9 +233,11 @@ void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint6
 *   serverConnectionHandlerID - Server connection handler ID
 *   channelID                 - ID of the announced channel
 *   channelParentID           - ID of the parent channel
-*    invokerID                 - ID of the client who created the channel
+*   invokerID                 - ID of the client who created the channel
 *   invokerName               - Name of the client who created the channel
 */
+
+
 void onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 	char* name;
 
@@ -776,7 +795,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 
 		diary.push_back(msg);
 
-		flagSave = false;
+		setFlagSave( false);
 		return;
 	}
 
@@ -796,7 +815,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 			msg.msgnew = StringTranslate;				//Save translate message
 
 			diary.push_back(msg);
-			flagSave = false;
+			setFlagSave(false);
 		}
 	}
 
@@ -816,7 +835,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 			msg.msgnew = StringTranslate;				//Save translate message
 
 			diary.push_back(msg);
-			flagSave = false;
+			setFlagSave(false);
 		}
 	}
 	return;
@@ -1211,6 +1230,7 @@ void showHelp() {
 
 unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID, const char *message, anyID targetChannelID, const char *returnCode);
 
+
 DWORD WINAPI ClientStart(LPVOID lpParameter)
 {
 	uint64 scHandlerID;
@@ -1379,6 +1399,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	return 0;
 }
 
+
 DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 {
 	while (1)
@@ -1413,6 +1434,7 @@ DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 		else goto a;
 	}
 }
+
 DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 {
 	while (1)
@@ -1427,6 +1449,7 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 	}
 	return 0;
 }
+
 DWORD WINAPI CTRL_STT(LPVOID lpParameter)
 {
 

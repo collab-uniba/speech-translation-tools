@@ -45,7 +45,7 @@
 #include "../res/brasil.xpm"
 
 
-
+#define DEBUG 1
 #define MAX 30
 
 #define DEFAULT_VIRTUAL_SERVER 1
@@ -86,6 +86,11 @@ struct WaveHeader {
 	char dataId[4];  // 'data'
 	unsigned int dataLen;
 };
+
+
+
+
+
 
 typedef struct color
 {

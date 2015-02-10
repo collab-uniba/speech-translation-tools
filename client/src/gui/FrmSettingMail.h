@@ -35,7 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class MyPanel2
 ///////////////////////////////////////////////////////////////////////////////
-class MyPanel2 : public wxDialog 
+class FrmSettingMail : public wxDialog 
 {
 	private:
 	
@@ -65,8 +65,8 @@ class MyPanel2 : public wxDialog
 	
 	public:
 		
-		MyPanel2(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxString("Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500, 400), long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
-		~MyPanel2();
+		FrmSettingMail(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxString("Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500, 400), long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+		~FrmSettingMail();
 	
 };
 

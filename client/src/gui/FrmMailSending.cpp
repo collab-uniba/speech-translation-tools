@@ -160,6 +160,9 @@ void FrmMailSending::btnCancelMailClick(wxCommandEvent& event){
 }
 
 bool FrmMailSending::sendMail(char* subject, char* body, char* to, char* attachment, char* attachment2){
+	/*
+	www.example-code.com/vcpp/smtp_simpleSend.asp
+	*/
 	struct serverdata
 	{
 		char smtpservertxt[100];
@@ -189,7 +192,7 @@ bool FrmMailSending::sendMail(char* subject, char* body, char* to, char* attachm
 	protocolint = atoi(serversettings.serverporttxt);
 	char source[100];
 
-	//  Any string argument automatically begins the 30-day trial.
+	//  Any string argument automatically begins the 30-day trial. http://www.example-code.com/csharp/htmlToXml_webPage.asp
 
 	success = mailman.UnlockComponent("30-day trial");
 	if (success != true)

@@ -2,15 +2,16 @@
 
 void TranslateController::InitLanguageVariable(char* lang)
 {
-	char filename[50] = { "" };
-	strcpy(filename, "..\\bin\\lang\\");
+	char filename[500] = { "" };
+	 
+	strcpy(filename, "lang\\");
 	strcat(filename, lang);
 	strcat(filename, ".xml");
-
+	 
 	ifstream file(filename, ios::in);
 	if (file.is_open())
 		TranslateController::readXmlLangDoc(filename); // read and set "labels"
-
+	
 	file.close();
 }
 

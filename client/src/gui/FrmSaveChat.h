@@ -1,5 +1,5 @@
 #ifndef __FRMSAVECHAT_H__
-#define __FRMSAVECHAT__
+#define __FRMSAVECHAT_H__
 
 #include <wx/wx.h>
 #include <wx/artprov.h>

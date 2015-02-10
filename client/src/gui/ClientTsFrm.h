@@ -31,8 +31,8 @@
 #include <wx/button.h>
 #include <wx/grid.h>
 #include "NationList.h"
-#include "LoginWarnings.h"
-#include "../ArchiveLog.h"
+#include "LoginWarnings.h" 
+#include "..\ArchiveLog.h"
 
 #include "..\GlobalVariables.h"
 #include "..\translateController\translateController.h"
