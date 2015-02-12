@@ -13,7 +13,7 @@ Labels labels;
 Txto.setCurrentLang("English"); //this declaration has no storage class or type specifier*/
 
 Session* session = Session::Instance();
- 
+
 
 wxString StringTranslate = "";
 
@@ -55,6 +55,7 @@ int hostname_to_ip(char * hostname, char* ip)
 
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
+	session->setLanguage("English");
 	this->nations = new NationList();
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 
@@ -189,41 +190,23 @@ void Login::OnClose(wxCloseEvent& /*event*/)
 }
 
 void Login::ReadConfig()
-{
-	ifstream file("conf\\config.txt", ios::in);
-	if (file.is_open()){
-		if (config = fopen("conf\\config.txt", "r"))
+{ 
+	if (session->read()){
+		txtNameHost->SetValue(session->getServerAddress());
+		txtNickName->SetValue(session->getNick());
+		cmbLingua->SetSelection(session->getNumbLanguageSelected());
+		if (!strcmp(session->getTranslationEngine(),"google"))
 		{
-
-			fscanf(config, "%s", &StringLoginServer);
-			txtNameHost->SetValue(StringLoginServer);
-
-			fscanf(config, "%s", &StringLoginNick);
-			txtNickName->SetValue(StringLoginNick);
-
-			fscanf(config, "%d", &cmbelement);
-			cmbLingua->SetSelection(cmbelement);
-
-			fscanf(config, "%s", &StringLoginLingua);
-			cmbLingua->SetValue(StringLoginLingua);
-
-			fscanf(config, "%s", &StringLoginServizio);
-			if (strcmp(StringLoginServizio,"google")==0)
-			{
 				radGoogle->SetValue(true);
 				radBing->SetValue(false);
-			}
-			else
-			{
+		}else
+		{
 				radGoogle->SetValue(false);
 				radBing->SetValue(true);
-			}
-
-			TranslateController::InitLanguageVariable(StringLoginLingua);
-			cmbLingua->SetSelection(cmbelement);
-
-			fclose(config);
 		}
+
+		TranslateController::InitLanguageVariable((char* )session->getLanguage());
+		cmbLingua->SetSelection(session->getNumbLanguageSelected());
 	}
 	else{
 		cmbLingua->SetSelection(0);
@@ -258,11 +241,14 @@ void Login::btnloginClick(wxCommandEvent& event)
 	char ip[20];
 	hostname_to_ip(StringLoginServer, ip);
 
-	config = fopen("conf\\config.txt", "w");
-	fprintf(config, "%s\n", ip);
-	fprintf(config, "%s\n", StringLoginNick);
-	fprintf(config, "%d\n", cmbLingua->GetSelection());
-	fprintf(config, "%s\n", StringLoginLingua);
+	session->setNumbLanguageSelected(cmbLingua->GetSelection());
+	session->setNick(StringLoginNick);
+	session->setLanguage(StringLoginLingua);
+	session->setServerAddress(ip);
+	if (radGoogle->GetValue()) session->setTranslationEngine("google");  
+	if (radBing->GetValue()) session->setTranslationEngine("bing"); 
+	session->update();
+
 
 	/*if (strncmp(StringLoginLingua, "English", 7) == 0)
 	{
@@ -273,12 +259,9 @@ void Login::btnloginClick(wxCommandEvent& event)
 
 	//else fprintf(config, "%s\n", StringLoginLingua);
 
-	if (radGoogle->GetValue()) fprintf(config, "%s", "google");
-	if (radBing->GetValue())   fprintf(config, "%s", "bing");
-	fflush(config);
-	fclose(config);
+	
 
-	TranslateController::InitLanguageVariable(CURRENT_LANG);
+	TranslateController::InitLanguageVariable((char*) session->getLanguage());
 
 	ClientTsFrm* frame = new ClientTsFrm(warn,NULL);
 	frame->Show();
