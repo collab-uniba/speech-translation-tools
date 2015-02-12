@@ -32,11 +32,11 @@
 #include <wx/grid.h>
 #include "NationList.h"
 #include "LoginWarnings.h" 
-#include "..\ArchiveLog.h"
+#include "../ArchiveLog.h"
 
-#include "..\GlobalVariables.h"
-#include "..\translateController\translateController.h"
-#include "..\translateController\translateVariable.h"
+#include "../GlobalVariables.h"
+#include "../translateController/translateController.h"
+#include "../translateController/translateVariable.h"
 #include "FrmMailSending.h"
 #include "FrmSettingMail.h"
 #include "AudioWizard.h"

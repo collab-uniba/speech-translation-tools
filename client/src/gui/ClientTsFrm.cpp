@@ -1,23 +1,23 @@
 #include "ClientTsFrm.h"
 #include "../lib/ClientTs.h"
-
+#include "../data/Session.h"
 
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
-EVT_CLOSE(ClientTsFrm::OnClose)
-EVT_TIMER(ID_WXTIMER2, ClientTsFrm::WxTimer2Timer)
-EVT_TIMER(ID_WXTIMER1, ClientTsFrm::WxTimer1Timer)
-EVT_BUTTON(ID_WXBITMAPBUTTON1, ClientTsFrm::WxBitmapButton1Click)
-EVT_BUTTON(ID_WXBUTTON2, ClientTsFrm::btnsendClick)
-EVT_TEXT_ENTER(ID_WXEDIT3, ClientTsFrm::txtmsgEnter)
-EVT_BUTTON(ID_WXBUTTON1, ClientTsFrm::WxButton1Click)
-EVT_MENU(ID_MNU_MAIL_1004, ClientTsFrm::Mail)
-EVT_MENU(ID_MNU_SETTINGMAIL_1007, ClientTsFrm::SettingMail)
-EVT_MENU(ID_MNU_SAVE_1002, ClientTsFrm::Save)
-EVT_MENU(ID_MNU_ESCI_1003, ClientTsFrm::Debug)
-EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
-EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
-EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
+	EVT_CLOSE(ClientTsFrm::OnClose)
+	EVT_TIMER(ID_WXTIMER2, ClientTsFrm::WxTimer2Timer)
+	EVT_TIMER(ID_WXTIMER1, ClientTsFrm::WxTimer1Timer)
+	EVT_BUTTON(ID_WXBITMAPBUTTON1, ClientTsFrm::WxBitmapButton1Click)
+	EVT_BUTTON(ID_WXBUTTON2, ClientTsFrm::btnsendClick)
+	EVT_TEXT_ENTER(ID_WXEDIT3, ClientTsFrm::txtmsgEnter)
+	EVT_BUTTON(ID_WXBUTTON1, ClientTsFrm::WxButton1Click)
+	EVT_MENU(ID_MNU_MAIL_1004, ClientTsFrm::Mail)
+	EVT_MENU(ID_MNU_SETTINGMAIL_1007, ClientTsFrm::SettingMail)
+	EVT_MENU(ID_MNU_SAVE_1002, ClientTsFrm::Save)
+	EVT_MENU(ID_MNU_ESCI_1003, ClientTsFrm::Debug)
+	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
+	EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
+	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
 END_EVENT_TABLE()
 
@@ -74,6 +74,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	txtclient->SetInsertionPointEnd();
 	txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
+	/*txtlingua shows the language chosen*/
 	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
 	txtlingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
@@ -83,12 +84,15 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
 	lblnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
+	/*txtnick shows the name chosen*/
 	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(91, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
 	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
+	/* btnsend: botton which sends the message typed */
 	btnsend = new wxButton(this, ID_WXBUTTON2, _(wxString::FromUTF8(labels.send.c_str())), wxPoint(830, 450), wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
 	btnsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
+	/* Txtmsg: box where you can type a message*/
 	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(211, 450), wxSize(570, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 	txtmsg->SetFocus();
@@ -133,8 +137,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	////GUI Items Creation End
 
 	conta = 10.0;
-	FILE*config;
 	FILE *api;
+	/*FILE*config;
+	
 	if (config = fopen("..\\bin\\conf\\config.txt", "r"))
 	{
 		fscanf(config, "%s", &SERVER_ADDRESS);
@@ -144,14 +149,17 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		fscanf(config, "%s", &SERVICE);
 		fclose(config);
 	}
+	*/
 	if (api = fopen("..\\bin\\conf\\GOOGLE.txt", "r"))
 	{
-		fscanf(api, "%s", GOOGLE_API_KEY);
+		char API[200];
+		fscanf(api, "%s", API);
+		setGoogleAPIKey(API);
 		fclose(api);
 	}
 
-	txtnick->AppendText(NICK);
-	txtlingua->AppendText(CURRENT_LANG);
+	txtnick->AppendText(getNick());
+	txtlingua->AppendText(getCurrentLang());
 	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
@@ -274,7 +282,7 @@ void ClientTsFrm::RefreshChat()
 			return;
 
 		gridchat->AppendRows(1, true); //Add a new message row
-		if (strNick == NICK)
+		if (strNick == getNick())
 		{
 			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
 			gridchat->SetCellValue(messaggio, curRow, 0);
@@ -394,13 +402,13 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	setVadLevel(DEFAULT_VIRTUAL_SERVER); 
-	if (txtmsg->IsModified() == true) 	write_flag = true;
+	if (txtmsg->IsModified()) 	write_flag = true;
 	int i;
 	for (i = 0; i < MAX; i++)
 	{
-		if (person[i].name == NICK)
+		if (person[i].name == getNick())
 		{
-			if (person[i].write == 0 && write_flag == true)
+			if (person[i].write == 0 && write_flag)
 			{
 				wxString scrive_msg = "\n" + wxString::FromAscii(CURRENT_LANG) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);

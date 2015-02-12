@@ -516,6 +516,7 @@
   <ItemGroup>
     <ClCompile Include="src\ArchiveLog.cpp" />
     <ClCompile Include="src\connectionController\connectionController.cpp" />
+    <ClCompile Include="src\data\Session.cpp" />
     <ClCompile Include="src\GUI\AudioWizard.cpp" />
     <ClCompile Include="src\GUI\ClientTsFrm.cpp" />
     <ClCompile Include="src\gui\FrmMailSending.cpp" />
@@ -526,6 +527,7 @@
     <ClCompile Include="src\gui\NationInfo.cpp" />
     <ClCompile Include="src\gui\NationList.cpp" />
     <ClCompile Include="src\gui\SplashScreen.cpp" />
+    <ClCompile Include="src\lib\ClientTs.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\tinyxml2.cpp" />
     <ClCompile Include="src\translateController\translateController.cpp" />
@@ -535,6 +537,7 @@
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="src\ArchiveLog.h" />
     <ClInclude Include="src\connectionController\connectionController.h" />
+    <ClInclude Include="src\data\Session.h" />
     <ClInclude Include="src\GlobalVariables.h" />
     <ClInclude Include="src\GUI\AudioWizard.h" />
     <ClInclude Include="src\GUI\ClientTsFrm.h" />
@@ -546,12 +549,14 @@
     <ClInclude Include="src\gui\NationInfo.h" />
     <ClInclude Include="src\gui\NationList.h" />
     <ClInclude Include="src\gui\SplashScreen.h" />
+    <ClInclude Include="src\lib\ClientTs.h" />
     <ClInclude Include="src\tinyxml2.h" />
     <ClInclude Include="src\translateController\translateController.h" />
     <ClInclude Include="src\translateController\translateVariable.h" />
     <ClInclude Include="src\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="res\connect.xpm" />
     <None Include="res\brasil.xpm" />
     <None Include="res\italy.xpm" />

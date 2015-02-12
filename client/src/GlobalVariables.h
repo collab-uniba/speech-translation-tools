@@ -45,7 +45,6 @@
 #include "../res/brasil.xpm"
 
 
-#define DEBUG 1
 #define MAX 30
 
 #define DEFAULT_VIRTUAL_SERVER 1
@@ -57,6 +56,7 @@
 
 #ifdef _WIN32
 #define snprintf sprintf_s
+#define strdup _strdup
 #define SLEEP(x) Sleep(x)
 #else
 #define SLEEP(x) usleep(x*1000)
@@ -86,9 +86,6 @@ struct WaveHeader {
 	char dataId[4];  // 'data'
 	unsigned int dataLen;
 };
-
-
-
 
 
 
@@ -141,6 +138,7 @@ typedef struct header_file
 	int subchunk2_size;         // subchunk2_size denotes the number of samples.
 } header;
 
+
 typedef struct header_file* header_p;
 
 struct WriteThis {
@@ -164,15 +162,7 @@ static wxString oldStringTranslate = "";
 static wxString StringOriginal = "";
 static wxString strSpeak = "";
 
-static char SERVER_ADDRESS[20];
-static char NICK[50];
-static char SERVICE[20];
-static char LANG_MSG_SRC[20] = { "" };
-static char MSG_SRC[50] = { "" };
-static char GOOGLE_API_KEY[50] = { "" };
-static char url[256] = { "" };
-static char MSG_PARSE[1024] = { "" };
-static char translate_jar[512] = { "" };
+
 
 static unsigned short PORT = 9987;	//Number port of server
 static int cmbel = 0;				//Index of comboBox choose

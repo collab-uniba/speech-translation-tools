@@ -1,7 +1,7 @@
 #ifndef _CONNECTIONCONTROLLER_H_
 #define _CONNECTIONCONTROLLER_H_
 
-#include "..\GlobalVariables.h"
+#include "../GlobalVariables.h"
 
 
 class ConnectionController{

@@ -1,4 +1,5 @@
 #include "Login.h"
+#include "../data/Session.h"
 
 FILE*config;
 char StringLoginServer[20];
@@ -7,8 +8,13 @@ char StringLoginLingua[20];
 char StringLoginServizio[20];
 int  cmbelement = 0;
 
-Labels labels;
-char CURRENT_LANG[20] = { "English" };
+Labels labels; 
+/*LanguageSetter Txto;
+Txto.setCurrentLang("English"); //this declaration has no storage class or type specifier*/
+
+Session* session = Session::Instance();
+ 
+
 wxString StringTranslate = "";
 
 
@@ -267,8 +273,8 @@ void Login::btnloginClick(wxCommandEvent& event)
 
 	//else fprintf(config, "%s\n", StringLoginLingua);
 
-	if (radGoogle->GetValue() == true) fprintf(config, "%s", "google");
-	if (radBing->GetValue() == true)   fprintf(config, "%s", "bing");
+	if (radGoogle->GetValue()) fprintf(config, "%s", "google");
+	if (radBing->GetValue())   fprintf(config, "%s", "bing");
 	fflush(config);
 	fclose(config);
 

@@ -20,14 +20,14 @@
 #include <wx/textctrl.h>
 #include <wx/button.h>
 #include <wx/grid.h>
-#include "..\gui\NationList.h"
-#include "..\gui\NationInfo.h"
+#include "../gui\NationList.h"
+#include "../gui\NationInfo.h"
 //#include "..\gui\LoginWarnings.h"
-#include "..\ArchiveLog.h"
+#include "../ArchiveLog.h"
 
-#include "..\GlobalVariables.h"
-#include "..\translateController\translateController.h"
-#include "..\translateController\translateVariable.h"
+#include "../GlobalVariables.h"
+#include "../translateController/translateController.h"
+#include "../translateController/translateVariable.h"
 /*#include "../gui/FrmMailSending.h"
 #include "../gui/FrmSettingMail.h"
 #include "../gui/AudioWizard.h"*/
