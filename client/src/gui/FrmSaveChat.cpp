@@ -1,4 +1,9 @@
 #include "FrmSaveChat.h"
+#include "../data/Session.h"
+
+
+ 
+
 
 FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title, const wxPoint& position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
@@ -170,7 +175,7 @@ void FrmSaveChat::saveChatCSV(const char* filename){
 		if (strcmp((*iter).msgDir, "-->"))
 			fprintf(config, "\"" + (*iter).msgold + "\"\n");
 		else
-			fprintf(config, "\"" + (*iter).lang + ";\"" + (*iter).msgold + ";\"#orig#\";\"" + CURRENT_LANG + ";\"" + (*iter).msgnew + "\"\n");
+			fprintf(config, "\"" + (*iter).lang + ";\"" + (*iter).msgold + ";\"#orig#\";\"" + Session::Instance()->getLanguage() + ";\"" + (*iter).msgnew + "\"\n");
 	}
 
 	fflush(config);
@@ -191,7 +196,7 @@ void FrmSaveChat::saveChatTXT(const char* filename){
 		if (strcmp((*iter).msgDir, "-->") == 0)
 			fprintf(config, (*iter).msgold + "\n");
 		else
-			fprintf(config, "(" + (*iter).lang + ": " + (*iter).msgold + " #orig# " + CURRENT_LANG + ": " + (*iter).msgnew + ")\n");
+			fprintf(config, "(" + (*iter).lang + ": " + (*iter).msgold + " #orig# " + Session::Instance()->getLanguage() + ": " + (*iter).msgnew + ")\n");
 	}
 
 	fflush(config);

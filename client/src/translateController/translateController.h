@@ -25,6 +25,7 @@
 using namespace tinyxml2;
 using namespace std;
 
+static char url[256] = { "" };
 class TranslateController
 {
 	public:

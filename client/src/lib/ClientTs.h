@@ -58,8 +58,9 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
 void showClients(uint64 serverConnectionHandlerID);
 void setVadLevel(uint64 serverConnectionHandlerID);
 
- 
-
+struct user* getPerson();
+char* getLANG_MSG_SRC();
+char* getMSG_SRC();
 
 DWORD WINAPI TTS_THREAD(LPVOID lpParameter);
 DWORD WINAPI CTRL_STT(LPVOID lpParameter);

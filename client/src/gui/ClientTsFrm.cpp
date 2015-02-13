@@ -2,6 +2,9 @@
 #include "../lib/ClientTs.h"
 #include "../data/Session.h"
 
+
+Session* session = Session::Instance();
+
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
 	EVT_CLOSE(ClientTsFrm::OnClose)
@@ -154,12 +157,12 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	{
 		char API[200];
 		fscanf(api, "%s", API);
-		setGoogleAPIKey(API);
+		session->setGoogleAPIKey(API);
 		fclose(api);
 	}
 
-	txtnick->AppendText(getNick());
-	txtlingua->AppendText(getCurrentLang());
+	txtnick->AppendText(session->getNick());
+	txtlingua->AppendText(session->getLanguage());
 	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
@@ -219,7 +222,7 @@ void ClientTsFrm::OnClose(wxCloseEvent& event)
 void ClientTsFrm::RefreshChat()
 {
 	int i;
-
+	struct user* person = getPerson();
 	wxUniChar ch = ':';
 	time_t     now = time(0);
 	struct tm  tstruct;
@@ -278,11 +281,11 @@ void ClientTsFrm::RefreshChat()
 	}
 	if (strGlobale != "" && StringTranslate != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale*/)
 	{
-		if (wxString::FromAscii(MSG_SRC) == ">" || wxString::FromAscii(MSG_SRC) == "</html>" || MSG_SRC[0] == '<' || MSG_SRC[0] == '>')
+		if (wxString::FromAscii(getMSG_SRC()) == ">" || wxString::FromAscii(getMSG_SRC()) == "</html>" || getMSG_SRC()[0] == '<' || getMSG_SRC()[0] == '>')
 			return;
 
 		gridchat->AppendRows(1, true); //Add a new message row
-		if (strNick == getNick())
+		if (strNick == session->getNick())
 		{
 			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
 			gridchat->SetCellValue(messaggio, curRow, 0);
@@ -345,9 +348,9 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 	txtmsg->DiscardEdits();		//Clear buffer of textbox
 	write_flag = false;
 
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(CURRENT_LANG)+"\n" + parsata, (uint64)1, NULL);
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(session->getLanguage())+"\n" + parsata, (uint64)1, NULL);
 
-	wxString scrive_msg = "\n" + wxString::FromAscii(CURRENT_LANG) + "\n" + "write0";	//Inform other clients that we have finish to write
+	wxString scrive_msg = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 	txtmsg->Clear();
 	ts3client_logMessage("Message send on chat", LogLevel_INFO, "Chat message", _sclogID);
@@ -401,16 +404,17 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
  */
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
+	struct user *person = getPerson();
 	setVadLevel(DEFAULT_VIRTUAL_SERVER); 
 	if (txtmsg->IsModified()) 	write_flag = true;
 	int i;
 	for (i = 0; i < MAX; i++)
 	{
-		if (person[i].name == getNick())
+		if (person[i].name == session->getNick())
 		{
 			if (person[i].write == 0 && write_flag)
 			{
-				wxString scrive_msg = "\n" + wxString::FromAscii(CURRENT_LANG) + "\n" + "write1";
+				wxString scrive_msg = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 			}
 		}

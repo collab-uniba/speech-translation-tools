@@ -1,4 +1,8 @@
 #include "translateController.h"
+#include "../data/session.h"
+
+
+static Session* session = Session::Instance();
 
 void TranslateController::InitLanguageVariable(char* lang)
 {
@@ -156,7 +160,7 @@ void TranslateController::parseGoogle(char *str)
 
 char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 {
-	if (strcmp(lang, CURRENT_LANG) == 0) return (char*)StringSource.mb_str().data();	//If the message is written in client's language then return
+	if (strcmp(lang, session->getLanguage()) == 0) return (char*)StringSource.mb_str().data();	//If the message is written in client's language then return
 
 	CURL *curl2;
 	CURL *curl3;
@@ -247,7 +251,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		nations->ReadFromFile("..\\conf\\locales_code.txt");
 
 		strcpy(languagesrc, nations->Search(lang,APICODE));
-		strcpy(languagedst, nations->Search(CURRENT_LANG, APICODE));
+		strcpy(languagedst, nations->Search(session->getLanguage(), APICODE));
 		
 		curl3 = curl_easy_init();
 		char *trueheader = curl_easy_unescape(curl3, header, 0, NULL);
@@ -304,7 +308,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 {
 
-	if (strcmp(lang, CURRENT_LANG) == 0) return (char*)StringSource.mb_str().data();
+	if (strcmp(lang, session->getLanguage()) == 0) return (char*)StringSource.mb_str().data();
 
 	CURL *curl;
 	CURLcode res;
@@ -320,15 +324,15 @@ char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 	NationList *nations = new NationList();
 	nations->ReadFromFile("..\\conf\\locales_code.txt");
 	strcpy(languagesrc, nations->Search(lang, APICODE));
-	strcpy(languagedst, nations->Search(CURRENT_LANG, APICODE));
+	strcpy(languagedst, nations->Search(session->getLanguage(), APICODE));
 
 
 	if (curl)
 	{
-		strcpy(url, "https://www.googleapis.com/language/translate/v2?key=");
+		/*strcpy(url, "https://www.googleapis.com/language/translate/v2?key=");
 		FILE * google = fopen("..\\conf\\GOOGLE.txt", "r");
 		fscanf(google,"%s",GOOGLE_API_KEY);
-		strcat(url, GOOGLE_API_KEY);
+		strcat(url, GOOGLE_API_KEY);*/
 
 		strcat(url, "&q=");
 		const char *BufferSource = curl_easy_escape(curl, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));

@@ -5,6 +5,10 @@
 #include <windows.h>
 #include <atlbase.h>
 #include <sphelper.h>
+
+#include <list>
+#include <memory>
+
 #include <sapi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -163,6 +167,9 @@ static wxString StringOriginal = "";
 static wxString strSpeak = "";
 
 
+class Message;
+typedef std::shared_ptr<Message> MessagePTR;
+typedef std::list<MessagePTR> MessageQueue;
 
 static unsigned short PORT = 9987;	//Number port of server
 static int cmbel = 0;				//Index of comboBox choose
@@ -170,7 +177,7 @@ static int VAD_VALUE = 1;			//Minimum value to record audio
 static COLORE colors[10];
 static unsigned count_client;
 static unsigned short set_color_client;	//Own client color name
-static struct user person[MAX];			//Array of user to record client's information
+//static struct user person[MAX];			//Array of user to record client's information
 static ISoundEngine* engine;				//Audio Engine to record sound
 static IAudioRecorder* recorder;			//Flow of audio daa
 static bool sound_flag = false;			//Flag to start/stop 
