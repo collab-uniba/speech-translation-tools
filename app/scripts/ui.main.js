@@ -1,3 +1,17 @@
+var yourName = localStorage.getItem('user-name');
+var roomName = localStorage.getItem('room-name');
+var language = localStorage.getItem('language');
+
+//check if the user is logged in, otherwise redirect him to the login page
+if(!roomName || !yourName || roomName==='' || yourName==='')
+  window.location.replace('./index.html');
+
+//set interface language
+setTimeout(function(){
+  document.webL10n.setLanguage(language);
+  document.documentElement.lang = document.webL10n.getLanguage();
+},500);
+
 if(location.hostname==='localhost'){
   var SIGNALING_SERVER = 'wss://' + location.hostname + ':12034';
   var SERVER_PATH = location.protocol + '//' + location.hostname + ':12034';
@@ -34,18 +48,23 @@ function addSysMessage(args) {
   var newMessageDIV = document.createElement('div');
   newMessageDIV.className = 'new-message';
 
+  var timestamp = document.createElement('p');
+  timestamp.innerHTML = Date();
+  timestamp.className ='hide';
+  newMessageDIV.appendChild(timestamp);
+
   var userActivityDIV = document.createElement('div');
-  userActivityDIV.className = 'system-activity';
+  userActivityDIV.className = 'system-activity img-rounded';
 
   var p = document.createElement('p');
-  p.className = 'message';
+  p.className = 'system-message';
   p.style = 'display: inline;width: 60%;margin: 0 auto;color: #FFFFFF;';
   p.innerHTML = args.message;
   userActivityDIV.appendChild(p);
 
   newMessageDIV.appendChild(userActivityDIV);
 
-  var messageboard = document.getElementById("messageboard");
+  var messageboard = document.getElementById('messageboard');
   messageboard.appendChild(newMessageDIV);
   messageboard.scrollTop = messageboard.scrollHeight;
 
@@ -61,6 +80,11 @@ function addSysMessage(args) {
 function addNewMessage(args) {
     var newMessageDIV = document.createElement('div');
 
+    var timestamp = document.createElement('p');
+    timestamp.innerHTML = Date();
+    timestamp.className ='hide';
+    newMessageDIV.appendChild(timestamp);
+
     if(args.translated) {
 
       var translatedMessage = document.createElement('div');
@@ -68,6 +92,7 @@ function addNewMessage(args) {
       var username = document.createElement('p');
       username.innerHTML = args.header;
       username.style.color = args.color;
+      username.style.fontWeight = 'bold';
       translatedMessage.appendChild(username);
 
       var playTTS = document.createElement('img');
@@ -85,10 +110,10 @@ function addNewMessage(args) {
       translatedText.className = 'message';
       translatedMessage.appendChild(translatedText);
 
-      var timestamp = document.createElement('p');
-      timestamp.innerHTML = getTimeNow();
-      timestamp.className = 'floatRight';
-      translatedMessage.appendChild(timestamp);
+      var time = document.createElement('p');
+      time.innerHTML = getTimeNow();
+      time.className = 'floatRight';
+      translatedMessage.appendChild(time);
 
       var expand = document.createElement('p');
       expand.innerHTML = '+';
@@ -116,7 +141,7 @@ function addNewMessage(args) {
       originalMessage.id = 'originalMessage' + args.lastMessageUUID;
 
       var label = document.createElement('p');
-      label.innerHTML = 'Testo originale';
+      label.innerHTML = _('originalText');
       originalMessage.appendChild(label);
     }else{
       var username = document.createElement('p');
@@ -130,14 +155,14 @@ function addNewMessage(args) {
     originalMessage.appendChild(originalText);
 
     if(!args.translated){
-      var timestamp = document.createElement('p');
-      timestamp.innerHTML = getTimeNow();
-      timestamp.className = 'floatRight';
-      originalMessage.appendChild(timestamp);
+      var time = document.createElement('p');
+      time.innerHTML = getTimeNow();
+      time.className = 'floatRightUp';
+      originalMessage.appendChild(time);
     }
 
     var originalAudio = document.createElement('audio');
-    //TODO: link al file audio
+    //TODO: link to the audio file
     originalMessage.appendChild(originalAudio);
 
     newMessageDIV.appendChild(originalMessage);
@@ -146,12 +171,14 @@ function addNewMessage(args) {
 
     //if the message is from the user itself, use another class
     if(args.source == rtcMultiConnection.userid)
-      newMessageDIV.className = 'user-activity-me';
-    else
-      newMessageDIV.className = 'user-activity';
+      newMessageDIV.className = 'user-activity-me img-rounded';
+    else{
+      newMessageDIV.className = 'user-activity img-rounded';
+      newMessageDIV.style.borderColor = args.color;
+    }
 
 
-    var messageboard = document.getElementById("messageboard");
+    var messageboard = document.getElementById('messageboard');
     messageboard.appendChild(newMessageDIV);
     messageboard.scrollTop = messageboard.scrollHeight;
 
@@ -203,78 +230,68 @@ function textToSpeech(textToPlay){
       onWorkerFileDownloadStart: function() {},
       onWorkerFileDownloadEnd: function() {}
     });
-};
+}
 
 
 window.onload = function() {
 
+  setTimeout(function() {
+    var userNameLabel = document.getElementById('username');
+    userNameLabel.innerHTML = _('usernameLabel') + ' ' + yourName;
+  }, 500);
 
-  var yourName = localStorage.getItem('user-name');
-  var roomName = localStorage.getItem('room-name');
-  var language = localStorage.getItem('language');
+  var username = yourName || 'Anonymous';
 
-  //check if the user is logged in, otherwise redirect him to the login page
-  if(roomName===null || yourName===null)
-    window.location.replace("./index.html");
-
-  var userNameLabel = document.getElementById("username");
-  userNameLabel.innerHTML = "Your username is: " + yourName;
-
-  var btnLogout = document.getElementById("logout");
-  btnLogout.onclick = function(){
-    localStorage.clear()();
+  rtcMultiConnection.extra = {
+    username: username,
+    color: getRandomColor(),
+    language: language
   };
 
-    var username = yourName || 'Anonymous';
-
-    rtcMultiConnection.extra = {
-        username: username,
-        color: getRandomColor(),
-        language: language
-    };
-
+  setTimeout(function() {
     addSysMessage({
+      header: username,
+      message: _('searchingRoom'),
+      userinfo: '<img src="images/action-needed.png">'
+    });
+  },500);
+
+  addPartecipant({
+    username: username,
+    userid: rtcMultiConnection.userid,
+    color: '#000000',
+    language: language
+  });
+
+  var roomid = roomName;
+  rtcMultiConnection.channel = roomid;
+
+  var websocket = new WebSocket(SIGNALING_SERVER);
+  websocket.onmessage = function(event) {
+    var data = JSON.parse(event.data);
+    if (data.isChannelPresent == false) {
+      addSysMessage({
         header: username,
-        message: 'Searching for existing rooms...',
+        message: _('newRoom'),
         userinfo: '<img src="images/action-needed.png">'
-    });
+      });
 
-    addPartecipant({
-      username: username,
-      userid: rtcMultiConnection.userid,
-      color: '#000000',
-      language: language
-    });
-
-    var roomid = roomName;
-    rtcMultiConnection.channel = roomid;
-
-    var websocket = new WebSocket(SIGNALING_SERVER);
-    websocket.onmessage = function(event) {
-        var data = JSON.parse(event.data);
-        if (data.isChannelPresent == false) {
-            addSysMessage({
-                header: username,
-                message: 'No room found. Creating new room...',
-                userinfo: '<img src="images/action-needed.png">'
-            });
-
-          rtcMultiConnection.open();
-        } else {
-            addSysMessage({
-                header: username,
-                message: 'Room found. Joining the room...',
-                userinfo: '<img src="images/action-needed.png">'
-            });
-            rtcMultiConnection.join(roomid);
-        }
-    };
-    websocket.onopen = function() {
-        websocket.send(JSON.stringify({
-            checkPresence: true,
-            channel: roomid
-        }));
-    };
+      rtcMultiConnection.open();
+    } else {
+      addSysMessage({
+        header: username,
+        message: _('roomFound'),
+        userinfo: '<img src="images/action-needed.png">'
+      });
+      rtcMultiConnection.join(roomid);
+    }
+  };
+  websocket.onopen = function() {
+    websocket.send(JSON.stringify({
+      checkPresence: true,
+      channel: roomid
+    }));
+  };
 };
 
 function getUserinfo(blobURL, imageURL) {
@@ -290,8 +307,23 @@ getElement('.main-input-box textarea').onkeydown = function(e) {
 };
 
 var timer;
+var send = document.getElementById('sendText');
+send.disabled = 'disabled';
+
+getElement('#sendText').onclick = function(){
+  var e = $.Event( "keyup", { keyCode: 13 } );
+  $('#textArea').trigger(e);
+};
 
 getElement('.main-input-box textarea').onkeyup = function(e) {
+
+  if(this.value.trim().length===0){
+    send.disabled = 'disabled';
+    this.value = '';
+    return;
+  }else{
+    send.removeAttribute('disabled');
+  }
 
   clearTimeout(timer);
 
@@ -321,16 +353,20 @@ getElement('.main-input-box textarea').onkeyup = function(e) {
   //enter key
   if (e.keyCode != 13) return;
 
+  var message = this.value.slice(0,-1); //remove enter key char from the string
+
   addNewMessage({
     header: rtcMultiConnection.extra.username,
-    message: this.value,
+    message: message,
     userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/chat-message.png'),
     color: rtcMultiConnection.extra.color,
     source: rtcMultiConnection.userid
   });
 
-  rtcMultiConnection.send({message: this.value, transcribed: false});
+  rtcMultiConnection.send({message: message, transcribed: false});
+  rtcMultiConnection.send({stoppedTyping: true});
 
+  send.disabled = 'disabled';
   this.value = '';
 };
 
@@ -402,3 +438,9 @@ function speakingNotification(audioStream){
     });
   });
 }
+
+getElement('#logout').onclick = function() {
+  rtcMultiConnection.leave();
+  localStorage.clear();
+  window.location.replace('./index.html');
+};

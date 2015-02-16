@@ -57,7 +57,7 @@ rtcMultiConnection.onopen = function(e) {
 
     addSysMessage({
         header: e.extra.username,
-        message: 'Data connection is opened between you and ' + e.extra.username + '.',
+        message: _('connectionOpen') + ' ' + e.extra.username + '.',
         userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/info.png'),
         color: e.extra.color
     });
@@ -75,101 +75,108 @@ rtcMultiConnection.onopen = function(e) {
 function whoIsSpeaking(event){
   var userSpeaking = document.getElementById(event.userid + 'speaking');
   if (event.data.speaking) {
-    userSpeaking.className = "who-is-speaking";
+    userSpeaking.className = 'who-is-speaking';
     return;
   }
 
   if (event.data.stoppedSpeaking) {
-    userSpeaking.className = "hide";
+    userSpeaking.className = 'hide';
     return;
   }
 
-  userSpeaking.className = "hide";
+  userSpeaking.className = 'hide';
 }
 
 rtcMultiConnection.onmessage = function(e) {
   if(e.data.typing || e.data.stoppedTyping) {
     var whoIsTyping = document.getElementById(e.userid + 'typing');
     if (e.data.typing) {
-      whoIsTyping.className = "who-is-typing";
+      whoIsTyping.className = 'who-is-typing';
       return;
     }
 
     if (e.data.stoppedTyping) {
-      whoIsTyping.className = "hide";
+      whoIsTyping.className = 'hide';
       return;
     }
 
-    whoIsTyping.className = "hide";
+    whoIsTyping.className = 'hide';
   }
   else if(e.data.speaking || e.data.stoppedSpeaking){
     whoIsSpeaking(e);
     return;
   }
 
-  //translate the incoming message only if the message language is different from the user language
-  //and it's not transcribed with the speech recognition
-  if(e.extra.language===rtcMultiConnection.extra.language || !e.data.transcribed) {
-    addNewMessage({
-      header: e.extra.username,
-      message: e.data.message,
-      userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
-      color: e.extra.color
-    });
-
-    document.title = e.data.message;
-  }
-  else {
-
-    var engine = getElement('#MTengine').value;
-
-    if (engine === '0') {
-
-      //Google translator
-      var translator = new Translator();
-      translator.translateLanguage(e.data.message, {
-        from: e.extra.language.substring(0, 2),
-        to: rtcMultiConnection.extra.language.substring(0, 2),
-        api_key: 'AIzaSyAs8hCMuWBOOfOo3kbnUWqzuu10r1j1-io', // use your own key
-        callback: function (translatedText) {
-          addNewMessage({
-            header: e.extra.username,
-            message: e.data.message,
-            userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
-            color: e.extra.color,
-            translated: translatedText,
-            lastMessageUUID: Math.round(Math.random() * 999999999) + 9995000
-          });
-
-          document.title = translatedText;
-        }
+  //check if the sender and the receiver speak the same language. In this case, if
+  //the sent message is transcribed (and not sent using the text chat) it is discarded
+  if(e.extra.language===rtcMultiConnection.extra.language && e.data.transcribed){
+    //nothing to do
+  }else{
+    //translate the incoming message if the message language is different from the user language
+    //or if the user choises to translate also text messages (default choice)
+    var autoTextTranslation = getElement('#autoTextTranslation').checked;
+    if(e.extra.language===rtcMultiConnection.extra.language || (!autoTextTranslation && !e.data.transcribed)) {
+      addNewMessage({
+        header: e.extra.username,
+        message: e.data.message,
+        userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
+        color: e.extra.color
       });
+
+      document.title = e.data.message;
     }
     else {
-      //Microsoft Translator
-      var bingAPIpath = SERVER_PATH + '/api/bing?callback=?';
-      $.ajax({
-        url: bingAPIpath,
-        dataType: 'jsonp',
-        data: 'q=' + e.data.message + '&tl=' + rtcMultiConnection.extra.language + '&sl=' + e.extra.language,
-        jsonp: 'callback',
-        success: function (data) {
-          addNewMessage({
-            header: e.extra.username,
-            message: e.data.message,
-            userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
-            color: e.extra.color,
-            translated: data,
-            lastMessageUUID: Math.round(Math.random() * 999999999) + 9995000
-          });
 
-          document.title = data;
-        },
-        error: function () {
-          console.log('Bing Translator error!!');
-          alert("Error");
-        }
-      });
+      var engine = getElement('#MTengine').value;
+
+      if (engine === '0') {
+
+        //Google translator
+        var translator = new Translator();
+        translator.translateLanguage(e.data.message, {
+          from: e.extra.language.substring(0, 2),
+          to: rtcMultiConnection.extra.language.substring(0, 2),
+          api_key: 'AIzaSyAs8hCMuWBOOfOo3kbnUWqzuu10r1j1-io', // use your own key
+          callback: function (translatedText) {
+            addNewMessage({
+              header: e.extra.username,
+              message: e.data.message,
+              userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
+              color: e.extra.color,
+              translated: translatedText,
+              lastMessageUUID: Math.round(Math.random() * 9999) + Date.now()
+            });
+
+            document.title = translatedText;
+          }
+        });
+      }
+      else {
+        //Microsoft Translator
+        var bingAPIpath = SERVER_PATH + '/api/bing?callback=?';
+        $.ajax({
+          url: bingAPIpath,
+          dataType: 'jsonp',
+          data: 'q=' + e.data.message + '&tl=' + rtcMultiConnection.extra.language + '&sl=' + e.extra.language,
+          jsonp: 'callback',
+          success: function (data) {
+            addNewMessage({
+              header: e.extra.username,
+              message: e.data.message,
+              userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/chat-message.png'),
+              color: e.extra.color,
+              translated: data,
+              lastMessageUUID: Math.round(Math.random() * 9999) + Date.now()
+            });
+
+            document.title = data;
+          },
+          error: function () {
+            console.log('Bing Translator error!!');
+            alert('Error');
+          }
+        });
+      }
     }
   }
 };
@@ -183,7 +190,7 @@ rtcMultiConnection.onNewSession = function(session) {
 
     addSysMessage({
         header: session.extra.username,
-        message: 'Making handshake with room owner....!',
+        message: _('makingHandshake'),
         userinfo: '<img src="images/action-needed.png">',
         color: session.extra.color
     });
@@ -192,8 +199,8 @@ rtcMultiConnection.onNewSession = function(session) {
 rtcMultiConnection.onRequest = function(request) {
     rtcMultiConnection.accept(request);
     addSysMessage({
-        header: 'New Participant',
-        message: 'A participant found. Accepting request of ' + request.extra.username + ' ( ' + request.userid + ' )...',
+        header: _('newPartecipant'),
+        message: _('partecipantFound') + ' ' + request.extra.username + ' ( ' + request.userid + ' )...',
         userinfo: '<img src="images/action-needed.png">',
         color: request.extra.color
     });
@@ -201,7 +208,7 @@ rtcMultiConnection.onRequest = function(request) {
 
 rtcMultiConnection.onCustomMessage = function(message) {
     if (message.hasCamera) {
-        var msg = message.extra.username + ' enabled webcam. <button id="preview">Preview</button> ---- <button id="share-your-cam">Share Your Webcam</button>';
+        var msg = message.extra.username + ' ' + _('enabledWebcam') + ' <button id="preview"> ' + _('preview') + '</button> ---- <button id="share-your-cam">' + _('shareWebcam') + '</button>';
 
         addSysMessage({
             header: message.extra.username,
@@ -230,7 +237,7 @@ rtcMultiConnection.onCustomMessage = function(message) {
                             rtcMultiConnection.renegotiatedSessions[JSON.stringify(session)] = {
                                 session: session,
                                 stream: stream
-                            }
+                            };
 
                             rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
                             div.querySelector('#preview').onclick();
@@ -244,7 +251,7 @@ rtcMultiConnection.onCustomMessage = function(message) {
     if (message.hasMic) {
         addSysMessage({
             header: message.extra.username,
-            message: message.extra.username + ' enabled microphone. <button id="listen">Listen</button> ---- <button id="share-your-mic">Share Your Mic</button>',
+            message: message.extra.username + ' ' + _('enabledMicrophone') + ' <button id="listen">' + _('listen') + '</button> ---- <button id="share-your-mic">' + _('shareMic') + '</button>',
             userinfo: '<img src="images/action-needed.png">',
             color: message.extra.color,
             callback: function(div) {
@@ -267,7 +274,7 @@ rtcMultiConnection.onCustomMessage = function(message) {
                         rtcMultiConnection.renegotiatedSessions[JSON.stringify(session)] = {
                             session: session,
                             stream: stream
-                        }
+                        };
 
                         rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
                         div.querySelector('#listen').onclick();
@@ -297,14 +304,14 @@ rtcMultiConnection.onstream = function(e) {
         */
         addSysMessage({
             header: e.extra.username,
-            message: e.extra.username + ' enabled webcam.',
+            message: e.extra.username + ' ' + _('enabledWebcam'),
             userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></vide>',
             color: e.extra.color
         });
     } else {
         addSysMessage({
             header: e.extra.username,
-            message: e.extra.username + ' enabled microphone.',
+            message: e.extra.username + ' ' + _('enabledMicrophone'),
             userinfo: '<audio src="' + URL.createObjectURL(e.stream) + '" controls muted=true volume=0></vide>',
             color: e.extra.color
         });

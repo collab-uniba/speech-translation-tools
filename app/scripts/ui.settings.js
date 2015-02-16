@@ -18,8 +18,8 @@ getElement('#discard').onclick = getElement('#discardX').onclick = function() {
 getElement('#TTSengine').onchange = function() {
   var TTSengine = document.getElementById('TTSengine');
   var label = document.getElementById('char100');
-  if(TTSengine.value==="0")
-    label.className = "control-label";
+  if(TTSengine.value==='0')
+    label.className = 'control-label';
   else
-    label.className = "control-label hide";
+    label.className = 'control-label hide';
 };
