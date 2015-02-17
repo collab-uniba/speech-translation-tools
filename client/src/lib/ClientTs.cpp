@@ -1,18 +1,18 @@
 #include "ClientTs.h"
-#include "../gui/ClientTsFrm.h"
-#include "../data/Session.h"
-#include "../data/Message.h"
+
 
 list<MESSAGE> diary;
  
 static bool flagSave = true;
 
-static Session* session = Session::Instance();
+Session* session = Session::Instance();
+
+ConfigPTR config = session->getConfig();
 
 static char* LANG_MSG_SRC = ( char*) malloc(sizeof(char)+22);//clients
 static char *MSG_SRC = (char*)malloc(sizeof(char)+52);  //CLientsform clients 
 static char translate_jar[512] = { "" }; //tsclient
-static struct user* person = (struct user*) malloc(sizeof(struct user));			//Array of user to record client's information
+//struct user* person = (struct user*) malloc(sizeof(struct user));			//Array of user to record client's information
 
 
 
@@ -396,9 +396,9 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 
-			if (strcmp(session->getLanguage(), "Italian") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-			if (strcmp(session->getLanguage(), "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
-			if (strcmp(session->getLanguage(), "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			if (strcmp(config->getLanguage(), "Italian") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+			if (strcmp(config->getLanguage(), "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+			if (strcmp(config->getLanguage(), "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
 
 		}
 		/*else if (finish_ctrl_flag == true)
@@ -811,14 +811,14 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 	// end timestamp
 
 	MESSAGE msg;
-	if (strcmp(LANG_MSG_SRC, session->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
+	if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
 		StringTranslate = wxString::FromAscii(MSG_SRC);
 
 		msg.nick = strNick;
 		msg.lang = LANG_MSG_SRC;
 		msg.timestamp = timestamp;
-		if (strcmp(strNick, session->getNick()) == 0)// incoming and outgoing messages here
+		if (strcmp(strNick, config->getNick()) == 0)// incoming and outgoing messages here
 			msg.msgDir = "-->";
 		else
 			msg.msgDir = "<--";
@@ -831,7 +831,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 		return;
 	}
 
-	if (strcmp(session->getService(), "google") == 0)
+	if (strcmp(config->getService(), "google") == 0)
 	{
 		if (strcmp(MSG_SRC, TranslateController::richiestaGoogle(MSG_SRC, LANG_MSG_SRC)) == 0)
 			StringTranslate = wxString::FromAscii(MSG_SRC);
@@ -851,7 +851,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 		}
 	}
 
-	if (strcmp(session->getService(), "bing") == 0)
+	if (strcmp(config->getService(), "bing") == 0)
 	{
 		if (strcmp(MSG_SRC, TranslateController::richiestaBing(MSG_SRC, LANG_MSG_SRC)) == 0)
 			StringTranslate = wxString::FromAscii(MSG_SRC);
@@ -1266,7 +1266,7 @@ unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandler
 DWORD WINAPI ClientStart(LPVOID lpParameter)
 {
 	uint64 scHandlerID;
-	unsigned int error;
+	unsigned int error=0;
 	char* mode;
 	char** device;
 	char *version;
@@ -1299,13 +1299,20 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
-	if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
-		char* errormsg;
-		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
-			wxMessageBox("Error initialzing serverlib");
-			ts3client_freeMemory(errormsg);
+
+	try{
+		if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
+			char* errormsg;
+			if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
+				//wxMessageBox("Error initialzing serverlib");
+				ts3client_freeMemory(errormsg);
+			}
+			return 1;
 		}
-		return 1;
+	}
+	catch (int e){
+		//wxMessageBox("Error initialzing serverlib");
+		exit(1);
 	}
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
@@ -1373,12 +1380,12 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	printf("Using identity: %s\n", identity);
 
 	char final_nick[50] = { "" };
-	strcpy(final_nick, session->getLanguage());
+	strcpy(final_nick, config->getLanguage());
 	strcat(final_nick, "$");
-	strcat(final_nick, session->getNick());
+	strcat(final_nick, config->getNick());
 	strcat(final_nick, "$");
 	/* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
-	if ((error = ts3client_startConnection(scHandlerID, identity, session->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
+	if ((error = ts3client_startConnection(scHandlerID, identity, config->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
 		wxMessageBox("Error connecting to server");
 		ts3client_logMessage("Error connecting to server", LogLevel_ERROR, "Channel", 10);
 		return 1;
@@ -1447,7 +1454,7 @@ DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 			fclose(trad);
 			if (strcmp(translate_jar, "") != 0)	//if translate_jar isn't empty
 			{
-				wxString final = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + wxString::FromUTF8(translate_jar);
+				wxString final = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + wxString::FromUTF8(translate_jar);
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL); //Send other clients the speechtotext message from dragon transaction
 				strcpy(translate_jar, "");
 				WinExec("Taskkill /IM java.exe /F", SW_HIDE);	//Kill java
@@ -1473,7 +1480,7 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 	{
 		if (tts_flag == true)
 		{
-			speak((char*) session->getLanguage(), (char*)strSpeak.mb_str().data());
+			speak((char*) config->getLanguage(), (char*)strSpeak.mb_str().data());
 			Sleep(300);
 			tts_flag = false;
 		}

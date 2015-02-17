@@ -38,6 +38,9 @@
 
 using namespace std;
 
+
+FILE* configr;
+
 class Login : public wxDialog
 {
 	private:

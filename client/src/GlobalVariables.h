@@ -177,7 +177,7 @@ static int VAD_VALUE = 1;			//Minimum value to record audio
 static COLORE colors[10];
 static unsigned count_client;
 static unsigned short set_color_client;	//Own client color name
-//static struct user person[MAX];			//Array of user to record client's information
+static struct user person[MAX];			//Array of user to record client's information
 static ISoundEngine* engine;				//Audio Engine to record sound
 static IAudioRecorder* recorder;			//Flow of audio daa
 static bool sound_flag = false;			//Flag to start/stop 

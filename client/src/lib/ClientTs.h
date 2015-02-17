@@ -12,6 +12,11 @@
 #include <wx/wxprec.h>
 #endif
 
+#include "../gui/ClientTsFrm.h"
+#include "../data/Session.h"
+#include "../data/Message.h"
+#include "../data/COnfig.h"
+
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <wx/timer.h>

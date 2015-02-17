@@ -4,6 +4,7 @@
 
 
 Session* session = Session::Instance();
+ConfigPTR config = session->getConfig();
 
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
@@ -152,7 +153,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		fscanf(config, "%s", &SERVICE);
 		fclose(config);
 	}
-	*/
+	
 	if (api = fopen("..\\bin\\conf\\GOOGLE.txt", "r"))
 	{
 		char API[200];
@@ -160,9 +161,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		session->setGoogleAPIKey(API);
 		fclose(api);
 	}
-
-	txtnick->AppendText(session->getNick());
-	txtlingua->AppendText(session->getLanguage());
+	*/
+	txtnick->AppendText(config->getNick());
+	txtlingua->AppendText(config->getLanguage());
 	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
@@ -239,6 +240,7 @@ void ClientTsFrm::RefreshChat()
 				txtclient->BeginTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue));
 			if (person[i].speak == 1)	//if this client is speaking show microphone 
 			{
+				person = getPerson();
 				wxString naz = this->nations->Search(person[i].lang.ToStdString(), COUNTRY);
 				wxBitmap bitmap = wxBitmap();
 				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
@@ -256,6 +258,7 @@ void ClientTsFrm::RefreshChat()
 			}
 			else if (person[i].speak == 0)	//if this client is writing show keayboard
 			{
+				person = getPerson();
 				wxString naz = this->nations->Search(person[i].lang.ToStdString(), COUNTRY);
 				wxBitmap bitmap = wxBitmap();
 				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
@@ -285,7 +288,7 @@ void ClientTsFrm::RefreshChat()
 			return;
 
 		gridchat->AppendRows(1, true); //Add a new message row
-		if (strNick == session->getNick())
+		if (strNick == config->getNick())
 		{
 			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
 			gridchat->SetCellValue(messaggio, curRow, 0);
@@ -348,9 +351,9 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 	txtmsg->DiscardEdits();		//Clear buffer of textbox
 	write_flag = false;
 
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(session->getLanguage())+"\n" + parsata, (uint64)1, NULL);
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + parsata, (uint64)1, NULL);
 
-	wxString scrive_msg = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
+	wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 	txtmsg->Clear();
 	ts3client_logMessage("Message send on chat", LogLevel_INFO, "Chat message", _sclogID);
@@ -410,11 +413,11 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 	int i;
 	for (i = 0; i < MAX; i++)
 	{
-		if (person[i].name == session->getNick())
+		if (person[i].name == config->getNick())
 		{
 			if (person[i].write == 0 && write_flag)
 			{
-				wxString scrive_msg = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + "write1";
+				wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 			}
 		}

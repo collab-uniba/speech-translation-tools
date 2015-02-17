@@ -27,7 +27,7 @@ bool SplashScreen::GetSplashScreen(wxBitmap bitmap, int duration)
 			COUNTER++;
 			wxInitAllImageHandlers();
 
-			wxSplashScreen* splash = new wxSplashScreen(bitmap, wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_TIMEOUT, duration, NULL, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE | wxSTAY_ON_TOP);
+			wxSplashScreen* splash = new wxSplashScreen(bitmap, wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_TIMEOUT, duration, NULL, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);// | wxSTAY_ON_TOP);
 			std::this_thread::sleep_for(std::chrono::milliseconds(duration + 1));
 			flags = true;
 		}

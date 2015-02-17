@@ -22,6 +22,8 @@
 	#include <wx/wxprec.h>
 #endif
 
+#include "../Data/config.h"
+
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <wx/timer.h>
@@ -85,6 +87,7 @@ class ClientTsFrm : public wxFrame
 		virtual ~ClientTsFrm();
 
 	private:	
+	
 		NationList *nations;
 		int REFRESHTIMER = 0;
 		uint64 _sclogID;

@@ -2,9 +2,10 @@
 #include "../data/Session.h"
 
 
- 
+Session* session = Session::Instance();
+ConfigPTR settings = session->getConfig();
 
-
+FILE *configr;
 FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title, const wxPoint& position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
 	CenterOnScreen();
@@ -126,7 +127,7 @@ void FrmSaveChat::checkBoxSelection(wxCommandEvent& event){
 void FrmSaveChat::btnConfirmClick(wxCommandEvent& event)
 {
 	// to get timestamp
-	FILE *config = fopen("..\\bin\\conf\\directory.txt", "w");
+	FILE *configr = fopen("..\\bin\\conf\\directory.txt", "w");
 	char timestamp[100];
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -143,62 +144,63 @@ void FrmSaveChat::btnConfirmClick(wxCommandEvent& event)
 	if (chkCSV->GetValue()){
 		saveChatCSV(path + ".csv");
 		strcpy(destination, fpkBrowse->GetPath() + "\\chatLog_" + timestamp + ".csv");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
 	else{
 		strcpy(destination, "NoFile");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
 	if (chkTXT->GetValue()){
 		saveChatTXT(path + ".txt");
 		strcpy(destination, fpkBrowse->GetPath() + "\\chatLog_" + timestamp + ".txt");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
 	else{
 		strcpy(destination, "NoFile");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
-	fclose(config);
+	fclose(configr);
 	this->EndModal(wxID_YES); // chat saved
 }
 
 void FrmSaveChat::saveChatCSV(const char* filename){
-	config = fopen(filename, "w");
+	configr = fopen(filename, "w");
 
 	list<MESSAGE>::iterator iter;
 	for (iter = diary.begin(); iter != diary.end(); iter++){
 
-		fprintf(config, "\"" + (*iter).nick + "\";");
-		fprintf(config, "\"" + (*iter).timestamp + "\";");
-		fprintf(config, "\"" + (*iter).msgDir + "\";");
+		fprintf(configr, "\"" + (*iter).nick + "\";");
+		fprintf(configr, "\"" + (*iter).timestamp + "\";");
+		fprintf(configr, "\"" + (*iter).msgDir + "\";");
 
 		if (strcmp((*iter).msgDir, "-->"))
-			fprintf(config, "\"" + (*iter).msgold + "\"\n");
+			fprintf(configr, "\"" + (*iter).msgold + "\"\n");
 		else
-			fprintf(config, "\"" + (*iter).lang + ";\"" + (*iter).msgold + ";\"#orig#\";\"" + Session::Instance()->getLanguage() + ";\"" + (*iter).msgnew + "\"\n");
+			fprintf(configr, "\"" + (*iter).lang + ";\"" + (*iter).msgold + ";\"#orig#\";\"" + settings->getLanguage() + ";\"" + (*iter).msgnew + "\"\n");
 	}
 
-	fflush(config);
-	fclose(config);
+	fflush(configr);
+	fclose(configr);
 }
 
 void FrmSaveChat::saveChatTXT(const char* filename){
 
-	config = fopen(filename, "w");
+	configr = fopen(filename, "w");
 
 	list<MESSAGE>::iterator iter;
 	for (iter = diary.begin(); iter != diary.end(); iter++){
 
-		fprintf(config, (*iter).nick + " || ");
-		fprintf(config, (*iter).timestamp + "  || ");
-		fprintf(config, (*iter).msgDir + " ");
+		fprintf(configr, (*iter).nick + " || ");
+		fprintf(configr, (*iter).timestamp + "  || ");
+		fprintf(configr, (*iter).msgDir + " ");
 
 		if (strcmp((*iter).msgDir, "-->") == 0)
-			fprintf(config, (*iter).msgold + "\n");
+			fprintf(configr, (*iter).msgold + "\n");
 		else
-			fprintf(config, "(" + (*iter).lang + ": " + (*iter).msgold + " #orig# " + Session::Instance()->getLanguage() + ": " + (*iter).msgnew + ")\n");
+			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter).lang,(*iter).msgold, settings->getLanguage(),(*iter).msgnew);
 	}
+	//Session::Instance()->getLanguage() 
 
-	fflush(config);
-	fclose(config);
+	fflush(configr);
+	fclose(configr);
 }
