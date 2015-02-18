@@ -8,8 +8,7 @@
 ///
 ///------------------------------------------------------------------
 
-#ifndef __CLIENTTSFRM_H__
-#define __CLIENTTSFRM_H__
+#pragma once
 
 #ifdef __BORLANDC__
 	#pragma hdrstop
@@ -166,5 +165,4 @@ public:
 			if (name == "") bitmap = new wxBitmap(NULL);
 			else bitmap = new wxBitmap(name, wxBITMAP_TYPE_BMP);
 		}
-};
-#endif
+}; 

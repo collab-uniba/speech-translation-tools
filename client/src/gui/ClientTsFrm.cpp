@@ -1,6 +1,5 @@
 #include "ClientTsFrm.h"
 
- 
 
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
@@ -219,8 +218,9 @@ void ClientTsFrm::OnClose(wxCloseEvent& event)
 /*Refresh chat for new message or new clients*/
 void ClientTsFrm::RefreshChat()
 {
-	int i;
-	struct user* person = getPerson();
+	int i=0;
+	UserListPTR luser = Session::Instance()->getListUser(); 
+
 	wxUniChar ch = ':';
 	time_t     now = time(0);
 	struct tm  tstruct;
@@ -229,21 +229,21 @@ void ClientTsFrm::RefreshChat()
 	strftime(buf, sizeof(buf), "%X", &tstruct);
 	showClients(DEFAULT_VIRTUAL_SERVER);
 	txtclient->Clear();	//Clear client window
-	for (i = 0; i < MAX; i++)
+	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
-		if (person[i].name != "") //if there is a client name
+		UserPTR uptr = *it;
+		if (uptr->getName() != "") //if there is a client name
 		{
-			if (person[i].speak == 0 && person[i].write == 0) //gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L""));
+			if (uptr->getSpeak() == 0 && uptr->getWrite() == 0) //gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L""));
 				txtclient->BeginTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue));
-			if (person[i].speak == 1)	//if this client is speaking show microphone 
+			if (uptr->getSpeak() == 1)	//if this client is speaking show microphone 
 			{
-				person = getPerson();
-				wxString naz = this->nations->Search(person[i].lang.ToStdString(), COUNTRY);
+				wxString naz = this->nations->Search(uptr->getLang().ToStdString(), COUNTRY);
 				wxBitmap bitmap = wxBitmap();
 				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
 				txtclient->WriteImage(bitmap);
 
-				txtclient->WriteText(person[i].name + "\t");
+				txtclient->WriteText(uptr->getName() + "\t");
 				//if (person[i].lang == "Italian") { 
 					//txtclient->WriteImage(wxBitmap(italy_xpm));
 				//}
@@ -253,20 +253,19 @@ void ClientTsFrm::RefreshChat()
 				txtclient->WriteText("\t");
 				txtclient->WriteImage(wxBitmap(microphone_xpm));
 			}
-			else if (person[i].speak == 0)	//if this client is writing show keayboard
-			{
-				person = getPerson();
-				wxString naz = this->nations->Search(person[i].lang.ToStdString(), COUNTRY);
+			else if (uptr->getSpeak() == 0)	//if this client is writing show keayboard
+			{ 
+				wxString naz = this->nations->Search(uptr->getLang().ToStdString(), COUNTRY);
 				wxBitmap bitmap = wxBitmap();
 				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
 				txtclient->WriteImage(bitmap);
 				/*gridclient->SetCellTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue), i, 0);
 				gridclient->SetCellValue(i, 0, person[i].name);*/
-				txtclient->WriteText(person[i].name + "\t");
+				txtclient->WriteText(uptr->getName() + "\t");
 				//if (person[i].lang == "Italian") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/.bmp"));*/ txtclient->WriteImage(wxBitmap(italy_xpm)); }
 				//if (strncmp(person[i].lang, "English", 7) == 0) { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); */txtclient->WriteImage(wxBitmap(usa_xpm)); }
 				//if (person[i].lang == "Portuguese") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp"));*/ txtclient->WriteImage(wxBitmap(brasil_xpm)); }
-				if (person[i].write == 1)
+				if (uptr->getWrite() == 1)
 				{
 					txtclient->WriteText("\t");
 					txtclient->WriteImage(wxBitmap(keyboard_xpm));
@@ -277,6 +276,7 @@ void ClientTsFrm::RefreshChat()
 			}
 			txtclient->EndTextColour();
 			txtclient->Newline();
+			i++;
 		}
 	}
 	if (strGlobale != "" && StringTranslate != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale*/)
@@ -296,13 +296,12 @@ void ClientTsFrm::RefreshChat()
 		}
 		else
 		{
-			for (i = 0; i < MAX; i++)
+			for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 			{
-				if (strNick == person[i].name && person[i].used == 1)
+				if (strNick == (*it)->getName() && (*it)->getUsed() == 1)
 				{
-
 					wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-					gridchat->SetCellTextColour(curRow, 0, wxColour(colors[person[i].color].red, colors[person[i].color].green, colors[person[i].color].blue));
+					gridchat->SetCellTextColour(curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
 					gridchat->SetCellValue(messaggio, curRow, 0);
 					gridchat->SetRowSize(curRow, 40);
 					gridchat->SetColSize(curCol, 578);
@@ -404,15 +403,15 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
  */
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
-	struct user *person = getPerson();
+	UserListPTR luser = Session::Instance()->getListUser();
 	setVadLevel(DEFAULT_VIRTUAL_SERVER); 
 	if (txtmsg->IsModified()) 	write_flag = true;
 	int i;
-	for (i = 0; i < MAX; i++)
+	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
-		if (person[i].name == config->getNick())
+		if ((*it)->getName() == config->getNick())
 		{
-			if (person[i].write == 0 && write_flag)
+			if ((*it)->getWrite() == 0 && write_flag)
 			{
 				wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);

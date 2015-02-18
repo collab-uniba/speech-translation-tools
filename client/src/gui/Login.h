@@ -1,5 +1,4 @@
-#ifndef __LOGIN_H__
-#define __LOGIN_H__
+#pragma once
 
 #ifdef __BORLANDC__
 	#pragma hdrstop
@@ -102,5 +101,4 @@ class Login : public wxDialog
 		void CreateGUIControls();
 		void ReadConfig();
 };
-
-#endif
+ 

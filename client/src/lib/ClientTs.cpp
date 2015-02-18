@@ -168,6 +168,7 @@ Initialize Client's label colors,the values are RGB
 
 void SetupColor()
 {
+	UserListPTR luser = Session::Instance()->getListUser();
 	colors[0].red = 255;
 	colors[0].green = 0;
 	colors[0].blue = 0;
@@ -188,8 +189,10 @@ void SetupColor()
 	colors[4].green = 100;
 	colors[4].blue = 0;
 
-	int i;
-	for (i = 0; i < MAX; i++) person[i].speak = 0;
+	
+	for (auto it = luser->cbegin(); it != luser->cend(); ++it){
+		 (*it)->setSpeak(0);
+	} 
 }
 
 /* This is a global variable to indicate if sound needs to be recorded.
@@ -356,6 +359,8 @@ void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, 
 void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	char* name;
 	int i;
+	UserListPTR userList = session->getListUser(); 
+
 	/* Query client nickname from ID */
 	if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 		return;
@@ -366,13 +371,14 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 			sound_flag = true;
 			recorder->startRecordingBufferedAudio();
 		}
-		for (i = 0; i < MAX; i++)
-		{
-			if (person[i].name == name)
+
+		for (auto it = userList->cbegin(); it != userList->cend(); ++it){
+			if ((*it)->getName() == name)
 			{
-				person[i].speak = 1;
-			}
+				(*it)->setSpeak(1); 
+			} 
 		}
+
 
 		if (sound_flag == false && tasto_stt_flag == true)
 		{
@@ -381,11 +387,11 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 		}
 	}
 	else {
-		for (i = 0; i < MAX; i++)
-		{
-			if (person[i].name == name && person[i].speak == 1)
+		for (auto it = userList->cbegin(); it != userList->cend(); ++it){
+			(*it)->setSpeak(0);
+			if ((*it)->getName() == name && (*it)->getSpeak() == 1)
 			{
-				person[i].speak = 0;
+				(*it)->setSpeak(0);
 				break;
 			}
 		}
@@ -728,6 +734,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 {
 	char *name;
 	unsigned int error;
+	UserListPTR luser = Session::Instance()->getListUser();
 	//Message(MSGDirection dir, const char* from, const char* message) 
 	//MessagePTR msgj;
 
@@ -755,27 +762,19 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 
 	if (parsata == "write1")	//if it is true the client is typing a message
 	{
-		int i;
-		for (i = 0; i < MAX; i++)
-		{
-			if (person[i].name == strNick)
-			{
-				person[i].write = 1;	//this person is writing
-			}
+
+		for (auto it = luser->cbegin(); it != luser->cend(); ++it){
+			if ((*it)->getName() == strNick)
+				(*it)->setWrite(1);
 		}
 		return;
 	}
 
 	if (parsata == "write0")	//if it is true the client has stopped to write
 	{
-		int i;
-		for (i = 0; i < MAX; i++)
-		{
-			if (person[i].name == strNick)
-			{
-				person[i].write = 0;
-
-			}
+		for (auto it = luser->cbegin(); it != luser->cend(); ++it){
+			if ((*it)->getName() == strNick)
+				(*it)->setWrite(0);
 		}
 		return;
 	}
@@ -798,6 +797,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 
 	StringTranslate = "";
 
+	//crash
 	gridptr->Scroll(curRow + 20, curCol + 20);	//ScrollDown chat when message is arrived
 
 	// to get timestamp
@@ -886,6 +886,10 @@ void showClients(uint64 serverConnectionHandlerID) {
 	anyID ownClientID;
 	int i;
 
+	UserListPTR luserOLD = Session::Instance()->getListUser();
+
+	UserListPTR luser = make_shared<UserList>();
+
 	unsigned int error;
 	count_client = 0;
 
@@ -909,14 +913,14 @@ void showClients(uint64 serverConnectionHandlerID) {
 	/*
 	Reset informations about clients
 	*/
-	for (i = 0; i < MAX; i++)
+	/*for (i = 0; i < MAX; i++)
 	{
 		person[i].name = "";
 		person[i].used = 0;
 		person[i].lang = "";
 		person[i].speak = 0;
 
-	}
+	}*/
 
 	for (i = 0; ids[i]; i++)
 	{
@@ -947,13 +951,32 @@ void showClients(uint64 serverConnectionHandlerID) {
 		printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
 		count_client++;
 
+		char* lang = strtok((char*)name, "$");
+		char* name2 = strtok(NULL, "$");
+		int color = i;
+		int used = 1;
+		bool findit = false;
+		for (auto it = luserOLD->cbegin(); it != luserOLD->cend(); ++it){
+			UserPTR uptr = *it;
+			if (uptr->getName() == name2){
+				uptr->setColor(i);
+				uptr->setLang(lang);
+				uptr->setUsed(1);
+				if (talkStatus == STATUS_TALKING) uptr->setWrite(1);
+				else uptr->setWrite(0);
+				luser->push_back(uptr);
+				findit = true;
+			} 
+		} 
 
-		person[i].lang = strtok((char*)name, "$");
-		person[i].name = strtok(NULL, "$");
-		person[i].color = i;
-		person[i].used = 1;
-		if (talkStatus == STATUS_TALKING) person[i].speak = 1;
+		if (!findit){
+			//User(wxString name, unsigned short color, unsigned short used, unsigned short speak, unsigned short write, wxString lang) 
+			UserPTR uptr = make_shared<User>(name2, i, 1, 0, (talkStatus == STATUS_TALKING? 1: 0), lang);
+			luser->push_back(uptr);
+		}
 
+		Session::Instance()->setListUser(luser);
+		
 		ts3client_freeMemory(name);
 	}
 	printf("\n");
@@ -1300,20 +1323,15 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
 
-	try{
-		if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
-			char* errormsg;
-			if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
-				//wxMessageBox("Error initialzing serverlib");
-				ts3client_freeMemory(errormsg);
-			}
-			return 1;
+	 if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
+		char* errormsg;
+		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
+			//wxMessageBox("Error initialzing serverlib");
+			ts3client_freeMemory(errormsg);
 		}
+		return 1;
 	}
-	catch (int e){
-		//wxMessageBox("Error initialzing serverlib");
-		exit(1);
-	}
+	
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
 	if ((error = ts3client_spawnNewServerConnectionHandler(0, &scHandlerID)) != ERROR_ok) {

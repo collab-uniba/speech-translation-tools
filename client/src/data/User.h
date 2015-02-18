@@ -8,13 +8,13 @@
 
 
 class User{
+public:
 	User(wxString name, unsigned short color, unsigned short used, unsigned short speak, unsigned short write, wxString lang):
 	_name(name), _color(color), _speak(speak), _write(write), _lang(lang){ }
 	~User(){}
 
-public:
 	void setName( wxString _name) { this->_name = _name; }
-	wxString getNname() { return this->_name; }
+	wxString getName() { return this->_name; }
 	void setColor( unsigned short _color) { this->_color = _color; }
 	unsigned short getColor() { return this->_color; }
 	void setUsed( unsigned short _used) { this->_used = _used; }

@@ -1,5 +1,4 @@
-#ifndef __SESSION_H__
-#define __SESSION_H__
+#pragma once
 
 #include "User.h"
 #include "Config.h"
@@ -34,12 +33,17 @@ public:
 	void setConfig(ConfigPTR conf){ this->_config = conf; }
 
 	UserListPTR getListUser(){ return _luser; }
-	void setConfig(UserListPTR _luser){ this->_luser = _luser; }
+	void setListUser(UserListPTR luser){ this->_luser = luser; }
 
 	char* Session::getApiGoogle();
 
+
+	UserPTR getUser(const char* name);
 	void addNewUser(UserPTR u);
 	void deleteUser(UserPTR u);
+	bool checkUser(UserPTR u);	
+	bool checkUser(const char* u);
+
 
 private:
 	Session* _instance;
@@ -49,8 +53,3 @@ private:
 };
 
 
-
-
-
-
-#endif
