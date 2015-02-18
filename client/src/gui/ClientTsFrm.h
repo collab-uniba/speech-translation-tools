@@ -23,6 +23,8 @@
 #endif
 
 #include "../Data/config.h"
+#include "../lib/ClientTs.h"
+#include "../data/Session.h"
 
 #include <wx/sizer.h>
 #include <wx/wx.h>
@@ -87,7 +89,8 @@ class ClientTsFrm : public wxFrame
 		virtual ~ClientTsFrm();
 
 	private:	
-	
+		Session* session;
+		ConfigPTR config;
 		NationList *nations;
 		int REFRESHTIMER = 0;
 		uint64 _sclogID;

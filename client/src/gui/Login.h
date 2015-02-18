@@ -34,12 +34,13 @@
 #include "ClientTsFrm.h"
 #include "AudioWizard.h"
 #include "NationList.h"
- 
+
+#include "../data/Session.h"
 
 using namespace std;
 
 
-FILE* configr;
+
 
 class Login : public wxDialog
 {
@@ -58,6 +59,8 @@ class Login : public wxDialog
 		void SetLabel();
 	
 	private:
+		Session* session;
+		ConfigPTR config;
 		NationList *nations;
 		wxStaticBitmap* m_bitmap1;
 		wxStaticText* lblNameHost;

@@ -1,15 +1,12 @@
 #include "FrmSaveChat.h"
-#include "../data/Session.h"
 
 
-Session* session = Session::Instance();
-ConfigPTR settings = session->getConfig();
 
-FILE *configr;
 FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title, const wxPoint& position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
 	CenterOnScreen();
-
+	session = Session::Instance();
+	settings = session->getConfig();
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer(wxVERTICAL);
 

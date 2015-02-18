@@ -1,10 +1,4 @@
 #include "Login.h"
-#include "../data/Session.h"
-
-
-Session* session = Session::Instance();
-ConfigPTR config = session->getConfig();
-
 
 
 char StringLoginServer[20];
@@ -58,6 +52,9 @@ int hostname_to_ip(char * hostname, char* ip)
 
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
+	session = Session::Instance();
+	config = session->getConfig();
+
 	config->setLanguage("English");
 	this->nations = new NationList();
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");

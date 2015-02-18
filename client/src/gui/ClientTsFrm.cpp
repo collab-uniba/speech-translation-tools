@@ -1,10 +1,6 @@
 #include "ClientTsFrm.h"
-#include "../lib/ClientTs.h"
-#include "../data/Session.h"
 
-
-Session* session = Session::Instance();
-ConfigPTR config = session->getConfig();
+ 
 
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
@@ -31,7 +27,8 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 {
 	this->nations = new NationList();
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
-
+	session = Session::Instance();
+	config = session->getConfig();
 	
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);

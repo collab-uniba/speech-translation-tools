@@ -2,8 +2,7 @@
 #include "../data/session.h"
 
 
-static Session* session = Session::Instance(); 
-ConfigPTR config = session->getConfig();
+ConfigPTR configc = Session::Instance()->getConfig();
 
 void TranslateController::InitLanguageVariable(char* lang)
 {
@@ -161,7 +160,7 @@ void TranslateController::parseGoogle(char *str)
 
 char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 {
-	if (strcmp(lang, config->getLanguage()) == 0) return (char*)StringSource.mb_str().data();	//If the message is written in client's language then return
+	if (strcmp(lang, configc->getLanguage()) == 0) return (char*)StringSource.mb_str().data();	//If the message is written in client's language then return
 
 	CURL *curl2;
 	CURL *curl3;
@@ -252,7 +251,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		nations->ReadFromFile("..\\conf\\locales_code.txt");
 
 		strcpy(languagesrc, nations->Search(lang,APICODE));
-		strcpy(languagedst, nations->Search(config->getLanguage(), APICODE));
+		strcpy(languagedst, nations->Search(configc->getLanguage(), APICODE));
 		
 		curl3 = curl_easy_init();
 		char *trueheader = curl_easy_unescape(curl3, header, 0, NULL);
@@ -309,7 +308,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 {
 
-	if (strcmp(lang, config->getLanguage()) == 0) return (char*)StringSource.mb_str().data();
+	if (strcmp(lang, configc->getLanguage()) == 0) return (char*)StringSource.mb_str().data();
 
 	CURL *curl;
 	CURLcode res;
@@ -325,7 +324,7 @@ char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 	NationList *nations = new NationList();
 	nations->ReadFromFile("..\\conf\\locales_code.txt");
 	strcpy(languagesrc, nations->Search(lang, APICODE));
-	strcpy(languagedst, nations->Search(config->getLanguage(), APICODE));
+	strcpy(languagedst, nations->Search(configc->getLanguage(), APICODE));
 
 
 	if (curl)

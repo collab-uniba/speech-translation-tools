@@ -1,6 +1,8 @@
 #ifndef __FRMSAVECHAT_H__
 #define __FRMSAVECHAT_H__
 
+#include "../data/Session.h"
+
 #include <wx/wx.h>
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -34,8 +36,11 @@ private:
 	void OnClose(wxCloseEvent& event);
 	void saveChatCSV(const char* filename);
 	void saveChatTXT(const char* filename);
-	FILE*config;
+	FILE*configr;
 	char destination[3000];
+
+	Session* session;
+	ConfigPTR settings;
 
 protected:
 	wxStaticText* lblTitle;
