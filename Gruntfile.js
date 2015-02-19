@@ -71,9 +71,15 @@ module.exports = function (grunt) {
         open: true,
         livereload: 35729,
         // Change this to '0.0.0.0' to access the server from outside
-        hostname: 'localhost'
+        hostname: 'localhost',
+        protocol: 'https',
+        key: grunt.file.read('keys/server.key'),
+        cert: grunt.file.read('keys/server.crt')
       },
       livereload: {
+        key: grunt.file.read('keys/server.key'),
+        cert: grunt.file.read('keys/server.crt'),
+        protocol: 'https',
         options: {
           middleware: function(connect) {
             return [
@@ -374,7 +380,7 @@ module.exports = function (grunt) {
     grunt.log.writeln('Starting server.js app.');
     // stdio: 'inherit' let us see node output in grunt
     var PIPE = {stdio: 'inherit'};
-    spawn('node', ['app/server.js'], PIPE);
+    spawn('node', ['server.js'], PIPE);
   });
 
   grunt.registerTask('server', function (target) {

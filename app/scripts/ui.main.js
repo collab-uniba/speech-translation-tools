@@ -1,3 +1,13 @@
+if(location.hostname==='localhost'){
+  var SIGNALING_SERVER = 'wss://' + location.hostname + ':12034';
+  var SERVER_PATH = location.protocol + '//' + location.hostname + ':12034';
+}
+else{
+  //for Heroku
+  var SIGNALING_SERVER = location.origin.replace(/^https/, 'wss');
+  var SERVER_PATH = location.origin;
+}
+
 function getElement(selector) {
     return document.querySelector(selector);
 }
@@ -63,8 +73,11 @@ function addNewMessage(args) {
       var playTTS = document.createElement('img');
       playTTS.src = './images/play.png';
       playTTS.className = 'playIcon floatRight';
-      //playTTS.onclick = textToSpeech(args.translated);
+      if(getElement('#autoTTS').checked)
+        textToSpeech(args.translated);
+
       playTTS.onclick = function() {textToSpeech(args.translated);};
+
       translatedMessage.appendChild(playTTS);
 
       var translatedText = document.createElement('p');
@@ -152,21 +165,44 @@ function addNewMessage(args) {
 
 function textToSpeech(textToPlay){
   var translator = new Translator();
-  translator.speakTextUsingRobot(textToPlay, {
-    workerPath: location.origin + '/scripts/Robot-Speaker.js',
-    callback: function (WAV_File) {
-      var audio = document.createElement('audio');
-      audio.src = WAV_File;
-      audio.play();
-    },
-    amplitude: 100,
-    wordgap: 0,
-    pitch: 50,
-    speed: 175,
-    onSpeakingEnd: function() {},
-    onWorkerFileDownloadStart: function() {},
-    onWorkerFileDownloadEnd: function() {}
-  });
+  var engine = getElement('#TTSengine').value;
+
+  if(engine==='0')
+    translator.speakTextUsingGoogleSpeaker({
+      textToSpeak: textToPlay,
+      targetLanguage: rtcMultiConnection.extra.language,
+      callback: function (WAV_File) {
+        var audio = document.createElement('audio');
+        audio.src = WAV_File;
+        audio.play();
+      }
+    });
+  else if(engine==='1')
+    translator.speakTextUsingMicrosoftSpeaker({
+      textToSpeak: textToPlay,
+      targetLanguage: rtcMultiConnection.extra.language,
+      callback: function (WAV_File) {
+        var audio = document.createElement('audio');
+        audio.src = WAV_File;
+        audio.play();
+      }
+    });
+  else
+    translator.speakTextUsingRobot(textToPlay, {
+      workerPath: location.href.substring(0, location.href.lastIndexOf('/')) + '/scripts/Robot-Speaker.js',
+      callback: function (WAV_File) {
+        var audio = document.createElement('audio');
+        audio.src = WAV_File;
+        audio.play();
+      },
+      amplitude: 100,
+      wordgap: 0,
+      pitch: 50,
+      speed: 175,
+      onSpeakingEnd: function() {},
+      onWorkerFileDownloadStart: function() {},
+      onWorkerFileDownloadEnd: function() {}
+    });
 };
 
 
@@ -288,7 +324,7 @@ getElement('.main-input-box textarea').onkeyup = function(e) {
         source: rtcMultiConnection.userid
     });
 
-    rtcMultiConnection.send(this.value);
+    rtcMultiConnection.send({message: this.value, transcribed: false});
 
     this.value = '';
 };
