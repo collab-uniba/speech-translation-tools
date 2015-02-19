@@ -18,9 +18,9 @@ function addPartecipant(args){
   flag.style = "display: inline;"
   newPartecipantDIV.appendChild(flag);
 
-  var typing = document.createElement('p');
-  typing.className = 'who-is-typing';
-  typing.style = "display: inline;"
+  var typing = document.createElement('img');
+  typing.className = 'hide';
+  typing.src = "./images/glyphicons-269-keyboard-wireless.png";
   newPartecipantDIV.appendChild(typing);
 
   document.getElementById('partecipants').appendChild(newPartecipantDIV);

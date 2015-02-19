@@ -289,44 +289,49 @@ getElement('.main-input-box textarea').onkeydown = function(e) {
     }
 };
 
-var numberOfKeys = 0;
+var timer;
+
 getElement('.main-input-box textarea').onkeyup = function(e) {
-    numberOfKeys++;
-    if (numberOfKeys > 3) numberOfKeys = 0;
 
-    if (!numberOfKeys) {
-        if (e.keyCode == 8) {
-            return rtcMultiConnection.send({
-                stoppedTyping: true
-            });
-        }
+  clearTimeout(timer);
 
-        rtcMultiConnection.send({
-            typing: true
-        });
+  timer = setTimeout(function() { rtcMultiConnection.send({
+    stoppedTyping: true
+  }); }, 5000);
+
+  if (this.value.length ===0) {
+    rtcMultiConnection.send({stoppedTyping: true});
+    return;
+  }
+
+
+  rtcMultiConnection.send({
+    typing: true
+  });
+
+
+  if (isShiftKeyPressed) {
+    //shift key
+    if (e.keyCode == 16) {
+      isShiftKeyPressed = false;
     }
+    return;
+  }
 
-    if (isShiftKeyPressed) {
-        if (e.keyCode == 16) {
-            isShiftKeyPressed = false;
-        }
-        return;
-    }
+  //enter key
+  if (e.keyCode != 13) return;
 
+  addNewMessage({
+    header: rtcMultiConnection.extra.username,
+    message: this.value,
+    userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/chat-message.png'),
+    color: rtcMultiConnection.extra.color,
+    source: rtcMultiConnection.userid
+  });
 
-    if (e.keyCode != 13) return;
+  rtcMultiConnection.send({message: this.value, transcribed: false});
 
-    addNewMessage({
-        header: rtcMultiConnection.extra.username,
-        message: this.value,
-        userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/chat-message.png'),
-        color: rtcMultiConnection.extra.color,
-        source: rtcMultiConnection.userid
-    });
-
-    rtcMultiConnection.send({message: this.value, transcribed: false});
-
-    this.value = '';
+  this.value = '';
 };
 
 getElement('#allow-webcam').onclick = function() {
