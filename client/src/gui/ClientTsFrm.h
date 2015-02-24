@@ -24,6 +24,11 @@
 #include "../Data/config.h"
 #include "../lib/ClientTs.h"
 #include "../data/Session.h"
+#include "../data/Message.h"
+
+#include "../data/Subject.h"
+
+#include "../data/Event.h"
 
 #include <wx/sizer.h>
 #include <wx/wx.h>
@@ -45,6 +50,7 @@
 #include "AudioWizard.h"
 #include <list>
 #include "FrmSaveChat.h"
+#include "../data/observer.h"
 
 #define MENU_ESCI 1800
 #define MENU_OPZIONI 1801
@@ -52,7 +58,7 @@
 
 
 
-class ClientTsFrm : public wxFrame
+class ClientTsFrm : public wxFrame, public Observer
 {
 	private:
 		DECLARE_EVENT_TABLE();
@@ -79,15 +85,18 @@ class ClientTsFrm : public wxFrame
 		void Save(wxCommandEvent& event);
 		void OnClose(wxCloseEvent& event);
 
+		void notifyMsg(MessagePTR msg);
+
 	public:
 		
-		ClientTsFrm(LoginWarnings *warn,wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),
+		explicit  ClientTsFrm(LoginWarnings *warn, wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),
 					const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, 
 					long style = wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX | wxRESIZE_BORDER);
 
 		virtual ~ClientTsFrm();
 
-	private:	
+	private:
+		//Subject<EventTypeTS> s;
 		Session* session;
 		ConfigPTR config;
 		NationList *nations;

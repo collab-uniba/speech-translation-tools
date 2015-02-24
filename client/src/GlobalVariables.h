@@ -186,10 +186,10 @@ static bool write_flag = false;			//Flag to recognize Typing
 static bool tasto_stt_flag = false;		//Flag to activate Automatic SpeechToText
 static bool finish_ctrl_flag = false;		//Flag to recognize CTRL press button
 static bool automatic_stt_flag = false;
-static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
+/*static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
 static unsigned int curRow = 0;			//Initialize Row index
 static unsigned int curCol = 0;			//Initialize Column index
-static wxGrid *gridptr;					//Pointer to edit the chatptr grid
+static wxGrid *gridptr;					//Pointer to edit the chatptr grid*/
 static uint64 _sclogID;
 //uint64 _sclogID;
 //ArchiveLog * archivelog;

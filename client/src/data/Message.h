@@ -1,5 +1,5 @@
-#ifndef __MESSAGE_H__
-#define __MESSAGE_H__
+#pragma once
+
 
 #include <cstring>
 #include <stdio.h>
@@ -12,7 +12,7 @@ enum MSGDirection{
 
 class Message {
 public:
-	Message(MSGDirection dir, const char* from, const char* message, const char* language) : _message(message), _dir(dir), _from(from), _language(language) { }
+	Message(MSGDirection dir,  char* from,  char* message,  char* language) : _message(message), _dir(dir), _from(from), _language(language) { }
 	~Message(){ }
 
 	void setIO(MSGDirection dir);
@@ -21,16 +21,15 @@ public:
 	 
 
 	void setFrom(char* dir);
-	const char* getFrom();
+	 char* getFrom();
 
 	void setMSG(char* dir);
-	const char* getMSG();
+	 char* getMSG();
 private:
 	MSGDirection _dir;
-	const char* _language;
-	const char* _from;
-	const char* _message;
+	char* _language;
+	char* _from;
+	char* _message;
 };
  
 
-#endif

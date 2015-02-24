@@ -1,6 +1,5 @@
 #include "ClientTsFrm.h"
 
-
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
 	EVT_CLOSE(ClientTsFrm::OnClose)
@@ -19,15 +18,20 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
 END_EVENT_TABLE()
-
-
+ 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
 {
 	this->nations = new NationList();
+	s.registerObserver(EventTypeTS::NOTIFY_MSG, &ClientTsFrm::RefreshChat);
+
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
 	config = session->getConfig();
+
+	registercb(*this); // register itself into clientTs "class" in order to be notified about any change
+	 Session::curRow = 0;			//Initialize Row index
+	Session::curCol = 0;
 	
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
@@ -55,13 +59,13 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	gridchat->SetColLabelValue(0, wxString::FromUTF8(labels.gridMessage.c_str()));
 	gridchat->SetColLabelValue(1, "Play");
 
-	gridchat->SetRowSize(curRow + 1, 40);
-	gridchat->SetColSize(curCol, 610);
-	gridchat->SetColSize(curCol + 1, 30);
+	gridchat->SetRowSize(Session::curRow + 1, 40);
+	gridchat->SetColSize(Session::curCol, 610);
+	gridchat->SetColSize(Session::curCol + 1, 30);
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
-	WxTimer2->Start(250);
+	WxTimer2->Start(1000);
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
@@ -167,7 +171,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	SetupColor();
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
-	gridptr = gridchat;
+	Session::gridptr = gridchat;
 	/*char *str = this->nations->Search(CURRENT_LANG, APICODE);
 	wchar_t* wString = new wchar_t[4096];
 	MultiByteToWideChar(CP_ACP, 0, str, -1, wString, 4096);
@@ -279,51 +283,7 @@ void ClientTsFrm::RefreshChat()
 			i++;
 		}
 	}
-	if (strGlobale != "" && StringTranslate != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale*/)
-	{
-		if (wxString::FromAscii(getMSG_SRC()) == ">" || wxString::FromAscii(getMSG_SRC()) == "</html>" || getMSG_SRC()[0] == '<' || getMSG_SRC()[0] == '>')
-			return;
 
-		gridchat->AppendRows(1, true); //Add a new message row
-		if (strNick == config->getNick())
-		{
-			wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-			gridchat->SetCellValue(messaggio, curRow, 0);
-			gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-
-			gridchat->AutoSizeRow(curRow - 1, true);
-			gridchat->SetColSize(curCol + 1, 30);
-		}
-		else
-		{
-			for (auto it = luser->cbegin(); it != luser->cend(); ++it)
-			{
-				if (strNick == (*it)->getName() && (*it)->getUsed() == 1)
-				{
-					wxString messaggio = strNick + "(" + buf + "): " + wxString::FromUTF8(StringTranslate);
-					gridchat->SetCellTextColour(curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
-					gridchat->SetCellValue(messaggio, curRow, 0);
-					gridchat->SetRowSize(curRow, 40);
-					gridchat->SetColSize(curCol, 578);
-					gridchat->SetColSize(curCol + 1, 60);
-					gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-
-				}
-			}
-		}
-
-		oldStringTranslate = StringTranslate;
-		oldstrGlobale = strGlobale;
-		strGlobale = "";
-	}
-	else
-	{
-		if (count_client == 0 && REFRESHTIMER > 50)   //ho sostituito empty_room e messo il timer
-		{
-			ts3client_logMessage("No such clients found", LogLevel_ERROR, "Channel", _sclogID);
-			REFRESHTIMER = 0;
-		}
-	}
 
 }
 
@@ -490,5 +450,70 @@ void ClientTsFrm::askForSaving(){
 	}
 	else
 		wxMessageBox(labels.noSave);
-
 }
+
+void ClientTsFrm::notifyMsg(MessagePTR msg){
+	/****
+	* add new message to chat grid
+	* ***/
+
+	time_t     now = time(0);
+	struct tm  tstruct;
+	char       buf[80];
+	tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%X", &tstruct);
+
+	UserListPTR luser = Session::Instance()->getListUser();
+
+	if (strGlobale != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale && StringTranslate != "" */)
+	{
+		if (wxString::FromAscii(getMSG_SRC()) == ">" || wxString::FromAscii(getMSG_SRC()) == "</html>" || getMSG_SRC()[0] == '<' || getMSG_SRC()[0] == '>')
+			return;
+
+		gridchat->AppendRows(1, true); //Add a new message row
+		if (strNick == config->getNick())
+		{
+			wxString messaggio = wxString::FromUTF8(msg->getMSG())+ "(" + buf + "): " + wxString::FromUTF8(msg->getMSG());
+//			gridchat->SetCellValue(messaggio, Session::Session::curRow, 0);
+			gridchat->SetCellRenderer(Session::curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+			gridchat->AutoSizeRow(Session::curRow - 1, true);
+			gridchat->SetColSize(Session::curCol + 1, 30);
+		}
+		else
+		{
+			for (auto it = luser->cbegin(); it != luser->cend(); ++it)
+			{
+				if (wxString::FromUTF8(msg->getMSG()) == (*it)->getName() && (*it)->getUsed() == 1)
+				{
+					wxString messaggio = wxString::FromUTF8(msg->getMSG()) +"(" + buf + "): " + wxString::FromUTF8(msg->getMSG());
+					gridchat->SetCellTextColour(Session::curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
+					gridchat->SetCellValue(messaggio, Session::curRow, 0);
+					gridchat->SetRowSize(Session::curRow, 40);
+					gridchat->SetColSize(Session::curCol, 578);
+					gridchat->SetColSize(Session::curCol + 1, 60);
+					gridchat->SetCellRenderer(Session::curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+				}
+			}
+		}
+
+		oldStringTranslate = StringTranslate;
+		oldstrGlobale = strGlobale;
+		strGlobale = "";
+	}
+	else
+	{
+		if (count_client == 0 && REFRESHTIMER > 50)   //ho sostituito empty_room e messo il timer
+		{
+			ts3client_logMessage("No such clients found", LogLevel_ERROR, "Channel", _sclogID);
+			REFRESHTIMER = 0;
+		}
+	}
+}
+/*
+template <typename T_object>
+CallbackHandler::Callback_ID NotifyOnNewMail(T_object* object, void(T_object::*function)(void*, void*), void* user_data)
+{
+	new_mail_callbacks.RegisterCallback(object, function, user_data);
+}*/
+
+ 

@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <cstdlib>
 
+#include <wx/richtext/richtextctrl.h>
+#include <wx/grid.h>
+
+
 typedef std::list<UserPTR> UserList;
 typedef std::shared_ptr<UserList> UserListPTR;
 
@@ -45,11 +49,17 @@ public:
 	bool checkUser(const char* u);
 
 
+	static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
+	static unsigned int curRow;			//Initialize Row index
+	static unsigned int curCol;			//Initialize Column index
+	static wxGrid *gridptr;					//Pointer to edit the chatptr grid
+
 private:
 	Session* _instance;
 	ConfigPTR _config;
 	UserListPTR _luser;
 	char* _translationEngine;
+
 };
 
 
