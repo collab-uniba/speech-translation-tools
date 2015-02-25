@@ -15,16 +15,16 @@ class Subject
 public:
 	Subject() = default;
 	template <typename Observer>
-	void registerObserver(const Event& event, Observer&& observer)
+	static void registerObserver(const Event& event, Observer&& observer)
 	{
 		observers_[event].push_back(std::forward<Observer>(observer));
 	}
 	template <typename Observer>
-	void registerObserver(Event&& event, Observer&& observer)
+	static void registerObserver(Event&& event, Observer&& observer)
 	{
 		observers_[std::move(event)].push_back(std::forward<Observer>(observer));
 	}
-	void notify(const Event& event) const
+	static void notify(const Event& event) 
 	{
 		for (const auto& obs : observers_.at(event)) obs();
 	}
@@ -32,5 +32,5 @@ public:
 	Subject(const Subject&) = delete;
 	Subject& operator=(const Subject&) = delete;
 private:
-	std::map<Event, std::vector<std::function<void()>>> observers_;
+	static std::map<Event, std::vector<std::function<void()>>> observers_;
 };

@@ -1,77 +1,30 @@
-#include "ClientTs.h" 
+#include "ClientTs.h"
 
- 
-list<MESSAGE> diary;
- 
-
-Session* session = Session::Instance();
-
-ConfigPTR config = session->getConfig();
-
-static char* LANG_MSG_SRC = ( char*) malloc(sizeof(char)+22); //clients
-static char *MSG_SRC = (char*)malloc(sizeof(char)+52);  //CLientsform clients 
+#include <functional> // for std::function and std::bind
 
 
-bool getFlagSave(){
-	return flagSave;
-}
-
-void setFlagSave(bool flg){
-	flagSave = flg;
-}
-
-
-
-
-/*
-scbClientTsFrm cbfrm;
-ClientTsFrm	clientfrm;
- 
- 
-void registerObserver(cbClientTsFrm fn, ClientTsFrm &obj){
-	cbfrm = fn;
-	clientfrm = obj;
-	fn(obj);
-}
- */
 
 //struct user* person = (struct user*) malloc(sizeof(struct user));			//Array of user to record client's information
-/*cbClientTsFrm callbckFrmGUI;
-ClientTsFrm* Observer;
-
-void setObserver(ClientTsFrm* ob){
 
 
+/*cbClientTsFrm callbckFrmGUI;*/
+
+/* ClientTsFrm* Observer;
+void setClientFRM(ClientTsFrm* ob){
 }
-
 void registercb(cbClientTsFrm fn){
-	callbckFrmGUI = fn;
+callbckFrmGUI = fn;
 }*/
-
-char* getLANG_MSG_SRC(){
-	return LANG_MSG_SRC;
-}
-
-char* getMSG_SRC(){
-	return MSG_SRC;
-}
-
-
-
-
 
 struct user*  getPerson(){
 	return person;
 }
-
-
-
 /*
 This procedure allows the use of TextToSpeech offered by Microsoft
 it has two parameters: the language of message and body of message
 */
 
-void speak(char *LANG, char*MSG)
+void ClientTS::speak(char *LANG, char*MSG)
 {
 	HRESULT hr = S_OK;
 	CComPtr <ISpVoice>		cpVoice;
@@ -105,7 +58,7 @@ void speak(char *LANG, char*MSG)
 }
 
 
-void Print(char*word)
+void ClientTS::Print(char*word)
 {
 	wchar_t* wString = new wchar_t[4096];
 	MultiByteToWideChar(CP_ACP, 0, word, -1, wString, 4096);
@@ -113,7 +66,7 @@ void Print(char*word)
 }
 
 
-static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
+size_t ClientTS::read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 {
 	struct WriteThis *pooh = (struct WriteThis *)userp;
 
@@ -135,7 +88,7 @@ This procedure save the audio recorded into the file
 http://www.cplusplusdevelop.com/1399_16286382/
 */
 
-void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
+void ClientTS::writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
 {
 	if (!data)
 	{
@@ -192,7 +145,7 @@ void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data)
 Initialize Client's label colors,the values are RGB
 */
 
-void SetupColor()
+void ClientTS::SetupColor()
 {
 	UserListPTR luser = Session::Instance()->getListUser();
 	colors[0].red = 255;
@@ -215,10 +168,10 @@ void SetupColor()
 	colors[4].green = 100;
 	colors[4].blue = 0;
 
-	
+
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it){
-		 (*it)->setSpeak(0);
-	} 
+		(*it)->setSpeak(0);
+	}
 }
 
 /* This is a global variable to indicate if sound needs to be recorded.
@@ -243,7 +196,7 @@ int recordSound = 0;
 *                               Contains error state when losing connection.
 */
 
-void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
+void ClientTS::onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
 	printf("Connect status changed: %llu %d %d\n", (unsigned long long)serverConnectionHandlerID, newStatus, errorNumber);
 	/* Failed to connect ? */
 	if (newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
@@ -263,7 +216,7 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 */
 
 
-void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID) {
+void ClientTS::onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID) {
 	/* Query channel name from channel ID */
 	char* name;
 	unsigned int error;
@@ -294,7 +247,7 @@ void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint6
 */
 
 
-void onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
+void ClientTS::onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 	char* name;
 
 	/* Query channel name from channel ID */
@@ -313,7 +266,7 @@ void onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID
 *   invokerID                 - ID of the client who deleted the channel
 *   invokerName               - Name of the client who deleted the channel
 */
-void onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
+void ClientTS::onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 	printf("Channel ID %llu deleted by %s (%u)\n", (unsigned long long)channelID, invokerName, invokerID);
 }
 
@@ -328,7 +281,7 @@ void onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID
 *   visibility                - Visibility of the moved client. See the enum Visibility in clientlib_publicdefinitions.h
 *                               Values: ENTER_VISIBILITY, RETAIN_VISIBILITY, LEAVE_VISIBILITY
 */
-void onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+void ClientTS::onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 	printf("ClientID %u moves from channel %llu to %llu with message %s\n", clientID, (unsigned long long)oldChannelID, (unsigned long long)newChannelID, moveMessage);
 }
 
@@ -343,7 +296,7 @@ void onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 
 *   visibility                - Visibility of the announced client. See the enum Visibility in clientlib_publicdefinitions.h
 *                               Values: ENTER_VISIBILITY, RETAIN_VISIBILITY, LEAVE_VISIBILITY
 */
-void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
+void ClientTS::onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
 	char* name;
 
 	/* Query client nickname from ID */
@@ -368,7 +321,7 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
 *   visibility                - Always LEAVE_VISIBILITY
 *   timeoutMessage            - Optional message giving the reason for the timeout
 */
-void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
+void ClientTS::onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	printf("ClientID %u timeouts with message %s\n", clientID, timeoutMessage);
 	count_client--;
 }
@@ -382,10 +335,11 @@ void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, 
 *   isReceivedWhisper         - 1 if this event was caused by whispering, 0 if caused by normal talking
 *   clientID                  - ID of the client who announced the talk status change
 */
-void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
+
+void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	char* name;
 	int i;
-	UserListPTR userList = session->getListUser(); 
+	UserListPTR userList = session->getListUser();
 
 	/* Query client nickname from ID */
 	if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
@@ -401,8 +355,8 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 		for (auto it = userList->cbegin(); it != userList->cend(); ++it){
 			if ((*it)->getName() == name)
 			{
-				(*it)->setSpeak(1); 
-			} 
+				(*it)->setSpeak(1);
+			}
 		}
 
 
@@ -456,7 +410,8 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 *   serverConnectionHandlerID - Server connection handler ID
 *   clientID                  - ID of the whispering client
 */
-void onIgnoredWhisperEvent(uint64 serverConnectionHandlerID, anyID clientID) {
+
+void ClientTS::onIgnoredWhisperEvent(uint64 serverConnectionHandlerID, anyID clientID) {
 	unsigned int error;
 
 	/* Add sending client to whisper allow list so own client will hear the voice data.
@@ -468,7 +423,8 @@ void onIgnoredWhisperEvent(uint64 serverConnectionHandlerID, anyID clientID) {
 	printf("Added client %d to whisper allow list\n", clientID);
 }
 
-void onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
+
+void ClientTS::onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
 	printf("Error for server %llu: %s (%u) %s\n", (unsigned long long)serverConnectionHandlerID, errorMessage, error, extraMessage);
 }
 
@@ -483,6 +439,7 @@ void onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessa
 *   logTime           - String with the date and time the log entry occured
 *   completeLogString - Verbose log message including all previous parameters for convinience
 */
+
 void onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char* logChannel, uint64 logID, const char* logTime, const char* completeLogString) {
 	/* Your custom error display here... */
 	/* printf("LOG: %s\n", completeLogString); */
@@ -506,7 +463,8 @@ void onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char*
 * be freed.
 *
 */
-void onCustomPacketEncryptEvent(char** dataToSend, unsigned int* sizeOfData) {
+
+void ClientTS::onCustomPacketEncryptEvent(char** dataToSend, unsigned int* sizeOfData) {
 #ifdef USE_CUSTOM_ENCRYPTION
 	unsigned int i;
 	for (i = 0; i < *sizeOfData; i++) {
@@ -529,7 +487,8 @@ void onCustomPacketEncryptEvent(char** dataToSend, unsigned int* sizeOfData) {
 * memory yourself. The memory allocated by the SDK, to which dataReceived is originally pointing to, must not
 * be freed.
 */
-void onCustomPacketDecryptEvent(char** dataReceived, unsigned int* dataReceivedSize) {
+
+void ClientTS::onCustomPacketDecryptEvent(char** dataReceived, unsigned int* dataReceivedSize) {
 #ifdef USE_CUSTOM_ENCRYPTION
 	unsigned int i;
 	for (i = 0; i < *dataReceivedSize; i++) {
@@ -560,7 +519,8 @@ void onCustomPacketDecryptEvent(char** dataReceived, unsigned int* dataReceivedS
 * 1 connection to a server
 * Hint: Normally you would want to defer the writing to an other thread because this callback is very time sensitive
 */
-void onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask){
+
+void ClientTS::onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask){
 #define OUTPUTCHANNELS 2
 	static FILE *pfile = NULL;
 	static struct WaveHeader header = { { 'R', 'I', 'F', 'F' }, 0, { 'W', 'A', 'V', 'E' }, { 'f', 'm', 't', ' ' }, 16, 1, 2, 48000, 48000 * (16 / 2) * 2, (16 / 2) * 2, 16, { 'd', 'a', 't', 'a' }, 0 };
@@ -658,7 +618,9 @@ void onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* 
 /*
 * Print all channels of the given virtual server
 */
-void showChannels(uint64 serverConnectionHandlerID) {
+
+
+void ClientTS::showChannels(uint64 serverConnectionHandlerID) {
 	uint64 *ids;
 	int i;
 	unsigned int error;
@@ -692,7 +654,8 @@ void showChannels(uint64 serverConnectionHandlerID) {
 /*
 * Print all clients on the given virtual server in the specified channel
 */
-void showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID) {
+
+void ClientTS::showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID) {
 	anyID* ids;
 	anyID ownClientID;
 	int i;
@@ -746,6 +709,7 @@ void showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID) {
 	ts3client_freeMemory(ids);  /* Release array */
 }
 
+
 unsigned int  ts3client_requestSendPrivateTextMsg(uint64 serverConnectionHandlerID, const char *message, anyID targetClientID, const char *returnCode)
 {
 	return 0;
@@ -756,7 +720,8 @@ unsigned int ts3client_requestSendServerTextMsg(uint64 serverConnectionHandlerID
 	return 0;
 }
 
-void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message)
+
+void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message)
 {
 	char *name;
 	unsigned int error;
@@ -841,9 +806,11 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 	if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
 		StringTranslate = wxString::FromAscii(MSG_SRC);
-		//MessagePTR msgC = std::make_shared<Message>(MSGDirection::out, strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
+		MessagePTR msgC = std::make_shared<Message>(MSGDirection::out, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
+
+		///	callbckFrmGUI.notifyMsg(msgC);
+		notify(EventTS::MSG_RCV);
 		 
-		//callbckFrmGUI.notifyMsg(msgC);
 		msg.nick = strNick;
 		msg.lang = LANG_MSG_SRC;
 		msg.timestamp = timestamp;
@@ -856,7 +823,7 @@ void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyI
 
 		diary.push_back(msg);
 
-		setFlagSave( false);
+		setFlagSave(false);
 		return;
 	}
 
@@ -911,7 +878,8 @@ unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandler
 /*
 * Print all visible clients on the given virtual server
 */
-void showClients(uint64 serverConnectionHandlerID) {
+
+void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 	anyID *ids;
 	anyID ownClientID;
 	int i;
@@ -945,10 +913,10 @@ void showClients(uint64 serverConnectionHandlerID) {
 	*/
 	/*for (i = 0; i < MAX; i++)
 	{
-		person[i].name = "";
-		person[i].used = 0;
-		person[i].lang = "";
-		person[i].speak = 0;
+	person[i].name = "";
+	person[i].used = 0;
+	person[i].lang = "";
+	person[i].speak = 0;
 
 	}*/
 
@@ -996,17 +964,17 @@ void showClients(uint64 serverConnectionHandlerID) {
 				else uptr->setWrite(0);
 				luser->push_back(uptr);
 				findit = true;
-			} 
-		} 
+			}
+		}
 
 		if (!findit){
 			//User(wxString name, unsigned short color, unsigned short used, unsigned short speak, unsigned short write, wxString lang) 
-			UserPTR uptr = make_shared<User>(name2, i, 1, 0, (talkStatus == STATUS_TALKING? 1: 0), lang);
+			UserPTR uptr = make_shared<User>(name2, i, 1, 0, (talkStatus == STATUS_TALKING ? 1 : 0), lang);
 			luser->push_back(uptr);
 		}
 
 		Session::Instance()->setListUser(luser);
-		
+
 		ts3client_freeMemory(name);
 	}
 	printf("\n");
@@ -1014,12 +982,9 @@ void showClients(uint64 serverConnectionHandlerID) {
 	ts3client_freeMemory(ids);  /* Release array */
 }
 
-void emptyInputBuffer() {
-	int c;
-	while ((c = getchar()) != '\n' && c != EOF);
-}
 
-uint64 enterChannelID() {
+
+uint64 ClientTS::enterChannelID() {
 	uint64 channelID;
 	int n;
 
@@ -1033,12 +998,12 @@ uint64 enterChannelID() {
 	return channelID;
 }
 
-void createDefaultChannelName(char *name) {
+void ClientTS::createDefaultChannelName(char *name) {
 	static int i = 1;
 	sprintf(name, "Channel_%d", i++);
 }
 
-void enterName(char *name) {
+void ClientTS::enterName(char *name) {
 	char *s;
 	printf("\nEnter name: ");
 	fgets(name, NAME_BUFSIZE, stdin);
@@ -1048,7 +1013,8 @@ void enterName(char *name) {
 	}
 }
 
-void createChannel(uint64 serverConnectionHandlerID, const char *name) {
+
+void ClientTS::createChannel(uint64 serverConnectionHandlerID, const char *name) {
 	unsigned int error;
 
 	/* Set data of new channel. Use channelID of 0 for creating channels. */
@@ -1068,7 +1034,8 @@ on_error:
 	printf("\nError creating channel: %d\n\n", error);
 }
 
-void deleteChannel(uint64 serverConnectionHandlerID) {
+
+void ClientTS::deleteChannel(uint64 serverConnectionHandlerID) {
 	uint64 channelID;
 	unsigned int error;
 
@@ -1088,7 +1055,8 @@ void deleteChannel(uint64 serverConnectionHandlerID) {
 	}
 }
 
-void renameChannel(uint64 serverConnectionHandlerID) {
+
+void ClientTS::renameChannel(uint64 serverConnectionHandlerID) {
 	uint64 channelID;
 	unsigned int error;
 	char name[NAME_BUFSIZE];
@@ -1110,7 +1078,7 @@ on_error:
 	printf("Error renaming channel: %d\n\n", error);
 }
 
-void switchChannel(uint64 serverConnectionHandlerID) {
+void ClientTS::switchChannel(uint64 serverConnectionHandlerID) {
 	unsigned int error;
 
 	/* Query channel ID from user */
@@ -1131,6 +1099,7 @@ void switchChannel(uint64 serverConnectionHandlerID) {
 	printf("Switching into channel %llu\n\n", (unsigned long long)channelID);
 }
 
+
 void toggleVAD(uint64 serverConnectionHandlerID) {
 	static short b = 1;
 	unsigned int error;
@@ -1144,7 +1113,7 @@ void toggleVAD(uint64 serverConnectionHandlerID) {
 	printf("\nToggled VAD %s.\n\n", b ? "on" : "off");
 }
 
-void setVadLevel(uint64 serverConnectionHandlerID) {
+void ClientTS::setVadLevel(uint64 serverConnectionHandlerID) {
 	int vad, n;
 	unsigned int error;
 	char s[100];
@@ -1178,7 +1147,8 @@ void setVadLevel(uint64 serverConnectionHandlerID) {
 	printf("\nSet VAD level to %s.\n\n", s);
 }
 
-void requestWhisperList(uint64 serverConnectionHandlerID) {
+
+void ClientTS::requestWhisperList(uint64 serverConnectionHandlerID) {
 	int n;
 	anyID clientID;
 	uint64 targetID;
@@ -1215,7 +1185,8 @@ void requestWhisperList(uint64 serverConnectionHandlerID) {
 	printf("Whisper list requested for client %d in channel %llu\n", clientID, (unsigned long long)targetID);
 }
 
-void requestClearWhisperList(uint64 serverConnectionHandlerID) {
+
+void ClientTS::requestClearWhisperList(uint64 serverConnectionHandlerID) {
 	int n;
 	anyID clientID;
 	unsigned int error;
@@ -1240,7 +1211,7 @@ void requestClearWhisperList(uint64 serverConnectionHandlerID) {
 	printf("Whisper list cleared for client %u\n", clientID);
 }
 
-void toggleRecordSound(uint64 serverConnectionHandlerID){
+void ClientTS::toggleRecordSound(uint64 serverConnectionHandlerID){
 	unsigned int error;
 
 	if (!recordSound){
@@ -1269,7 +1240,8 @@ void toggleRecordSound(uint64 serverConnectionHandlerID){
 	}
 }
 
-int readIdentity(char* identity) {
+
+int ClientTS::readIdentity(char* identity) {
 	FILE *file;
 
 	if ((file = fopen("..\\conf\\identity.txt", "r")) == NULL) {
@@ -1287,7 +1259,8 @@ int readIdentity(char* identity) {
 	return 0;
 }
 
-int writeIdentity(const char* identity) {
+
+int ClientTS::writeIdentity(const char* identity) {
 	FILE *file;
 
 	if ((file = fopen("..\\conf\\identity.txt", "w")) == NULL) {
@@ -1305,21 +1278,15 @@ int writeIdentity(const char* identity) {
 	return 0;
 }
 
-void showHelp() {
-	printf("\n[q] - Disconnect from server\n[h] - Show this help\n[c] - Show channels\n[s] - Switch to specified channel\n");
-	printf("[l] - Show all visible clients\n[L] - Show all clients in specific channel\n[n] - Create new channel with generated name\n[N] - Create new channel with custom name\n");
-	printf("[d] - Delete channel\n[r] - Rename channel\n[R] - Record sound to wav\n[v] - Toggle Voice Activity Detection / Continuous transmission \n[V] - Set Voice Activity Detection level\n");
-	printf("[w] - Set whisper list\n[W] - Clear whisper list\n\n");
 
-}
-
-unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID, const char *message, anyID targetChannelID, const char *returnCode);
+/*
+unsigned int  ClientTS::ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID, const char *message, anyID targetChannelID, const char *returnCode);*/
 
 
 DWORD WINAPI ClientStart(LPVOID lpParameter)
 {
 	uint64 scHandlerID;
-	unsigned int error=0;
+	unsigned int error = 0;
 	char* mode;
 	char** device;
 	char *version;
@@ -1333,27 +1300,27 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 
 	/* Callback function pointers */
 	/* It is sufficient to only assign those callback functions you are using. When adding more callbacks, add those function pointers here. */
-	funcs.onConnectStatusChangeEvent = onConnectStatusChangeEvent;
-	funcs.onNewChannelEvent = onNewChannelEvent;
-	funcs.onNewChannelCreatedEvent = onNewChannelCreatedEvent;
-	funcs.onDelChannelEvent = onDelChannelEvent;
-	funcs.onClientMoveEvent = onClientMoveEvent;
-	funcs.onClientMoveSubscriptionEvent = onClientMoveSubscriptionEvent;
-	funcs.onClientMoveTimeoutEvent = onClientMoveTimeoutEvent;
-	funcs.onTalkStatusChangeEvent = onTalkStatusChangeEvent;
-	funcs.onTextMessageEvent = onTextMessageEvent;
-	funcs.onIgnoredWhisperEvent = onIgnoredWhisperEvent;
-	funcs.onServerErrorEvent = onServerErrorEvent;
-	funcs.onUserLoggingMessageEvent = onUserLoggingMessageEvent;
-	funcs.onCustomPacketEncryptEvent = onCustomPacketEncryptEvent;
-	funcs.onCustomPacketDecryptEvent = onCustomPacketDecryptEvent;
-	funcs.onEditMixedPlaybackVoiceDataEvent = onEditMixedPlaybackVoiceDataEvent;
+	funcs.onConnectStatusChangeEvent = ClientTS::onConnectStatusChangeEvent;
+	funcs.onNewChannelEvent = ClientTS::onNewChannelEvent;
+	funcs.onNewChannelCreatedEvent = ClientTS::onNewChannelCreatedEvent;
+	funcs.onDelChannelEvent = ClientTS::onDelChannelEvent;
+	funcs.onClientMoveEvent = ClientTS::onClientMoveEvent;
+	funcs.onClientMoveSubscriptionEvent = ClientTS::onClientMoveSubscriptionEvent;
+	funcs.onClientMoveTimeoutEvent = ClientTS::onClientMoveTimeoutEvent;
+	funcs.onTalkStatusChangeEvent = ClientTS::onTalkStatusChangeEvent;
+	funcs.onTextMessageEvent = ClientTS::onTextMessageEvent;
+	funcs.onIgnoredWhisperEvent = ClientTS::onIgnoredWhisperEvent;
+	funcs.onServerErrorEvent = ClientTS::onServerErrorEvent;
+	funcs.onUserLoggingMessageEvent = ClientTS::onUserLoggingMessageEvent;
+	funcs.onCustomPacketEncryptEvent = ClientTS::onCustomPacketEncryptEvent;
+	funcs.onCustomPacketDecryptEvent = ClientTS::onCustomPacketDecryptEvent;
+	funcs.onEditMixedPlaybackVoiceDataEvent = ClientTS::onEditMixedPlaybackVoiceDataEvent;
 
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
 
-	 if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
+	if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
 			//wxMessageBox("Error initialzing serverlib");
@@ -1361,7 +1328,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 		}
 		return 1;
 	}
-	
+
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
 	if ((error = ts3client_spawnNewServerConnectionHandler(0, &scHandlerID)) != ERROR_ok) {
@@ -1411,7 +1378,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	}
 
 	/* Try reading identity from file, otherwise create new identity */
-	if (readIdentity(identity) != 0) {
+	if (ClientTS::readIdentity(identity) != 0) {
 		char* id;
 		if ((error = ts3client_createIdentity(&id)) != ERROR_ok) {
 			wxMessageBox("Error creating identity");
@@ -1423,17 +1390,17 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 		}
 		strcpy(identity, id);
 		ts3client_freeMemory(id);
-		writeIdentity(identity);
+		ClientTS::writeIdentity(identity);
 	}
 	printf("Using identity: %s\n", identity);
 
 	char final_nick[50] = { "" };
-	strcpy(final_nick, config->getLanguage());
+	strcpy(final_nick, Session::Instance()->getConfig()->getLanguage());
 	strcat(final_nick, "$");
-	strcat(final_nick, config->getNick());
+	strcat(final_nick, Session::Instance()->getConfig()->getNick());
 	strcat(final_nick, "$");
 	/* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
-	if ((error = ts3client_startConnection(scHandlerID, identity, config->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
+	if ((error = ts3client_startConnection(scHandlerID, identity, Session::Instance()->getConfig()->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
 		wxMessageBox("Error connecting to server");
 		ts3client_logMessage("Error connecting to server", LogLevel_ERROR, "Channel", 10);
 		return 1;
@@ -1482,8 +1449,13 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 
 	/* This is a small hack, to close an open recording sound file */
 	recordSound = 0;
-	onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
+	ClientTS::onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
 	return 0;
+}
+
+void emptyInputBuffer() {
+	int c;
+	while ((c = getchar()) != '\n' && c != EOF);
 }
 
 
@@ -1529,7 +1501,7 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 	{
 		if (tts_flag == true)
 		{
-			speak((char*)Session::Instance()->getConfig()->getLanguage(), (char*)strSpeak.mb_str().data());
+			ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), (char*)strSpeak.mb_str().data());
 			Sleep(300);
 			tts_flag = false;
 		}

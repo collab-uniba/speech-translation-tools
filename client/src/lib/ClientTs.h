@@ -64,55 +64,78 @@ struct ClientTS{
 		fn(obj);
 	}
 };*/
-
-static bool flagSave = true;
-bool getFlagSave();
-
-void setFlagSave(bool flg);
-
-void registerObserver(cbClientTsFrm fn, ClientTsFrm &obj);
-
-	void speak(char *LANG, char*MSG);
-	void Print(char*word);
-	static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp);
-	void writeWaveFile(const char* filename, SAudioStreamFormat format, void* data);
-	void SetupColor();
-	void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
-	void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID);
-	void onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
-	void onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
-	void onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage);
-	void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility);
-	void showClients(uint64 serverConnectionHandlerID);
-	void setVadLevel(uint64 serverConnectionHandlerID);
-	void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage);
-	void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID);
-	void onIgnoredWhisperEvent(uint64 serverConnectionHandlerID, anyID clientID);
-	void onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage);
-	void onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char* logChannel, uint64 logID, const char* logTime, const char* completeLogString);
-	void onCustomPacketEncryptEvent(char** dataToSend, unsigned int* sizeOfData);
-	void onCustomPacketDecryptEvent(char** dataReceived, unsigned int* dataReceivedSize);
-	void onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
-	void showChannels(uint64 serverConnectionHandlerID);
-	void showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID);
-	void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message);
-	void showClients(uint64 serverConnectionHandlerID);
-	void createChannel(uint64 serverConnectionHandlerID, const char *name);
-	void deleteChannel(uint64 serverConnectionHandlerID);
-	void renameChannel(uint64 serverConnectionHandlerID);
-	void switchChannel(uint64 serverConnectionHandlerID);
-	void toggleVAD(uint64 serverConnectionHandlerID);
-	void setVadLevel(uint64 serverConnectionHandlerID);
-	void requestWhisperList(uint64 serverConnectionHandlerID);
-	void requestClearWhisperList(uint64 serverConnectionHandlerID);
-	void toggleRecordSound(uint64 serverConnectionHandlerID);
-	int readIdentity(char* identity);
-	int writeIdentity(const char* identity);
  
+
+/*class ClientTsFrm;
+
+typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
+
+
+class ClientTS : public Subject<EventTS>{
+	static Session* session;
+	static 	ConfigPTR config;
+	static bool flagSave;
+	static char LANG_MSG_SRC[500];
+	static char MSG_SRC[500];
+
+public:
+	ClientTS(){
+		session = Session::Instance();
+		config = session->getConfig();
+	}
+	~ClientTS(){}
+
+	static char* getLANG_MSG_SRC(){ return LANG_MSG_SRC; }
+
+	static char* getMSG_SRC(){ return MSG_SRC; }
+
+	static bool getFlagSave(){ return flagSave; }
+
+	static void setFlagSave(bool flg){ flagSave = flg; }
+
+	static void speak(char *LANG, char*MSG);
+	static void Print(char*word);
+	static size_t read_callback(static void *ptr, size_t size, size_t nmemb, static void *userp);
+	static void writeWaveFile(const char* filename, SAudioStreamFormat format, static void* data);
+	static void SetupColor();
+	static void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
+	static void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID);
+	static void onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
+	static void onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
+	static void onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage);
+	static void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility);
+	static void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage);
+	static void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID);
+	static void onIgnoredWhisperEvent(uint64 serverConnectionHandlerID, anyID clientID);
+	static void onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage);
+	static void onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char* logChannel, uint64 logID, const char* logTime, const char* completeLogString);
+	static void onCustomPacketEncryptEvent(char** dataToSend, unsigned int* sizeOfData);
+	static void onCustomPacketDecryptEvent(char** dataReceived, unsigned int* dataReceivedSize);
+	static void onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
+	static void showChannels(uint64 serverConnectionHandlerID);
+	static void showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID);
+	static void onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message);
+	static void showClients(uint64 serverConnectionHandlerID);
+	static void createChannel(uint64 serverConnectionHandlerID, const char *name);
+	static void deleteChannel(uint64 serverConnectionHandlerID);
+	static void renameChannel(uint64 serverConnectionHandlerID);
+	static void switchChannel(uint64 serverConnectionHandlerID);
+	static void toggleVAD(uint64 serverConnectionHandlerID);
+	static void setVadLevel(uint64 serverConnectionHandlerID);
+	static void requestWhisperList(uint64 serverConnectionHandlerID);
+	static void requestClearWhisperList(uint64 serverConnectionHandlerID);
+	static void toggleRecordSound(uint64 serverConnectionHandlerID);
+	static int readIdentity(char* identity);
+	static int writeIdentity(const char* identity);
+	static uint64  enterChannelID();
+	static void createDefaultChannelName(char *name);
+	static void enterName(char *name);
+};
 
 struct user* getPerson();
 char* getLANG_MSG_SRC();
 char* getMSG_SRC();
+void emptyInputBuffer();
 //void registercb(cbClientTsFrm fn);
 
 
@@ -120,3 +143,4 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter);
 DWORD WINAPI CTRL_STT(LPVOID lpParameter);
 DWORD WINAPI ClientStart(LPVOID lpParameter);
 DWORD WINAPI STT_THREAD(LPVOID lpParameter);
+

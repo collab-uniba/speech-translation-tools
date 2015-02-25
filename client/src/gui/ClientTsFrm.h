@@ -22,13 +22,9 @@
 #endif
 
 #include "../Data/config.h"
-#include "../lib/ClientTs.h"
+#include "../lib/ClientTS.h"
 #include "../data/Session.h"
-#include "../data/Message.h"
-
-//#include "../data/Subject.h"
-
-//#include "../data/Event.h"
+#include "../data/Message.h" 
 
 #include <wx/sizer.h>
 #include <wx/wx.h>
@@ -89,16 +85,15 @@ class ClientTsFrm : public wxFrame
 
 	public:
 		
-		explicit  ClientTsFrm(LoginWarnings *warn, wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),
+		ClientTsFrm(LoginWarnings *warn, wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),
 					const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, 
 					long style = wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX | wxRESIZE_BORDER);
 
 		virtual ~ClientTsFrm();
 
-		void ClientTsFrm::notify(ClientTsFrm fn);
+		//void ClientTsFrm::notify(ClientTsFrm fn);
 
 	private:
-		//Subject<EventTypeTS> s;
 		Session* session;
 		ConfigPTR config;
 		NationList *nations;
@@ -123,6 +118,7 @@ class ClientTsFrm : public wxFrame
 		wxMenu *ID_MNU_FILE_1001_Mnu_Obj;
 		wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
 		wxBitmapButton *WxBitmapButton1;
+		
 
 		enum
 		{

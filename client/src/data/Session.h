@@ -22,7 +22,7 @@ typedef std::shared_ptr<UserList> UserListPTR;
  * Set and get functions
  */
  
-class Session: public Subject<EventTS>{
+class Session{
 public:
 	static Session* Instance();
 	private:
@@ -43,22 +43,6 @@ public:
 	void setListUser(UserListPTR luser){ this->_luser = luser; }
 
 	char* Session::getApiGoogle();
-
-
-	/*template <typename Observer>
-	void registerObserver(const Event& event, Observer&& observer)
-	{
-		Subject::registerObserver(&event, && observer);
-	}
-	template <typename Observer>
-	void registerObserver(Event&& event, Observer&& observer)
-	{
-		Subject::registerObserver(&&event, && observer);
-	}
-	void notify(const EventTS& event) const
-	{
-		Subject::notify(event);
-	}*/
 
 	UserPTR getUser(const char* name);
 	void addNewUser(UserPTR u);

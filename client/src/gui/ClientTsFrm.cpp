@@ -1,5 +1,6 @@
 #include "ClientTsFrm.h"
 
+ClientTS clientts;
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
 	EVT_CLOSE(ClientTsFrm::OnClose)
@@ -23,12 +24,12 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 {
 	this->nations = new NationList();
 	//registerObserver<ClientTsFrm>(&ClientTsFrm::notify, *this);
-
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
 	config = session->getConfig();
+	//clientts = new ClientTS;
 	//session->registerObserver<ClientTsFrm>(*this);
-	session->registerObserver<int>(6);
+	//session->registerObserver<int>(6);
 
 	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
 	  curRow = 0;			//Initialize Row index
@@ -39,7 +40,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	if (warnings->IsNicknameEmpty())
 		ts3client_logMessage("Nickname field is empty", LogLevel_WARNING, "Gui", _sclogID);
 	//TODO Completare la traduzione di ClientTsFrm usando le variabile statica labels
-	setFlagSave(true);
+	clientts->setFlagSave(true);
 
 	FILE * record;
 	FILE * translate;
@@ -169,7 +170,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
 	HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);
-	SetupColor();
+	clientts->SetupColor();
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
 	gridptr = gridchat;
@@ -232,7 +233,7 @@ void ClientTsFrm::RefreshChat()
 	char       buf[80];
 	tstruct = *localtime(&now);
 	strftime(buf, sizeof(buf), "%X", &tstruct);
-	showClients(DEFAULT_VIRTUAL_SERVER);
+	clientts->showClients(DEFAULT_VIRTUAL_SERVER);
 	txtclient->Clear();	//Clear client window
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
@@ -365,7 +366,7 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	UserListPTR luser = Session::Instance()->getListUser();
-	setVadLevel(DEFAULT_VIRTUAL_SERVER); 
+	clientts->setVadLevel(DEFAULT_VIRTUAL_SERVER);
 	if (txtmsg->IsModified()) 	write_flag = true;
 	int i;
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
@@ -431,7 +432,7 @@ void ClientTsFrm::Save(wxCommandEvent& event)
 }
 
 void ClientTsFrm::askForSaving(){
-	if (!getFlagSave()){
+	if (!clientts->getFlagSave()){
 		wxMessageDialog *dial = new wxMessageDialog(NULL, labels.saveMessage, labels.saveMenu, wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
 		dial->SetYesNoLabels(_(labels.yes), _(labels.no));
 
@@ -441,13 +442,13 @@ void ClientTsFrm::askForSaving(){
 			FrmSaveChat *frame = new FrmSaveChat(NULL);
 			result = frame->ShowModal();
 			if (result == wxID_YES){
-				setFlagSave (true); // chat saved
+				clientts->setFlagSave(true); // chat saved
 				wxMessageBox(labels.saveSuccess);
 			}
 		}
 		else
 			// first the user has decided to save the chat session, then he has changed his decision
-			setFlagSave( false); // chat not saved
+			clientts->setFlagSave(false); // chat not saved
 	}
 	else
 		wxMessageBox(labels.noSave);
