@@ -18,20 +18,21 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
 END_EVENT_TABLE()
- 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
 {
 	this->nations = new NationList();
-	s.registerObserver(EventTypeTS::NOTIFY_MSG, &ClientTsFrm::RefreshChat);
+	//registerObserver<ClientTsFrm>(&ClientTsFrm::notify, *this);
 
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
 	config = session->getConfig();
+	//session->registerObserver<ClientTsFrm>(*this);
+	session->registerObserver<int>(6);
 
-	registercb(*this); // register itself into clientTs "class" in order to be notified about any change
-	 Session::curRow = 0;			//Initialize Row index
-	Session::curCol = 0;
+	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
+	  curRow = 0;			//Initialize Row index
+	 curCol = 0;
 	
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
@@ -59,9 +60,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	gridchat->SetColLabelValue(0, wxString::FromUTF8(labels.gridMessage.c_str()));
 	gridchat->SetColLabelValue(1, "Play");
 
-	gridchat->SetRowSize(Session::curRow + 1, 40);
-	gridchat->SetColSize(Session::curCol, 610);
-	gridchat->SetColSize(Session::curCol + 1, 30);
+	gridchat->SetRowSize(curRow + 1, 40);
+	gridchat->SetColSize(curCol, 610);
+	gridchat->SetColSize(curCol + 1, 30);
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
@@ -171,7 +172,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	SetupColor();
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
-	Session::gridptr = gridchat;
+	gridptr = gridchat;
 	/*char *str = this->nations->Search(CURRENT_LANG, APICODE);
 	wchar_t* wString = new wchar_t[4096];
 	MultiByteToWideChar(CP_ACP, 0, str, -1, wString, 4096);
@@ -475,9 +476,9 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 		{
 			wxString messaggio = wxString::FromUTF8(msg->getMSG())+ "(" + buf + "): " + wxString::FromUTF8(msg->getMSG());
 //			gridchat->SetCellValue(messaggio, Session::Session::curRow, 0);
-			gridchat->SetCellRenderer(Session::curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-			gridchat->AutoSizeRow(Session::curRow - 1, true);
-			gridchat->SetColSize(Session::curCol + 1, 30);
+			gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+			gridchat->AutoSizeRow(curRow - 1, true);
+			gridchat->SetColSize(curCol + 1, 30);
 		}
 		else
 		{
@@ -486,12 +487,12 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 				if (wxString::FromUTF8(msg->getMSG()) == (*it)->getName() && (*it)->getUsed() == 1)
 				{
 					wxString messaggio = wxString::FromUTF8(msg->getMSG()) +"(" + buf + "): " + wxString::FromUTF8(msg->getMSG());
-					gridchat->SetCellTextColour(Session::curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
-					gridchat->SetCellValue(messaggio, Session::curRow, 0);
-					gridchat->SetRowSize(Session::curRow, 40);
-					gridchat->SetColSize(Session::curCol, 578);
-					gridchat->SetColSize(Session::curCol + 1, 60);
-					gridchat->SetCellRenderer(Session::curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+					gridchat->SetCellTextColour(curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
+					gridchat->SetCellValue(messaggio, curRow, 0);
+					gridchat->SetRowSize(curRow, 40);
+					gridchat->SetColSize(curCol, 578);
+					gridchat->SetColSize(curCol + 1, 60);
+					gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
 				}
 			}
 		}
@@ -509,6 +510,11 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 		}
 	}
 }
+/*
+void ClientTsFrm::notify(ClientTsFrm fn){
+
+	std::cout << "i did it";
+}*/
 /*
 template <typename T_object>
 CallbackHandler::Callback_ID NotifyOnNewMail(T_object* object, void(T_object::*function)(void*, void*), void* user_data)

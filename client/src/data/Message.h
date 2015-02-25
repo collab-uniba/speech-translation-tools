@@ -23,8 +23,8 @@ public:
 	void setFrom(char* dir);
 	 char* getFrom();
 
-	void setMSG(char* dir);
-	 char* getMSG();
+	 void setMSG(char* dir){ _from = strupr(dir); };
+	 char* getMSG(){ return _message; }
 private:
 	MSGDirection _dir;
 	char* _language;

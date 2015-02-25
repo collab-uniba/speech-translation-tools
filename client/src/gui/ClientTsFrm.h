@@ -26,9 +26,9 @@
 #include "../data/Session.h"
 #include "../data/Message.h"
 
-#include "../data/Subject.h"
+//#include "../data/Subject.h"
 
-#include "../data/Event.h"
+//#include "../data/Event.h"
 
 #include <wx/sizer.h>
 #include <wx/wx.h>
@@ -50,7 +50,7 @@
 #include "AudioWizard.h"
 #include <list>
 #include "FrmSaveChat.h"
-#include "../data/observer.h"
+//#include "../data/observer.h"
 
 #define MENU_ESCI 1800
 #define MENU_OPZIONI 1801
@@ -58,7 +58,7 @@
 
 
 
-class ClientTsFrm : public wxFrame, public Observer
+class ClientTsFrm : public wxFrame
 {
 	private:
 		DECLARE_EVENT_TABLE();
@@ -94,6 +94,8 @@ class ClientTsFrm : public wxFrame, public Observer
 					long style = wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX | wxRESIZE_BORDER);
 
 		virtual ~ClientTsFrm();
+
+		void ClientTsFrm::notify(ClientTsFrm fn);
 
 	private:
 		//Subject<EventTypeTS> s;

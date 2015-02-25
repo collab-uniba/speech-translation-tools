@@ -7,6 +7,9 @@
 #include <cstring>
 #include <stdio.h>
 #include <cstdlib>
+#include "../lib/subject.h"
+#include "../lib/eventtype.h"
+
 
 #include <wx/richtext/richtextctrl.h>
 #include <wx/grid.h>
@@ -19,7 +22,7 @@ typedef std::shared_ptr<UserList> UserListPTR;
  * Set and get functions
  */
  
-class Session{
+class Session: public Subject<EventTS>{
 public:
 	static Session* Instance();
 	private:
@@ -42,6 +45,21 @@ public:
 	char* Session::getApiGoogle();
 
 
+	/*template <typename Observer>
+	void registerObserver(const Event& event, Observer&& observer)
+	{
+		Subject::registerObserver(&event, && observer);
+	}
+	template <typename Observer>
+	void registerObserver(Event&& event, Observer&& observer)
+	{
+		Subject::registerObserver(&&event, && observer);
+	}
+	void notify(const EventTS& event) const
+	{
+		Subject::notify(event);
+	}*/
+
 	UserPTR getUser(const char* name);
 	void addNewUser(UserPTR u);
 	void deleteUser(UserPTR u);
@@ -49,10 +67,10 @@ public:
 	bool checkUser(const char* u);
 
 
-	static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
+/*	static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
 	static unsigned int curRow;			//Initialize Row index
 	static unsigned int curCol;			//Initialize Column index
-	static wxGrid *gridptr;					//Pointer to edit the chatptr grid
+	static wxGrid *gridptr;					//Pointer to edit the chatptr grid*/
 
 private:
 	Session* _instance;
