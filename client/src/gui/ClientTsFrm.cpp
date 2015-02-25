@@ -1,6 +1,6 @@
 #include "ClientTsFrm.h"
 
-ClientTS clientts;
+
 BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
 	EVT_CLOSE(ClientTsFrm::OnClose)
@@ -469,7 +469,7 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 
 	if (strGlobale != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale && StringTranslate != "" */)
 	{
-		if (wxString::FromAscii(getMSG_SRC()) == ">" || wxString::FromAscii(getMSG_SRC()) == "</html>" || getMSG_SRC()[0] == '<' || getMSG_SRC()[0] == '>')
+		if (wxString::FromAscii(clientts.LANG_MSG_SRC) == ">" || wxString::FromAscii(clientts.LANG_MSG_SRC) == "</html>" || clientts.LANG_MSG_SRC[0] == '<' || clientts.LANG_MSG_SRC[0] == '>')
 			return;
 
 		gridchat->AppendRows(1, true); //Add a new message row

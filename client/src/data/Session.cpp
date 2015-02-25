@@ -3,7 +3,7 @@
 
 
 // Global static pointer used to ensure a single instance of the class.
-Session* Session::m_pInstance = NULL;
+Session* Session::m_pInstance = NULL; 
 
 Session::Session(){
 	this->_luser = std::make_shared<UserList>();

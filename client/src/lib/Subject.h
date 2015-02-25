@@ -9,22 +9,25 @@
 #include <map>
 #include <vector>
 #include <utility> // for std::forward
-template <typename Event>
+#include "EventType.h"
+
+typedef  EventTS EventSub;
+//template <typename EventSub>
 class Subject
 {
 public:
 	Subject() = default;
 	template <typename Observer>
-	static void registerObserver(const Event& event, Observer&& observer)
+	static void registerObserver(const EventSub& event, Observer&& observer)
 	{
 		observers_[event].push_back(std::forward<Observer>(observer));
 	}
 	template <typename Observer>
-	static void registerObserver(Event&& event, Observer&& observer)
+	static void registerObserver(EventSub&& event, Observer&& observer)
 	{
 		observers_[std::move(event)].push_back(std::forward<Observer>(observer));
 	}
-	static void notify(const Event& event) 
+	static void notify(const EventSub& event)
 	{
 		for (const auto& obs : observers_.at(event)) obs();
 	}
@@ -32,5 +35,5 @@ public:
 	Subject(const Subject&) = delete;
 	Subject& operator=(const Subject&) = delete;
 private:
-	static std::map<Event, std::vector<std::function<void()>>> observers_;
-};
+	static std::map<EventSub, std::vector<std::function<void()>>> observers_;
+}; 

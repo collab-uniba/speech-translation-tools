@@ -10,11 +10,12 @@
 #else
 #include <wx/wxprec.h>
 #endif
-
-#include "../gui/ClientTsFrm.h"
+ 
 #include "../data/Session.h"
 #include "../data/Message.h"
-#include "../data/Config.h" 
+#include "../data/Config.h"
+#include "Subject.h"
+#include "EventType.h" 
 
 #include <wx/sizer.h>
 #include <wx/wx.h>
@@ -25,32 +26,24 @@
 #include <wx/button.h>
 #include <wx/grid.h>
 #include "../gui\NationList.h"
-#include "../gui\NationInfo.h"
-//#include "..\gui\LoginWarnings.h"
+#include "../gui\NationInfo.h" 
 #include "../ArchiveLog.h"
 
 #include "../GlobalVariables.h"
 #include "../translateController/translateController.h"
 #include "../translateController/translateVariable.h"
-/*#include "../gui/FrmMailSending.h"
-#include "../gui/FrmSettingMail.h"
-#include "../gui/AudioWizard.h"*/
+ 
 #include <list>
 #include <functional>
-#include "Subject.h"
 
-#include "EventType.h"
-
-
-//#include "../gui/FrmSaveChat.h"
 
 #define MENU_ESCI 1800
 #define MENU_OPZIONI 1801
 #define MENU_SPEECH 1802
 
-/**/class ClientTsFrm; 
+/*class ClientTsFrm; 
 
-typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;
+typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
 /*
 void registerObserver(cbClientTsFrm fn, ClientTsFrm &obj);
 
@@ -72,6 +65,7 @@ typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
 
 
 class ClientTS : public Subject<EventTS>{
+public:
 	static Session* session;
 	static 	ConfigPTR config;
 	static bool flagSave;
@@ -129,14 +123,15 @@ public:
 	static int writeIdentity(const char* identity);
 	static uint64  enterChannelID();
 	static void createDefaultChannelName(char *name);
-	static void enterName(char *name);
+	static void enterName(char *name); 
+	static void emptyInputBuffer();
 };
 
-struct user* getPerson();
+/*struct user* getPerson();
 char* getLANG_MSG_SRC();
 char* getMSG_SRC();
 void emptyInputBuffer();
-//void registercb(cbClientTsFrm fn);
+//void registercb(cbClientTsFrm fn);*/
 
 
 DWORD WINAPI TTS_THREAD(LPVOID lpParameter);

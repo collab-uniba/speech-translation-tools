@@ -14,15 +14,23 @@ void setClientFRM(ClientTsFrm* ob){
 }
 void registercb(cbClientTsFrm fn){
 callbckFrmGUI = fn;
-}*/
+}
 
 struct user*  getPerson(){
 	return person;
-}
+}*/
 /*
 This procedure allows the use of TextToSpeech offered by Microsoft
 it has two parameters: the language of message and body of message
 */
+
+std::list<MESSAGE> diary;
+
+char ClientTS::MSG_SRC[500] = { "" };
+ConfigPTR ClientTS::config = NULL;
+bool ClientTS::flagSave = false;
+char  ClientTS::LANG_MSG_SRC[500] = { "" }; 
+Session* ClientTS::session = NULL;
 
 void ClientTS::speak(char *LANG, char*MSG)
 {
@@ -440,7 +448,7 @@ void ClientTS::onServerErrorEvent(uint64 serverConnectionHandlerID, const char* 
 *   completeLogString - Verbose log message including all previous parameters for convinience
 */
 
-void onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char* logChannel, uint64 logID, const char* logTime, const char* completeLogString) {
+void ClientTS::onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char* logChannel, uint64 logID, const char* logTime, const char* completeLogString) {
 	/* Your custom error display here... */
 	/* printf("LOG: %s\n", completeLogString); */
 	if (logLevel == LogLevel_CRITICAL) {
@@ -522,8 +530,8 @@ void ClientTS::onCustomPacketDecryptEvent(char** dataReceived, unsigned int* dat
 
 void ClientTS::onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask){
 #define OUTPUTCHANNELS 2
-	static FILE *pfile = NULL;
-	static struct WaveHeader header = { { 'R', 'I', 'F', 'F' }, 0, { 'W', 'A', 'V', 'E' }, { 'f', 'm', 't', ' ' }, 16, 1, 2, 48000, 48000 * (16 / 2) * 2, (16 / 2) * 2, 16, { 'd', 'a', 't', 'a' }, 0 };
+	 FILE *pfile = NULL;
+	 struct WaveHeader header = { { 'R', 'I', 'F', 'F' }, 0, { 'W', 'A', 'V', 'E' }, { 'f', 'm', 't', ' ' }, 16, 1, 2, 48000, 48000 * (16 / 2) * 2, (16 / 2) * 2, 16, { 'd', 'a', 't', 'a' }, 0 };
 
 	int currentSampleMix[OUTPUTCHANNELS]; /*a per channel/sample mix buffer*/
 	int channelCount[OUTPUTCHANNELS] = { 0, 0 }; /*how many input channels does the output channel contain */
@@ -1453,7 +1461,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	return 0;
 }
 
-void emptyInputBuffer() {
+void ClientTS::emptyInputBuffer() {
 	int c;
 	while ((c = getchar()) != '\n' && c != EOF);
 }

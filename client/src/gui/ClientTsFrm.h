@@ -26,6 +26,15 @@
 #include "../data/Session.h"
 #include "../data/Message.h" 
 
+#include "FrmMailSending.h"
+#include "FrmSettingMail.h"
+#include "AudioWizard.h"
+#include "NationList.h"
+#include "LoginWarnings.h" 
+#include "../ArchiveLog.h"
+
+#include "FrmSaveChat.h"
+
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <wx/timer.h>
@@ -34,18 +43,12 @@
 #include <wx/textctrl.h>
 #include <wx/button.h>
 #include <wx/grid.h>
-#include "NationList.h"
-#include "LoginWarnings.h" 
-#include "../ArchiveLog.h"
 
 #include "../GlobalVariables.h"
 #include "../translateController/translateController.h"
 #include "../translateController/translateVariable.h"
-#include "FrmMailSending.h"
-#include "FrmSettingMail.h"
-#include "AudioWizard.h"
+
 #include <list>
-#include "FrmSaveChat.h"
 //#include "../data/observer.h"
 
 #define MENU_ESCI 1800
@@ -119,7 +122,6 @@ class ClientTsFrm : public wxFrame
 		wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
 		wxBitmapButton *WxBitmapButton1;
 		ClientTS clientts;
-
 		enum
 		{
 			////GUI Enum Control ID Start
