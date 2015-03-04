@@ -1,5 +1,6 @@
 #include "Login.h"
 
+ 
 
 char StringLoginServer[20];
 char StringLoginNick[50];
@@ -262,8 +263,7 @@ void Login::btnloginClick(wxCommandEvent& event)
 	
 
 	TranslateController::InitLanguageVariable((char*) config->getLanguage());
-
-	ClientTsFrm* frame = new ClientTsFrm(warn,NULL);
+	ClientTsFrm * frame = new ClientTsFrm(warn, NULL);
 	frame->Show();
 	this->Close();
 }

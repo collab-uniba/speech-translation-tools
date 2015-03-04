@@ -6,8 +6,10 @@
 Session* Session::m_pInstance = NULL; 
 
 Session::Session(){
-	this->_luser = std::make_shared<UserList>();
-	this->_config = std::make_shared<Config>();
+	this->m_luser = std::make_shared<UserList>();
+	this->m_config = std::make_shared<Config>();
+	this->m_pending = std::make_shared<std::vector<MessagePTR>>();
+	this->m_queue = std::make_shared<std::vector<MessagePTR>>();
 }
 
 Session* Session::Instance()
@@ -19,6 +21,12 @@ Session* Session::Instance()
 
 char* Session::getApiGoogle(){
 	return "";
+}
+
+
+void Session::addMSG(MessagePTR msg){
+	m_pending->push_back(msg);
+	notify(EventTS::MSG_RCV);
 }
 
 char* Session::getGoogleURLTranslation(){

@@ -19,6 +19,13 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
 END_EVENT_TABLE()
+/*
+void clienttsfrm::notify(observee* observee)
+{
+	//print();
+	cout << "oh no! the jewel is stolen! \n";
+}*/
+
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
 {
@@ -27,13 +34,16 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
 	config = session->getConfig();
+	//clientts.setCBClientTSMSG(notify);
 	//clientts = new ClientTS;
 	//session->registerObserver<ClientTsFrm>(*this);
-	//session->registerObserver<int>(6);
+	std::string st = "holla";
+	session->registerObserver(EventTS::MSG_RCV, &notifyMSG, this);//.AddObserver(this);
 
 	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
-	  curRow = 0;			//Initialize Row index
+	 curRow = 0;			//Initialize Row index
 	 curCol = 0;
+
 	
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
@@ -65,13 +75,21 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	gridchat->SetColSize(curCol, 610);
 	gridchat->SetColSize(curCol + 1, 30);
 
+	gridchat->AppendRows(1, true); //Add a new message row
+	wxString messaggio = wxString::FromUTF8("cosasasasadsdasd");
+
+	gridchat->SetCellValue(messaggio, curRow, 0);
+	gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+	gridchat->AutoSizeRow(curRow - 1, true);
+	gridchat->SetColSize(curCol + 1, 30);
+
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
-	WxTimer2->Start(1000);
+	WxTimer2->Start(200);
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(100);
+	WxTimer1->Start(200);
 
 
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
@@ -167,9 +185,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	txtnick->AppendText(config->getNick());
 	txtlingua->AppendText(config->getLanguage());
 	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
-	HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
+	/*HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
-	HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);
+	HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);*/
 	clientts.SetupColor();
 	engine = irrklang::createIrrKlangDevice();
 	recorder = irrklang::createIrrKlangAudioRecorder(engine);
@@ -180,9 +198,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	MessageBox(NULL, wString, L"Test print handler", MB_OK);*/
 }
 
-ClientTsFrm::~ClientTsFrm()
-{
-}
+ 
 
 void MyGridCellRenderer::Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rect, int row, int col, bool isSelected)
 {
@@ -454,7 +470,7 @@ void ClientTsFrm::askForSaving(){
 		wxMessageBox(labels.noSave);
 }
 
-void ClientTsFrm::notifyMsg(MessagePTR msg){
+void ClientTsFrm::updatePanelMsg(){
 	/****
 	* add new message to chat grid
 	* ***/
@@ -466,16 +482,33 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 	strftime(buf, sizeof(buf), "%X", &tstruct);
 
 	UserListPTR luser = Session::Instance()->getListUser();
+	MessageQueuePTR lptr = Session::Instance()->getMessageQueue();
 
-	if (strGlobale != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale && StringTranslate != "" */)
+	gridchat->AppendRows(1, true); //Add a new message row
+	for (auto itmsg = lptr->cbegin(); itmsg != lptr->cend(); ++itmsg)
 	{
+		gridchat->Scroll(curRow + 20, curCol + 20);
+		wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
+		
+		gridchat->SetCellValue(messaggio, curRow, 0);
+	 	gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
+		gridchat->AutoSizeRow(curRow - 1, true);
+		gridchat->SetColSize(curCol + 1, 30);
+ 
+	 
+		 
+	}
+/*
+ 
+	//if (strGlobale != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale && StringTranslate != "" * /)
+	
 		if (wxString::FromAscii(clientts.LANG_MSG_SRC) == ">" || wxString::FromAscii(clientts.LANG_MSG_SRC) == "</html>" || clientts.LANG_MSG_SRC[0] == '<' || clientts.LANG_MSG_SRC[0] == '>')
 			return;
 
 		gridchat->AppendRows(1, true); //Add a new message row
 		if (strNick == config->getNick())
 		{
-			wxString messaggio = wxString::FromUTF8(msg->getMSG())+ "(" + buf + "): " + wxString::FromUTF8(msg->getMSG());
+			wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
 //			gridchat->SetCellValue(messaggio, Session::Session::curRow, 0);
 			gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
 			gridchat->AutoSizeRow(curRow - 1, true);
@@ -485,16 +518,16 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 		{
 			for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 			{
-				if (wxString::FromUTF8(msg->getMSG()) == (*it)->getName() && (*it)->getUsed() == 1)
-				{
-					wxString messaggio = wxString::FromUTF8(msg->getMSG()) +"(" + buf + "): " + wxString::FromUTF8(msg->getMSG());
+				/*if (wxString::FromUTF8((*itmsg)->getFrom()) == (*it)->getName() && (*it)->getUsed() == 1)
+				{* /
+					wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
 					gridchat->SetCellTextColour(curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
 					gridchat->SetCellValue(messaggio, curRow, 0);
 					gridchat->SetRowSize(curRow, 40);
 					gridchat->SetColSize(curCol, 578);
 					gridchat->SetColSize(curCol + 1, 60);
 					gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-				}
+			//	}
 			}
 		}
 
@@ -502,20 +535,17 @@ void ClientTsFrm::notifyMsg(MessagePTR msg){
 		oldstrGlobale = strGlobale;
 		strGlobale = "";
 	}
-	else
+	/*else
 	{
 		if (count_client == 0 && REFRESHTIMER > 50)   //ho sostituito empty_room e messo il timer
 		{
 			ts3client_logMessage("No such clients found", LogLevel_ERROR, "Channel", _sclogID);
 			REFRESHTIMER = 0;
 		}
-	}
+	}*/
 }
-/*
-void ClientTsFrm::notify(ClientTsFrm fn){
-
-	std::cout << "i did it";
-}*/
+ 
+ 
 /*
 template <typename T_object>
 CallbackHandler::Callback_ID NotifyOnNewMail(T_object* object, void(T_object::*function)(void*, void*), void* user_data)
@@ -524,3 +554,9 @@ CallbackHandler::Callback_ID NotifyOnNewMail(T_object* object, void(T_object::*f
 }*/
 
  
+void notifyMSG(ClientTsFrm *fn)
+
+{
+ 
+	fn->updatePanelMsg();
+}

@@ -3,14 +3,21 @@
 #include "User.h"
 #include "Config.h"
 
+#include "../data/message.h"
+
 #include <list>
 #include <cstring>
 #include <stdio.h>
-#include <cstdlib>
-#include "../lib/subject.h"
+#include <cstdlib> 
 #include "../lib/eventtype.h"
+#include "../lib/Subject.h"
 
-
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#include <wx/frame.h>
+#else
+#include <wx/wxprec.h>
+#endif
 #include <wx/richtext/richtextctrl.h>
 #include <wx/grid.h>
 
@@ -21,8 +28,8 @@ typedef std::shared_ptr<UserList> UserListPTR;
 /* 
  * Set and get functions
  */
- 
-class Session{
+class ClientTsFrm;
+class Session : public Subject<EventTS, ClientTsFrm> {
 public:
 	static Session* Instance();
 	private:
@@ -36,11 +43,13 @@ public:
 
 	char* Session::getGoogleURLTranslation();
 
-	ConfigPTR getConfig(){ return _config; }
-	void setConfig(ConfigPTR conf){ this->_config = conf; }
+	ConfigPTR getConfig(){ return m_config; }
+	void setConfig(ConfigPTR conf){ this->m_config = conf; }
 
-	UserListPTR getListUser(){ return _luser; }
-	void setListUser(UserListPTR luser){ this->_luser = luser; }
+	UserListPTR getListUser(){ return m_luser; }
+	void setListUser(UserListPTR luser){ this->m_luser = luser; }
+
+	MessageQueuePTR getMessageQueue(){ return m_pending; }
 
 	char* Session::getApiGoogle();
 
@@ -51,17 +60,21 @@ public:
 	bool checkUser(const char* u);
 
 
+	void addMSG(MessagePTR msg);
+
+
 /*	static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
 	static unsigned int curRow;			//Initialize Row index
 	static unsigned int curCol;			//Initialize Column index
 	static wxGrid *gridptr;					//Pointer to edit the chatptr grid*/
 
 private:
-	Session* _instance;
-	ConfigPTR _config;
-	UserListPTR _luser;
-	char* _translationEngine;
-
+	Session* m_instance;
+	ConfigPTR m_config;
+	UserListPTR m_luser;
+	char* m_translationEngine;
+	MessageQueuePTR m_pending;
+	MessageQueuePTR m_queue;
 };
 
 

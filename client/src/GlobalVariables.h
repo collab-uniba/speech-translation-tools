@@ -166,11 +166,7 @@ static wxString oldStringTranslate = "";
 static wxString StringOriginal = "";
 static wxString strSpeak = "";
 
-
-class Message;
-typedef std::shared_ptr<Message> MessagePTR;
-typedef std::list<MessagePTR> MessageQueue;
-
+ 
 static unsigned short PORT = 9987;	//Number port of server
 static int cmbel = 0;				//Index of comboBox choose
 static int VAD_VALUE = 1;			//Minimum value to record audio
@@ -187,8 +183,8 @@ static bool tasto_stt_flag = false;		//Flag to activate Automatic SpeechToText
 static bool finish_ctrl_flag = false;		//Flag to recognize CTRL press button
 static bool automatic_stt_flag = false;
 static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
-static unsigned int curRow = 0;			//Initialize Row index
-static unsigned int curCol = 0;			//Initialize Column index
+/*static unsigned int curRow = 0;			//Initialize Row index
+static unsigned int curCol = 0;			//Initialize Column index*/
 static wxGrid *gridptr;					//Pointer to edit the chatptr grid*/
 static uint64 _sclogID;
 //uint64 _sclogID;

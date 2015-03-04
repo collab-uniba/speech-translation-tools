@@ -1,33 +1,64 @@
-//
-// Copyright (c) 2013 Juan Palacios juan.palacios.puyana@gmail.com
-// Subject to the BSD 2-Clause License
-// - see < http://opensource.org/licenses/BSD-2-Clause>
-//
-#pragma once
-
 #include <functional>
 #include <map>
 #include <vector>
 #include <utility> // for std::forward
-#include "EventType.h"
 
-typedef  EventTS EventSub;
-//template <typename EventSub>
+
+
+template <typename Event, typename Observer>
+class Subject
+{
+private:
+	typedef std::function<void(Observer * ob)> fnobserver;
+	struct observers{
+		fnobserver fn; 
+		Observer * ob;
+	};
+
+	std::map<Event, std::vector<observers>> observers_;
+
+public:
+	
+	Subject() = default;
+ 
+	void registerObserver(const Event& event, fnobserver fn, Observer * ob)
+	{
+		observers absr = { fn, ob };
+
+		observers_[event].push_back({ fn, ob });
+		//observers_[event].push_back(std::forward<Observer>(observer));
+	}
+ 
+	void notify(const Event& event) const
+	{
+		for (const auto& obs : observers_.at(event)){
+			obs.fn(obs.ob);
+		}
+	}
+	// disallow copying and assigning
+	Subject(const Subject&) = delete;
+	Subject& operator=(const Subject&) = delete;
+
+};
+
+
+/*
+template <typename Event>
 class Subject
 {
 public:
 	Subject() = default;
 	template <typename Observer>
-	static void registerObserver(const EventSub& event, Observer&& observer)
+	void registerObserver(const Event& event, Observer&& observer)
 	{
 		observers_[event].push_back(std::forward<Observer>(observer));
 	}
 	template <typename Observer>
-	static void registerObserver(EventSub&& event, Observer&& observer)
+	void registerObserver(Event&& event, Observer&& observer)
 	{
 		observers_[std::move(event)].push_back(std::forward<Observer>(observer));
 	}
-	static void notify(const EventSub& event)
+	void notify(const Event& event) const
 	{
 		for (const auto& obs : observers_.at(event)) obs();
 	}
@@ -35,5 +66,5 @@ public:
 	Subject(const Subject&) = delete;
 	Subject& operator=(const Subject&) = delete;
 private:
-	static std::map<EventSub, std::vector<std::function<void()>>> observers_;
-}; 
+	std::map<Event, std::vector<std::function<void()>>> observers_;
+};*/

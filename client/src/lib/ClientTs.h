@@ -14,7 +14,7 @@
 #include "../data/Session.h"
 #include "../data/Message.h"
 #include "../data/Config.h"
-#include "Subject.h"
+
 #include "EventType.h" 
 
 #include <wx/sizer.h>
@@ -34,13 +34,14 @@
 #include "../translateController/translateVariable.h"
  
 #include <list>
-#include <functional>
-
+#include <functional> 
 
 #define MENU_ESCI 1800
 #define MENU_OPZIONI 1801
 #define MENU_SPEECH 1802
 
+
+typedef std::function<void()> cbClientTsFrm;
 /*class ClientTsFrm; 
 
 typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
@@ -64,20 +65,20 @@ struct ClientTS{
 typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
 
 
-class ClientTS : public Subject<EventTS>{
+class ClientTS  {
 public:
 	static Session* session;
-	static 	ConfigPTR config;
+	static ConfigPTR config;
 	static bool flagSave;
 	static char LANG_MSG_SRC[500];
 	static char MSG_SRC[500];
-
+	static cbClientTsFrm notifyMSGcb;
 public:
 	ClientTS(){
 		session = Session::Instance();
 		config = session->getConfig();
 	}
-	~ClientTS(){}
+	virtual ~ClientTS(){}
 
 	static char* getLANG_MSG_SRC(){ return LANG_MSG_SRC; }
 
@@ -86,6 +87,8 @@ public:
 	static bool getFlagSave(){ return flagSave; }
 
 	static void setFlagSave(bool flg){ flagSave = flg; }
+	template <typename Observer>
+	static void setCBClientTSMSG(Observer && fn){ notifyMSGcb = std::forward<Observer>(fn); }
 
 	static void speak(char *LANG, char*MSG);
 	static void Print(char*word);

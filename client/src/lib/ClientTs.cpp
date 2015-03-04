@@ -810,14 +810,15 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	// end timestamp
 
 	/******* begin adding new entry to the log variable*/
+	MessagePTR msgC;
 	MESSAGE msg;
 	if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
 		StringTranslate = wxString::FromAscii(MSG_SRC);
-		MessagePTR msgC = std::make_shared<Message>(MSGDirection::out, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
-
+		msgC = std::make_shared<Message>(MSGDirection::out, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
+		session->addMSG(msgC);
 		///	callbckFrmGUI.notifyMsg(msgC);
-		notify(EventTS::MSG_RCV);
+//		notify(EventTS::MSG_RCV);
 		 
 		msg.nick = strNick;
 		msg.lang = LANG_MSG_SRC;
@@ -843,6 +844,8 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 		else
 		{
 			TranslateController::parseGoogle(TranslateController::richiestaGoogle(parsata, LANG_MSG_SRC));
+			msgC = std::make_shared<Message>(MSGDirection::in, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
+			session->addMSG(msgC);
 
 			msg.nick = strNick;
 			msg.lang = LANG_MSG_SRC;
@@ -870,7 +873,8 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 			msg.msgDir = "<--"; // always incoming messages here
 			msg.msgold = wxString::FromUTF8(parsata);	//Save original message
 			msg.msgnew = StringTranslate;				//Save translate message
-
+			msgC = std::make_shared<Message>(MSGDirection::in, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
+			session->addMSG(msgC);
 			diary.push_back(msg);
 			setFlagSave(false);
 		}
@@ -1316,14 +1320,17 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	funcs.onClientMoveSubscriptionEvent = ClientTS::onClientMoveSubscriptionEvent;
 	funcs.onClientMoveTimeoutEvent = ClientTS::onClientMoveTimeoutEvent;
 	funcs.onTalkStatusChangeEvent = ClientTS::onTalkStatusChangeEvent;
+
 	funcs.onTextMessageEvent = ClientTS::onTextMessageEvent;
 	funcs.onIgnoredWhisperEvent = ClientTS::onIgnoredWhisperEvent;
 	funcs.onServerErrorEvent = ClientTS::onServerErrorEvent;
+
 	funcs.onUserLoggingMessageEvent = ClientTS::onUserLoggingMessageEvent;
 	funcs.onCustomPacketEncryptEvent = ClientTS::onCustomPacketEncryptEvent;
 	funcs.onCustomPacketDecryptEvent = ClientTS::onCustomPacketDecryptEvent;
 	funcs.onEditMixedPlaybackVoiceDataEvent = ClientTS::onEditMixedPlaybackVoiceDataEvent;
 
+ 
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
@@ -1458,6 +1465,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	/* This is a small hack, to close an open recording sound file */
 	recordSound = 0;
 	ClientTS::onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
+	
 	return 0;
 }
 
@@ -1470,7 +1478,7 @@ void ClientTS::emptyInputBuffer() {
 DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 {
 	char translate_jar[512] = { "" }; //tsclient
-	while (1)
+	/*while (1)
 	{
 		Sleep(100);
 		FILE *trad;
@@ -1500,12 +1508,12 @@ DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 
 		}
 		else goto a;
-	}
+	}*/
 }
 
 DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 {
-	while (1)
+	/*while (1)
 	{
 		if (tts_flag == true)
 		{
@@ -1515,19 +1523,19 @@ DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
 		}
 		Sleep(50);
 	}
-	return 0;
+	return 0;*/
 }
 
 DWORD WINAPI CTRL_STT(LPVOID lpParameter)
 {
 
-	while (1)
+	/*while (1)
 	{
-		if (GetAsyncKeyState(VK_CONTROL) && finish_ctrl_flag == false)
+	/*	if (GetAsyncKeyState(VK_CONTROL) && finish_ctrl_flag == false)
 		{
 			if (recorder->isRecording() == false)
 			{
-				recorder->startRecordingBufferedAudio();
+				//recorder->startRecordingBufferedAudio();
 				finish_ctrl_flag = true;
 			}
 			Sleep(50);
@@ -1535,6 +1543,6 @@ DWORD WINAPI CTRL_STT(LPVOID lpParameter)
 
 		Sleep(50);
 
-	}
-	return 0;
+	}*/
+	return 1;
 }
