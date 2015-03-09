@@ -31,6 +31,9 @@ ConfigPTR ClientTS::config = NULL;
 bool ClientTS::flagSave = false;
 char  ClientTS::LANG_MSG_SRC[500] = { "" }; 
 Session* ClientTS::session = NULL;
+IAudioRecorder* ClientTS::recorder = irrklang::createIrrKlangAudioRecorder(irrklang::createIrrKlangDevice());			//Flow of audio daa
+ 
+ 
 
 void ClientTS::speak(char *LANG, char*MSG)
 {
@@ -153,7 +156,7 @@ void ClientTS::writeWaveFile(const char* filename, SAudioStreamFormat format, vo
 Initialize Client's label colors,the values are RGB
 */
 
-void ClientTS::SetupColor()
+void ClientTS::SetupColor(COLORE * colors)
 {
 	UserListPTR luser = Session::Instance()->getListUser();
 	colors[0].red = 255;
@@ -208,7 +211,7 @@ void ClientTS::onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 	printf("Connect status changed: %llu %d %d\n", (unsigned long long)serverConnectionHandlerID, newStatus, errorNumber);
 	/* Failed to connect ? */
 	if (newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
-		ts3client_logMessage("No server running", LogLevel_ERROR, "Channel", _sclogID);
+		ts3client_logMessage("No server running", LogLevel_ERROR, "Channel", session->scHandlerID);
 		exit(-1);
 	}
 
@@ -310,7 +313,7 @@ void ClientTS::onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, a
 	/* Query client nickname from ID */
 	if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 	{
-		ts3client_logMessage("No such clients found", LogLevel_ERROR, "Channel", _sclogID);
+		ts3client_logMessage("No such clients found", LogLevel_ERROR, "Channel", session->scHandlerID);
 		return;
 	}
 
@@ -331,7 +334,7 @@ void ClientTS::onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, a
 */
 void ClientTS::onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	printf("ClientID %u timeouts with message %s\n", clientID, timeoutMessage);
-	count_client--;
+
 }
 
 /*
@@ -354,9 +357,9 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		return;
 	if (status == STATUS_TALKING)
 	{
-		if (automatic_stt_flag == true)
+		if (session->automatic_stt_flag == true)
 		{
-			sound_flag = true;
+			session->sound_flag = true;
 			recorder->startRecordingBufferedAudio();
 		}
 
@@ -368,9 +371,9 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		}
 
 
-		if (sound_flag == false && tasto_stt_flag == true)
+		if (session->sound_flag == false && session->tasto_stt_flag == true)
 		{
-			sound_flag = true;
+			session->sound_flag = true;
 			recorder->startRecordingBufferedAudio();
 		}
 	}
@@ -384,7 +387,7 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 			}
 		}
 
-		if (tasto_stt_flag == true || sound_flag == true || finish_ctrl_flag == true)
+		if (session->tasto_stt_flag == true || session->sound_flag == true || session->finish_ctrl_flag == true)
 		{
 			if (recorder->isRecording() == false) return;
 			recorder->stopRecordingAudio();
@@ -738,9 +741,10 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	//MessagePTR msgj;
 
 	wxString mystring = wxString::FromAscii(message);
+	wxString strNick, strGlobale, strMessage;
 
 	if ((error = ts3client_getClientVariableAsString(serverConnectionHandlerID, fromID, CLIENT_NICKNAME, &name)) != ERROR_ok) {  /* Query client nickname... */
-		ts3client_logMessage("Error querying client nickname: %d\n", LogLevel_ERROR, "Channel", _sclogID);
+		ts3client_logMessage("Error querying client nickname: %d\n", LogLevel_ERROR, "Channel", session->scHandlerID);
 		return;
 	}
 
@@ -751,11 +755,10 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 
 	//msgj = make_shared<Message>(MSGDirection::in, fromName, message); // it's the same that Message* Message = new Message ();
 
-	/*Example $Adam$English$How are you?
+	/* Example $Adam$English$How are you?
 	strNick= Adam;
 	LANG_MSG_SRC=English
-	MSG_SRC=How are you?
-	*/
+	MSG_SRC=How are you? */
 
 	wxString parsata = wxString::FromAscii(MSG_SRC); //convert char * to wxString
 
@@ -779,9 +782,6 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	}
 
 	strGlobale = wxString::FromAscii(name) + ": " + mystring;
-
-
-
 
 	/*
 	Ignore Debug value from Translation Service
@@ -812,7 +812,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	/******* begin adding new entry to the log variable*/
 	MessagePTR msgC;
 	MESSAGE msg;
-	if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
+	//if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
 		StringTranslate = wxString::FromAscii(MSG_SRC);
 		msgC = std::make_shared<Message>(MSGDirection::out, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
@@ -835,8 +835,8 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 		setFlagSave(false);
 		return;
 	}
-
-	/*** end log */
+	/*
+	/*** end log * /
 	if (strcmp(config->getService(), "google") == 0)
 	{
 		if (strcmp(MSG_SRC, TranslateController::richiestaGoogle(MSG_SRC, LANG_MSG_SRC)) == 0)
@@ -878,7 +878,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 			diary.push_back(msg);
 			setFlagSave(false);
 		}
-	}
+	}*/
 	return;
 }
 
@@ -901,7 +901,7 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 	UserListPTR luser = make_shared<UserList>();
 
 	unsigned int error;
-	count_client = 0;
+	int count_client = 0;
 
 	printf("\nList of all visible clients on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
 	if ((error = ts3client_getClientList(serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of client IDs */
@@ -1295,9 +1295,9 @@ int ClientTS::writeIdentity(const char* identity) {
 unsigned int  ClientTS::ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID, const char *message, anyID targetChannelID, const char *returnCode);*/
 
 
-DWORD WINAPI ClientStart(LPVOID lpParameter)
+DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 {
-	uint64 scHandlerID;
+	
 	unsigned int error = 0;
 	char* mode;
 	char** device;
@@ -1346,7 +1346,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
-	if ((error = ts3client_spawnNewServerConnectionHandler(0, &scHandlerID)) != ERROR_ok) {
+	if ((error = ts3client_spawnNewServerConnectionHandler(0, &Session::Instance()->scHandlerID)) != ERROR_ok) {
 		wxMessageBox("Error spawning server connection handler");
 		return 1;
 	}
@@ -1367,7 +1367,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 
 	/* Open default capture device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
-	error = ts3client_openCaptureDevice(scHandlerID, mode, device[1]);
+	error = ts3client_openCaptureDevice(Session::Instance()->scHandlerID, mode, device[1]);
 	if (error != ERROR_ok) {
 		wxMessageBox("Error opening capture device");
 	}
@@ -1388,7 +1388,7 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 
 	/* Open default playback device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
-	if ((error = ts3client_openPlaybackDevice(scHandlerID, mode, device[1])) != ERROR_ok) {
+	if ((error = ts3client_openPlaybackDevice(Session::Instance()->scHandlerID, mode, device[1])) != ERROR_ok) {
 		wxMessageBox("Error opening playback device");
 	}
 
@@ -1415,13 +1415,12 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	strcat(final_nick, Session::Instance()->getConfig()->getNick());
 	strcat(final_nick, "$");
 	/* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
-	if ((error = ts3client_startConnection(scHandlerID, identity, Session::Instance()->getConfig()->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
+	if ((error = ts3client_startConnection(Session::Instance()->scHandlerID, identity, Session::Instance()->getConfig()->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
 		wxMessageBox("Error connecting to server");
 		ts3client_logMessage("Error connecting to server", LogLevel_ERROR, "Channel", 10);
 		return 1;
 	}
-
-	_sclogID = scHandlerID;
+	 
 
 	printf("Client lib initialized and running\n");
 
@@ -1434,39 +1433,43 @@ DWORD WINAPI ClientStart(LPVOID lpParameter)
 	ts3client_freeMemory(version);  /* Release dynamically allocated memory */
 	version = NULL;
 
-	SLEEP(300);
-
+ 
 	/*While flagg==false the client is running*/
-	while (!flag)
+	while (1)
 	{
-		SLEEP(50);
+		SLEEP(50000);
 	}
 
 	/* Disconnect from server */
-	if ((error = ts3client_stopConnection(scHandlerID, "leaving")) != ERROR_ok) {
+	
+	return 0;
+}
+
+void ClientTS::disconnect(){
+	unsigned int error;
+	if ((error = ts3client_stopConnection(session->scHandlerID, "leaving")) != ERROR_ok) {
 		printf("Error stopping connection: %d\n", error);
-		return 1;
+		return;
 	}
 
 	SLEEP(300);
 
 	/* Destroy server connection handler */
-	if ((error = ts3client_destroyServerConnectionHandler(scHandlerID)) != ERROR_ok) {
+	if ((error = ts3client_destroyServerConnectionHandler(session->scHandlerID)) != ERROR_ok) {
 		printf("Error destroying clientlib: %d\n", error);
-		return 1;
+		return;
 	}
 
 	/* Shutdown client lib */
 	if ((error = ts3client_destroyClientLib()) != ERROR_ok) {
 		printf("Failed to destroy clientlib: %d\n", error);
-		return 1;
+		return;
 	}
 
 	/* This is a small hack, to close an open recording sound file */
 	recordSound = 0;
 	ClientTS::onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
-	
-	return 0;
+
 }
 
 void ClientTS::emptyInputBuffer() {
@@ -1475,10 +1478,10 @@ void ClientTS::emptyInputBuffer() {
 }
 
 
-DWORD WINAPI STT_THREAD(LPVOID lpParameter)
+DWORD WINAPI ClientTS::STT_THREAD(LPVOID lpParameter)
 {
 	char translate_jar[512] = { "" }; //tsclient
-	/*while (1)
+	while (1)
 	{
 		Sleep(100);
 		FILE *trad;
@@ -1499,50 +1502,48 @@ DWORD WINAPI STT_THREAD(LPVOID lpParameter)
 				WinExec("del /F translate.txt", SW_HIDE);		//Delete translate file
 				remove("recorded.wav");
 				remove("translate.txt");
-				sound_flag = false;								//Inform all thread to finish operation
-				finish_ctrl_flag = false;							//Inform the pushtotalk thread to finish operation
-
-
+				Session::Instance()->sound_flag = false;								//Inform all thread to finish operation
+				Session::Instance()->finish_ctrl_flag = false;							//Inform the pushtotalk thread to finish operation
 			}
 
 
 		}
 		else goto a;
-	}*/
+	}
 }
 
-DWORD WINAPI TTS_THREAD(LPVOID lpParameter)
+DWORD WINAPI ClientTS::TTS_THREAD(LPVOID lpParameter)
 {
-	/*while (1)
+	while (1)
 	{
-		if (tts_flag == true)
+		if (Session::Instance()->tts_flag == true)
 		{
-			ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), (char*)strSpeak.mb_str().data());
+			ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), ""); /// (char*)strSpeak.mb_str().data());
 			Sleep(300);
-			tts_flag = false;
+			Session::Instance()->tts_flag = false;
 		}
 		Sleep(50);
 	}
-	return 0;*/
+	return 0;
 }
 
-DWORD WINAPI CTRL_STT(LPVOID lpParameter)
+DWORD WINAPI ClientTS::CTRL_STT(LPVOID lpParameter)
 {
 
-	/*while (1)
+	while (1)
 	{
-	/*	if (GetAsyncKeyState(VK_CONTROL) && finish_ctrl_flag == false)
+		if (GetAsyncKeyState(VK_CONTROL) && Session::Instance()->finish_ctrl_flag == false)
 		{
 			if (recorder->isRecording() == false)
 			{
-				//recorder->startRecordingBufferedAudio();
-				finish_ctrl_flag = true;
+				recorder->startRecordingBufferedAudio();
+				Session::Instance()->finish_ctrl_flag = true;
 			}
 			Sleep(50);
 		}
 
 		Sleep(50);
 
-	}*/
+	}
 	return 1;
 }

@@ -1,5 +1,4 @@
-#ifndef _FRMMAILSENDING_H
-#define _FRMMAILSENDING_H
+#pragma once
 
 #include <wx/wx.h>
 #include <wx/artprov.h>
@@ -63,4 +62,3 @@ public:
 
 };
 
-#endif

@@ -136,7 +136,11 @@ private:
 	wxMenu *ID_MNU_FILE_1001_Mnu_Obj;
 	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
 	wxBitmapButton *WxBitmapButton1;
-	ClientTS clientts;
+	/////
+	ClientTS clientts;   
+
+    COLORE *colors;
+
 	enum
 	{
 		////GUI Enum Control ID Start

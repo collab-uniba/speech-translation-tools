@@ -155,6 +155,8 @@ static DWORD myThreadID2;
 static DWORD myThreadID3;
 static DWORD myThreadID4;
 
+#define PORT 9987
+/*
 static int iresult;
 static short flag = 0; //Flag to exit from client
 
@@ -184,9 +186,9 @@ static bool finish_ctrl_flag = false;		//Flag to recognize CTRL press button
 static bool automatic_stt_flag = false;
 static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
 /*static unsigned int curRow = 0;			//Initialize Row index
-static unsigned int curCol = 0;			//Initialize Column index*/
-static wxGrid *gridptr;					//Pointer to edit the chatptr grid*/
-static uint64 _sclogID;
+static unsigned int curCol = 0;			//Initialize Column index
+static wxGrid *gridptr;					//Pointer to edit the chatptr grid
+static uint64 _sclogID;*/
 //uint64 _sclogID;
 //ArchiveLog * archivelog;
 //extern MESSAGE diary[MAXCHATSIZE];				//Structure to record log chatptr

@@ -10,6 +10,12 @@ Session::Session(){
 	this->m_config = std::make_shared<Config>();
 	this->m_pending = std::make_shared<std::vector<MessagePTR>>();
 	this->m_queue = std::make_shared<std::vector<MessagePTR>>();
+	sound_flag = false;			//Flag to start/stop 
+	tts_flag = false;				//Flag to start/stop TextToSpeech 		
+	write_flag = false;			//Flag to recognize Typing
+	tasto_stt_flag = false;		//Flag to activate Automatic SpeechToText
+	finish_ctrl_flag = false;		//Flag to recognize CTRL press button
+	automatic_stt_flag = false;
 }
 
 Session* Session::Instance()

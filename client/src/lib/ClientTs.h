@@ -73,6 +73,14 @@ public:
 	static char LANG_MSG_SRC[500];
 	static char MSG_SRC[500];
 	static cbClientTsFrm notifyMSGcb;
+	//static ISoundEngine* engine;				//Audio Engine to record sound
+	static IAudioRecorder* recorder;			//Flow of audio daa
+	//static uint64 scHandlerID;
+
+	static char identity[IDENTITY_BUFSIZE];
+
+	/* Create struct for callback function pointers */
+	static struct ClientUIFunctions funcs;
 public:
 	ClientTS(){
 		session = Session::Instance();
@@ -80,9 +88,11 @@ public:
 	}
 	virtual ~ClientTS(){}
 
+	static void disconnect();
 	static char* getLANG_MSG_SRC(){ return LANG_MSG_SRC; }
 
 	static char* getMSG_SRC(){ return MSG_SRC; }
+	static IAudioRecorder* getIAudioRecorder(){ return recorder; }
 
 	static bool getFlagSave(){ return flagSave; }
 
@@ -94,7 +104,7 @@ public:
 	static void Print(char*word);
 	static size_t read_callback(static void *ptr, size_t size, size_t nmemb, static void *userp);
 	static void writeWaveFile(const char* filename, SAudioStreamFormat format, static void* data);
-	static void SetupColor();
+	static void SetupColor(COLORE *c);
 	static void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
 	static void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID);
 	static void onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier);
@@ -128,6 +138,11 @@ public:
 	static void createDefaultChannelName(char *name);
 	static void enterName(char *name); 
 	static void emptyInputBuffer();
+
+	static DWORD WINAPI TTS_THREAD(LPVOID lpParameter);
+	static DWORD WINAPI CTRL_STT(LPVOID lpParameter);
+	static DWORD WINAPI ClientStart(LPVOID lpParameter);
+	static DWORD WINAPI STT_THREAD(LPVOID lpParameter);
 };
 
 /*struct user* getPerson();
@@ -137,8 +152,5 @@ void emptyInputBuffer();
 //void registercb(cbClientTsFrm fn);*/
 
 
-DWORD WINAPI TTS_THREAD(LPVOID lpParameter);
-DWORD WINAPI CTRL_STT(LPVOID lpParameter);
-DWORD WINAPI ClientStart(LPVOID lpParameter);
-DWORD WINAPI STT_THREAD(LPVOID lpParameter);
+
 

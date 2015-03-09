@@ -37,7 +37,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	//clientts.setCBClientTSMSG(notify);
 	//clientts = new ClientTS;
 	//session->registerObserver<ClientTsFrm>(*this);
-	std::string st = "holla";
+	colors = (COLORE*)malloc(10 * sizeof(COLORE));
 	session->registerObserver(EventTS::MSG_RCV, &notifyMSG, this);//.AddObserver(this);
 
 	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
@@ -184,14 +184,11 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	*/
 	txtnick->AppendText(config->getNick());
 	txtlingua->AppendText(config->getLanguage());
-	HANDLE myHandle = CreateThread(0, 0, ClientStart, NULL, 0, &myThreadID);
-	/*HANDLE myHandle2 = CreateThread(0, 0, TTS_THREAD, NULL, 0, &myThreadID2);
-	HANDLE myHandle3 = CreateThread(0, 0, STT_THREAD, NULL, 0, &myThreadID4);
-	HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);*/
-	clientts.SetupColor();
-	engine = irrklang::createIrrKlangDevice();
-	recorder = irrklang::createIrrKlangAudioRecorder(engine);
-	gridptr = gridchat;
+	HANDLE myHandle = CreateThread(0, 0, clientts.ClientStart, NULL, 0, &myThreadID);
+	HANDLE myHandle2 = CreateThread(0, 0, clientts.TTS_THREAD, NULL, 0, &myThreadID2);
+	HANDLE myHandle3 = CreateThread(0, 0, clientts.STT_THREAD, NULL, 0, &myThreadID4);
+	/*HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);*/
+	clientts.SetupColor(colors);
 	/*char *str = this->nations->Search(CURRENT_LANG, APICODE);
 	wchar_t* wString = new wchar_t[4096];
 	MultiByteToWideChar(CP_ACP, 0, str, -1, wString, 4096);
@@ -217,6 +214,7 @@ void ClientTsFrm::gridchatCellLeftClick(wxGridEvent& event)
 {
 	list<MESSAGE>::iterator iter;
 	iter = diary.begin();
+	wxString strSpeak;
 	for (int i = 0; i < event.GetRow(); i++) iter++; //point to the selected message in the grid
 
 	wxToolTip * tooltip = new wxToolTip((*iter).msgold);
@@ -224,7 +222,7 @@ void ClientTsFrm::gridchatCellLeftClick(wxGridEvent& event)
 	tooltip->SetMaxWidth(200);
 	strSpeak = wxString::FromAscii(strtok((char*)gridchat->GetCellValue(event.GetRow(), 0).mb_str().data(), ")"));
 	strSpeak = wxString::FromAscii(strtok(NULL, ":"));
-	if (event.GetCol() == 1) { tts_flag = true; }
+	if (event.GetCol() == 1) { session->tts_flag = true; }
 	if (event.GetCol() == 0) { gridchat->GetGridWindow()->SetToolTip(tooltip); }
 
 }
@@ -232,7 +230,7 @@ void ClientTsFrm::gridchatCellLeftClick(wxGridEvent& event)
 void ClientTsFrm::OnClose(wxCloseEvent& event)
 {
 	askForSaving();
-	flag = 1;
+	clientts.disconnect();
 	Sleep(300);
 	Destroy();
 }
@@ -323,7 +321,7 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 	wxString parsata = txtmsg->GetValue().ToUTF8(); //convert write message into UTF8
 	if (parsata == "") return;	//if the message is empty exit
 	txtmsg->DiscardEdits();		//Clear buffer of textbox
-	write_flag = false;
+	session->setwrite_flag(false);
 
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + parsata, (uint64)1, NULL);
 
@@ -355,8 +353,8 @@ void ClientTsFrm::txtmsgEnter(wxCommandEvent& event)
  */
 void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 {
-	automatic_stt_flag = !automatic_stt_flag;
-	if (automatic_stt_flag == false)
+	session->setautomatic_stt_flag(!session->getautomatic_stt_flag());
+	if (session->getautomatic_stt_flag() == false)
 	{
 		string stdisabled = "";
 		stdisabled.append(labels.enable);
@@ -383,13 +381,13 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	UserListPTR luser = Session::Instance()->getListUser();
 	clientts.setVadLevel(DEFAULT_VIRTUAL_SERVER);
-	if (txtmsg->IsModified()) 	write_flag = true;
+	if (txtmsg->IsModified()) 	session->setwrite_flag(true);
 	int i;
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
 		if ((*it)->getName() == config->getNick())
 		{
-			if ((*it)->getWrite() == 0 && write_flag)
+			if ((*it)->getWrite() == 0 && session->getwrite_flag())
 			{
 				wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
@@ -402,7 +400,7 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 void ClientTsFrm::Debug(wxCommandEvent& event)
 {
 	askForSaving();
-	flag = 1;
+	clientts.disconnect();
 	Sleep(300);
 	Destroy();
 }
@@ -416,16 +414,16 @@ void ClientTsFrm::Wizard(wxCommandEvent& event)
 
 void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
 {
-	tasto_stt_flag = !tasto_stt_flag;
-	if (tasto_stt_flag == false)
+	session->settasto_stt_flag(!session->gettasto_stt_flag());
+	if (session->gettasto_stt_flag() == false)
 	{
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, true);
 		WxBitmapButton1->SetBitmap(NULL);
 	}
 	else
 	{
-		sound_flag = true;
-		recorder->startRecordingBufferedAudio();
+		session->setsound_flag(true);
+		clientts.getIAudioRecorder()->startRecordingBufferedAudio();
 		WxBitmapButton1->SetBitmap(microphone_xpm);
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, false);
 	}
@@ -484,19 +482,18 @@ void ClientTsFrm::updatePanelMsg(){
 	UserListPTR luser = Session::Instance()->getListUser();
 	MessageQueuePTR lptr = Session::Instance()->getMessageQueue();
 
-	gridchat->AppendRows(1, true); //Add a new message row
+	
 	for (auto itmsg = lptr->cbegin(); itmsg != lptr->cend(); ++itmsg)
 	{
+		if (wxString::FromUTF8((*itmsg)->getMSG()) == ">" || wxString::FromUTF8((*itmsg)->getMSG()) == "</html>" || wxString::FromUTF8((*itmsg)->getMSG())[0] == '<' || wxString::FromUTF8((*itmsg)->getMSG())[0] == '>')
+			return;
 		gridchat->Scroll(curRow + 20, curCol + 20);
+		gridchat->AppendRows(1, true); //Add a new message row
 		wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
-		
 		gridchat->SetCellValue(messaggio, curRow, 0);
 	 	gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
 		gridchat->AutoSizeRow(curRow - 1, true);
 		gridchat->SetColSize(curCol + 1, 30);
- 
-	 
-		 
 	}
 /*
  

@@ -109,7 +109,7 @@ void TranslateController::parseBing(char *word)
 		printf("%s found at position %d\n", word, result);
 	else
 	{
-		ts3client_logMessage("Can't parse Bing result", LogLevel_ERROR, "Bing translate", _sclogID);
+		ts3client_logMessage("Can't parse Bing result", LogLevel_ERROR, "Bing translate", Session::Instance()->scHandlerID);
 		return;
 	}
 	for (i = 1; i < strlen(buffer); i++) 
@@ -140,7 +140,7 @@ void TranslateController::parseGoogle(char *str)
 	char * p = strstr(buffer, "Text");
 	if (p == NULL)
 	{
-		ts3client_logMessage("Can't parse Google result", LogLevel_ERROR, "Google translate", _sclogID);
+		ts3client_logMessage("Can't parse Google result", LogLevel_ERROR, "Google translate", Session::Instance()->scHandlerID);
 		return;
 	}
 	else
@@ -207,7 +207,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		}
 		else
 		{
-			ts3client_logMessage("Can't find Bing config file", LogLevel_WARNING, "Bing translate", _sclogID); 
+			ts3client_logMessage("Can't find Bing config file", LogLevel_WARNING, "Bing translate", Session::Instance()->scHandlerID); 
 			return "";
 		}
 
@@ -225,7 +225,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 
 		else
 		{
-			ts3client_logMessage("Cannot load file pagina.htm", LogLevel_ERROR, "File loading", _sclogID);
+			ts3client_logMessage("Cannot load file pagina.htm", LogLevel_ERROR, "File loading", Session::Instance()->scHandlerID);
 		}
 
 		ConnectionController::JSON();	//Parse answer for access_token value to start the translation
@@ -241,7 +241,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		}
 		else
 		{
-			ts3client_logMessage("Cannot create file JSON.txt", LogLevel_ERROR, "File saving", _sclogID);
+			ts3client_logMessage("Cannot create file JSON.txt", LogLevel_ERROR, "File saving", Session::Instance()->scHandlerID);
 		}
 		strcpy(header, "Authorization: Bearer ");
 		strcat(header, auth);
@@ -289,7 +289,7 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 			strcpy(errormessage, "curl_easy_perform() failed ");
 			strcat(errormessage, curl_easy_strerror(res2));
 
-			ts3client_logMessage(errormessage, LogLevel_ERROR, "Bing translate", _sclogID);
+			ts3client_logMessage(errormessage, LogLevel_ERROR, "Bing translate", Session::Instance()->scHandlerID);
 		}
 		curl_easy_cleanup(curl2);
 	}
@@ -357,7 +357,7 @@ char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 			strcpy(errormessage, "curl_easy_perform() failed");
 			strcat(errormessage, curl_easy_strerror(res));
 
-			ts3client_logMessage(errormessage, LogLevel_ERROR, "Google translate", _sclogID);
+			ts3client_logMessage(errormessage, LogLevel_ERROR, "Google translate", Session::Instance()->scHandlerID);
 		}
 
 		/* always cleanup */
