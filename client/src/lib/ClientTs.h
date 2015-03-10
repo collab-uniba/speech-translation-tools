@@ -25,8 +25,8 @@
 #include <wx/textctrl.h>
 #include <wx/button.h>
 #include <wx/grid.h>
-#include "../gui\NationList.h"
-#include "../gui\NationInfo.h" 
+#include "../gui/NationList.h"
+#include "../gui/NationInfo.h" 
 #include "../ArchiveLog.h"
 
 #include "../GlobalVariables.h"
@@ -42,27 +42,6 @@
 
 
 typedef std::function<void()> cbClientTsFrm;
-/*class ClientTsFrm; 
-
-typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
-/*
-void registerObserver(cbClientTsFrm fn, ClientTsFrm &obj);
-
-template <typename T> 
-struct ClientTS{
-	cbClientTsFrm cbfrm;
-	T clientfrm;
-	void registerObserver(cbClientTsFrm fn, T &obj){
-		cbfrm = fn;
-		clientfrm = obj;
-		fn(obj);
-	}
-};*/
- 
-
-/*class ClientTsFrm;
-
-typedef std::function<void(const ClientTsFrm&)> cbClientTsFrm;*/
 
 
 class ClientTS  {
@@ -86,7 +65,10 @@ public:
 		session = Session::Instance();
 		config = session->getConfig();
 	}
+
 	virtual ~ClientTS(){}
+
+	static void sendMessage(wxString *msgToSend);
 
 	static void disconnect();
 	static char* getLANG_MSG_SRC(){ return LANG_MSG_SRC; }

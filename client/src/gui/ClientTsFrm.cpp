@@ -19,12 +19,7 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
 END_EVENT_TABLE()
-/*
-void clienttsfrm::notify(observee* observee)
-{
-	//print();
-	cout << "oh no! the jewel is stolen! \n";
-}*/
+
 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
@@ -75,13 +70,10 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	gridchat->SetColSize(curCol, 610);
 	gridchat->SetColSize(curCol + 1, 30);
 
-	gridchat->AppendRows(1, true); //Add a new message row
-	wxString messaggio = wxString::FromUTF8("cosasasasadsdasd");
-
-	gridchat->SetCellValue(messaggio, curRow, 0);
+	/*gridchat->SetCellValue(messaggio, curRow, 0);
 	gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
 	gridchat->AutoSizeRow(curRow - 1, true);
-	gridchat->SetColSize(curCol + 1, 30);
+	gridchat->SetColSize(curCol + 1, 30);*/
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
@@ -316,19 +308,9 @@ void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
  */
 void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 {
-	char str[1024] = { "" };
-	strcpy(str, (const char*)txtmsg->GetValue().mb_str());
-	wxString parsata = txtmsg->GetValue().ToUTF8(); //convert write message into UTF8
-	if (parsata == "") return;	//if the message is empty exit
 	txtmsg->DiscardEdits();		//Clear buffer of textbox
-	session->setwrite_flag(false);
-
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + parsata, (uint64)1, NULL);
-
-	wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
+	clientts.sendMessage(&txtmsg->GetValue());
 	txtmsg->Clear();
-	ts3client_logMessage("Message send on chat", LogLevel_INFO, "Chat message", _sclogID);
 }
 
 /*

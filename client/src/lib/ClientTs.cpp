@@ -33,7 +33,18 @@ char  ClientTS::LANG_MSG_SRC[500] = { "" };
 Session* ClientTS::session = NULL;
 IAudioRecorder* ClientTS::recorder = irrklang::createIrrKlangAudioRecorder(irrklang::createIrrKlangDevice());			//Flow of audio daa
  
- 
+void ClientTS::sendMessage(wxString *msgToSend){ 
+	if (*msgToSend == "") return;	//if the message is empty exit
+ 	session->write_flag = false;
+
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + *msgToSend, (uint64)1, NULL);
+
+	wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
+	ts3client_logMessage("Message send on chat", LogLevel_INFO, "Chat message", Session::Instance()->scHandlerID);
+
+
+}
 
 void ClientTS::speak(char *LANG, char*MSG)
 {
