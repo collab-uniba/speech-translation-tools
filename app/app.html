@@ -14,56 +14,51 @@
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css(.tmp) styles/main.css -->
-  <!--<link rel="stylesheet" href="styles/main.css">-->
   <link href="styles/style.css" rel="stylesheet">
   <link href="styles/scrol-bars.css" rel="stylesheet">
+  <link rel="prefetch" type="application/l10n" href="localization/app.ini" />
   <!-- endbuild -->
 </head>
 <body>
 <form role="form" class="form-inline">
-    <div class="form-group">
-        <label id="username"></label>
+    <div class="form-group img-rounded" id="usernameDiv">
+        <label data-l10n-id="usernameLabel" id="username">Your username is:</label>
     </div>
 
     <br/><br/>
-    <div class="users-container"></div>
+    <div class="users-container img-rounded"></div>
 
-    <div id="partecipantsNumber" style="float:left;">Number of partecipants:</div> <div class="numbers-of-users">0</div>
-    <div class="scrollable users-list" style="width: 20%; float: left;" id="partecipants">
+    <div class="users-list img-rounded" id="partecipants">
+      <div id="partecipantsHeader">
+        <div data-l10n-id="partecipantsNumber" id="partecipantsNumber" style="float:left;">Number of partecipants:</div>
+        <div class="numbers-of-users">0</div>
+      </div>
+      <div id="partecipantsList" class="scrollable">
 
+      </div>
     </div>
 
-    <div class="scrollable" style="width: 70%;" id="messageboard">
+    <div class="scrollable img-rounded" id="messageboard"></div>
 
+    <div class="controls" style="float:left;">
+      <button data-l10n-id="allow-webcam" id="allow-webcam" class="icon img-rounded" disabled title="Enable your webcam"></button>
+      <button data-l10n-id="allow-mic" id="allow-mic" class="icon img-rounded" disabled title="Enable your microphone"></button>
+      <button data-l10n-id="openList" type="button" class="btn btn-default" id="openList">Show Video</button>
     </div>
-  <div class="main-input-box">
-    <textarea  placeholder="Send a message"></textarea>
 
+    <div class="main-input-box img-rounded">
+      <button data-l10n-id="sendText" type="button" class="btn btn-default" id="sendText">Send</button>
+      <textarea data-l10n-id="textArea"  placeholder="Send a message" id="textArea"></textarea>
+    </div>
 
-
-    <button type="button" class="btn btn-default" id="sendText">Send</button>
-  </div>
-
-  <div class="controls">
-    <button id="allow-webcam" class="icon" disabled title="Enable Your Webcam"></button>
-    <button id="allow-mic" class="icon" disabled title="Enable Your Microphone"></button>
-  </div>
-
-  <br/><br />
-
-    <button type="button" class="btn btn-default" id="openList">Show Video</button>
-
-    <br/><br />
-
-    <button type="button" class="btn btn-default" id="saveLog">Save log</button>
-    <br /><br />
-    <button type="button" class="btn btn-default" id="logout">Logout</button>
 </form>
 
 
 
 <div class="settings">
-  <button id="settingsButton" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">Settings</button>
+  <button data-l10n-id="settingsButton" id="settingsButton" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">Settings</button>
+  <button data-l10n-id="saveLog" type="button" class="btn btn-default" id="saveLog">Save log</button>
+  <button data-l10n-id="logout" type="button" class="btn btn-default" id="logout">Logout</button>
 </div>
 
 <!-- Large modal -->
@@ -72,37 +67,42 @@
     <div class="modal-content">
       <div class="modal-header">
         <button id="discardX" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Settings panel</h4>
+        <h4 data-l10n-id="settingsHeader" class="modal-title" id="settingsHeader">Settings panel</h4>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <input type="checkbox" id="autoTTS">
-          <label for="autoTTS" title="Click here to enable the automatic text to speech">Auto Text to Speech</label>
+          <label data-l10n-id="TTSLbl" for="autoTTS" title="Click here to enable the automatic Text to Speech">Auto Text to Speech</label>
         </div>
 
         <div class="form-group has-warning">
-          <label for="TTSengine" title="Select your preferred TTS engine">Select Text to Speech engine</label>
-          <select id="TTSengine" title="Select the TTS engine" data-width="auto">
+          <label data-l10n-id="TTSEngineLbl" for="TTSengine" title="Select your preferred TTS engine">Select Text to Speech engine</label>
+          <select data-l10n-id="TTSengine" id="TTSengine" title="Select the TTS engine" data-width="auto">
             <option value="0" selected>Google Translator</option>
             <option value="1">Microsoft Translator</option>
             <option value="2">eSpeak</option>
           </select>
-          <label id="char100" title="Limited to 100 characters" class="control-label">
+          <label data-l10n-id="char100" id="char100" title="Limited to 100 characters" class="control-label">
             <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> Please note that it is limited to 100 characters!!
           </label>
         </div>
 
         <div class="form-group">
-          <label for="MTengine" title="Select your preferred MT engine">Select Machine Translation engine</label>
-          <select id="MTengine" title="Select the MT engine" data-width="auto">
+          <input type="checkbox" id="autoTextTranslation" checked>
+          <label data-l10n-id="autoTextTranslationLbl" for="autoTextTranslation" title="Click here to enable the automatic translation for text messages">Auto translation for text messages</label>
+        </div>
+
+        <div class="form-group">
+          <label data-l10n-id="MTEngineLbl" for="MTengine" title="Select your preferred MT engine">Select Machine Translation engine</label>
+          <select data-l10n-id="MTengine" id="MTengine" title="Select the MT engine" data-width="auto">
             <option value="0" selected>Google Translator</option>
             <option value="1">Microsoft Translator</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button id="discard" type="button" class="btn btn-default" data-dismiss="modal">Close without saving</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+        <button data-l10n-id="discard" id="discard" type="button" class="btn btn-default" data-dismiss="modal">Close without saving</button>
+        <button data-l10n-id="save" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
       </div>
     </div>
   </div>
@@ -163,6 +163,7 @@
 
 <!-- build:js({app,.tmp}) scripts/app.js -->
 <!--<script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>-->
+<script src="scripts/l10n.js"></script>
 <script src="scripts/hark.bundle.js"></script>
 <script src="scripts/ui.main.js"></script>
 <script src="scripts/ui.peer-connection.js"></script>

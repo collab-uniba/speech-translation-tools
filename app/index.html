@@ -14,76 +14,81 @@
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css(.tmp) styles/main.css -->
-  <link rel="stylesheet" href="styles/main.css">
   <link href="styles/style.css" rel="stylesheet">
+  <link rel="prefetch" type="application/l10n" href="localization/index.ini" />
   <!-- endbuild -->
 </head>
 <body>
-<h1>Login</h1>
+  <img src="images/logo-collab.png" /><br/><br/>
+  <div id="content" class="img-rounded blue-border">
+    <h1 data-l10n-id="loginHeader">Login</h1>
 
-<form role="form" action="app.html" method="get">
-  <div class="form-group">
-    <label for="username">Username</label>
-    <input type="text" class="form-control" id="username" placeholder="Enter username">
+    <form role="form">
+      <div class="form-group">
+        <label data-l10n-id="lblUsername" for="username">Username</label>
+        <input data-l10n-id="username" type="text" class="form-control" id="username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label data-l10n-id="lblLanguage" for="language">Your language</label>
+        <select class="form-control" id="language">
+          <option data-l10n-id="en-US" value="en-US">English (US)</option>
+          <option data-l10n-id="it" value="it-IT">Italian</option>
+          <option data-l10n-id="pt-BR" value="pt-BR">Portoguese (BR)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label data-l10n-id="lblRoom" for="room">Room</label>
+        <select class="form-control" id="room">
+          <option value="room1">Room 1</option>
+        </select>
+      </div>
+      <button data-l10n-id="lblLogin" type="submit" class="btn btn-default" id="login">Login</button>
+    </form>
   </div>
-  <div class="form-group">
-    <label for="language">Your language</label>
-    <select class="form-control" id="language">
-      <option value="it-IT">Italian</option>
-      <option value="en-US">English (US)</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="room">Room</label>
-    <select class="form-control" id="room">
-      <option value="room1">Room 1</option>
-    </select>
-  </div>
-  <button type="submit" class="btn btn-default" id="login">Login</button>
-</form>
 
-<!-- build:js(.) scripts/vendor.js -->
-<!-- bower:js -->
-<script src="bower_components/jquery/dist/jquery.js"></script>
-<script src="bower_components/rtcmulticonnection/RTCMultiConnection.js"></script>
-<!-- endbower -->
-<!-- endbuild -->
+  <!-- build:js(.) scripts/vendor.js -->
+  <!-- bower:js -->
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/rtcmulticonnection/RTCMultiConnection.js"></script>
+  <!-- endbower -->
+  <!-- endbuild -->
 
-<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-<script>
+  <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+  <script>
   (function (b, o, i, l, e, r) {
     b.GoogleAnalyticsObject = l;
     b[l] || (b[l] =
       function () {
         (b[l].q = b[l].q || []).push(arguments)
       });
-    b[l].l = +new Date;
-    e = o.createElement(i);
-    r = o.getElementsByTagName(i)[0];
-    e.src = '//www.google-analytics.com/analytics.js';
-    r.parentNode.insertBefore(e, r)
-  }(window, document, 'script', 'ga'));
-  ga('create', 'UA-XXXXX-X');
-  ga('send', 'pageview');
-</script>
+      b[l].l = +new Date;
+      e = o.createElement(i);
+      r = o.getElementsByTagName(i)[0];
+      e.src = '//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e, r)
+    }(window, document, 'script', 'ga'));
+    ga('create', 'UA-XXXXX-X');
+    ga('send', 'pageview');
+    </script>
 
-<!-- build:js(.) scripts/plugins.js -->
-<script src="bower_components/bootstrap/js/affix.js"></script>
-<script src="bower_components/bootstrap/js/alert.js"></script>
-<script src="bower_components/bootstrap/js/dropdown.js"></script>
-<script src="bower_components/bootstrap/js/tooltip.js"></script>
-<script src="bower_components/bootstrap/js/modal.js"></script>
-<script src="bower_components/bootstrap/js/transition.js"></script>
-<script src="bower_components/bootstrap/js/button.js"></script>
-<script src="bower_components/bootstrap/js/popover.js"></script>
-<script src="bower_components/bootstrap/js/carousel.js"></script>
-<script src="bower_components/bootstrap/js/scrollspy.js"></script>
-<script src="bower_components/bootstrap/js/collapse.js"></script>
-<script src="bower_components/bootstrap/js/tab.js"></script>
-<!-- endbuild -->
+    <!-- build:js(.) scripts/plugins.js -->
+    <script src="bower_components/bootstrap/js/affix.js"></script>
+    <script src="bower_components/bootstrap/js/alert.js"></script>
+    <script src="bower_components/bootstrap/js/dropdown.js"></script>
+    <script src="bower_components/bootstrap/js/tooltip.js"></script>
+    <script src="bower_components/bootstrap/js/modal.js"></script>
+    <script src="bower_components/bootstrap/js/transition.js"></script>
+    <script src="bower_components/bootstrap/js/button.js"></script>
+    <script src="bower_components/bootstrap/js/popover.js"></script>
+    <script src="bower_components/bootstrap/js/carousel.js"></script>
+    <script src="bower_components/bootstrap/js/scrollspy.js"></script>
+    <script src="bower_components/bootstrap/js/collapse.js"></script>
+    <script src="bower_components/bootstrap/js/tab.js"></script>
+    <!-- endbuild -->
 
-<!-- build:js({app,.tmp}) scripts/index.js -->
-<script src="scripts/index.js"></script>
-<!-- endbuild -->
-</body>
+    <!-- build:js({app,.tmp}) scripts/index.js -->
+    <script src="scripts/l10n.js"></script>
+    <script src="scripts/index.js"></script>
+    <!-- endbuild -->
+  </body>
 </html>

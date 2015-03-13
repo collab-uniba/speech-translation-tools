@@ -14,27 +14,27 @@ function addPartecipant(args){
 
   var flag = document.createElement('img');
   flag.className = 'flags';
-  flag.src = "./images/flags/" + args.language.substring(3).toLowerCase() + ".png";
-  flag.style = "display: inline;"
+  flag.src = './images/flags/' + args.language.substring(3).toLowerCase() + '.png';
+  flag.style = 'display: inline;';
   newPartecipantDIV.appendChild(flag);
 
   var typing = document.createElement('img');
   typing.id = args.userid + 'typing';
   typing.className = 'hide';
-  typing.src = "./images/glyphicons-269-keyboard-wireless.png";
+  typing.src = './images/glyphicons-269-keyboard-wireless.png';
   newPartecipantDIV.appendChild(typing);
 
   var speaking = document.createElement('img');
   speaking.id = args.userid + 'speaking';
   speaking.className = 'hide';
-  speaking.src = "./images/glyphicons-185-volume-up.png";
+  speaking.src = './images/glyphicons-185-volume-up.png';
   newPartecipantDIV.appendChild(speaking);
 
-  document.getElementById('partecipants').appendChild(newPartecipantDIV);
+  document.getElementById('partecipantsList').appendChild(newPartecipantDIV);
 }
 
 function removePartecipant(args){
-  var partecipantDIV = document.getElementById(args.userid).remove();
+  document.getElementById(args.userid).remove();
 }
 
 
@@ -42,10 +42,14 @@ usersList.onclick = function() {
     if (usersList.className.indexOf('selected') != -1) {
         usersList.className = usersList.className.replace( / selected/g , '');
         usersContainer.style.display = 'none';
-        document.getElementById('openList').innerHTML = "Show Video";
+        document.getElementById('openList').innerHTML = _('openList');
+        getElement('#messageboard').style.height = '500px';
+        getElement('#partecipantsList').style.height = '453px';
     } else {
         usersList.className += ' selected';
         usersContainer.style.display = 'block';
-        document.getElementById('openList').innerHTML = "Hide Video";
+        document.getElementById('openList').innerHTML = _('closeList');
+        getElement('#messageboard').style.height = '200px';
+        getElement('#partecipantsList').style.height = '153px';
     }
 };
