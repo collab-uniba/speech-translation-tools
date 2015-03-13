@@ -72,20 +72,40 @@ rtcMultiConnection.onopen = function(e) {
     numbersOfUsers.innerHTML = parseInt(numbersOfUsers.innerHTML) + 1;
 };
 
+function whoIsSpeaking(event){
+  var userSpeaking = document.getElementById(event.userid + 'speaking');
+  if (event.data.speaking) {
+    userSpeaking.className = "who-is-speaking";
+    return;
+  }
+
+  if (event.data.stoppedSpeaking) {
+    userSpeaking.className = "hide";
+    return;
+  }
+
+  userSpeaking.className = "hide";
+}
 
 rtcMultiConnection.onmessage = function(e) {
-  var whoIsTyping = document.getElementById(e.userid).lastChild;
-  if (e.data.typing) {
-    whoIsTyping.className = "who-is-typing";
-    return;
-  }
+  if(e.data.typing || e.data.stoppedTyping) {
+    var whoIsTyping = document.getElementById(e.userid + 'typing');
+    if (e.data.typing) {
+      whoIsTyping.className = "who-is-typing";
+      return;
+    }
 
-  if (e.data.stoppedTyping) {
+    if (e.data.stoppedTyping) {
+      whoIsTyping.className = "hide";
+      return;
+    }
+
     whoIsTyping.className = "hide";
+  }
+  else if(e.data.speaking || e.data.stoppedSpeaking){
+    whoIsSpeaking(e);
     return;
   }
-
-  whoIsTyping.className = "hide";
 
   //translate the incoming message only if the message language is different from the user language
   //and it's not transcribed with the speech recognition

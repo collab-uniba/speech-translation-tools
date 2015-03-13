@@ -343,6 +343,8 @@ getElement('#allow-webcam').onclick = function() {
         var streamid = rtcMultiConnection.token();
         rtcMultiConnection.customStreams[streamid] = stream;
 
+        speakingNotification(stream);
+
         rtcMultiConnection.sendMessage({
             hasCamera: true,
             streamid: streamid,
@@ -358,6 +360,8 @@ getElement('#allow-mic').onclick = function() {
     rtcMultiConnection.captureUserMedia(function(stream) {
         var streamid = rtcMultiConnection.token();
         rtcMultiConnection.customStreams[streamid] = stream;
+
+        speakingNotification(stream);
 
         rtcMultiConnection.sendMessage({
             hasMic: true,
@@ -381,3 +385,20 @@ getElement('#allow-mic').onclick = function() {
   }, rtcMultiConnection.extra.language);
 
 };
+
+function speakingNotification(audioStream){
+  var options = {};
+  var speechEvents = hark(audioStream, options);
+
+  speechEvents.on('speaking', function() {
+    rtcMultiConnection.send({
+      speaking: true
+    });
+  });
+
+  speechEvents.on('stopped_speaking', function() {
+    rtcMultiConnection.send({
+      stoppedSpeaking: true
+    });
+  });
+}

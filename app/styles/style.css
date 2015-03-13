@@ -307,11 +307,20 @@ small {
     border: 0!important;
     vertical-align: middle;
 }
+
 .who-is-typing
 {
   display: inline;
   float: right;
+  margin: 0 18px 0 0;
+}
+
+.who-is-speaking
+{
+  display: inline;
+  float: right;
   margin: 0 18px;
+  max-height: 20px;
 }
 
 .playIcon{

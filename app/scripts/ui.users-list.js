@@ -19,9 +19,16 @@ function addPartecipant(args){
   newPartecipantDIV.appendChild(flag);
 
   var typing = document.createElement('img');
+  typing.id = args.userid + 'typing';
   typing.className = 'hide';
   typing.src = "./images/glyphicons-269-keyboard-wireless.png";
   newPartecipantDIV.appendChild(typing);
+
+  var speaking = document.createElement('img');
+  speaking.id = args.userid + 'speaking';
+  speaking.className = 'hide';
+  speaking.src = "./images/glyphicons-185-volume-up.png";
+  newPartecipantDIV.appendChild(speaking);
 
   document.getElementById('partecipants').appendChild(newPartecipantDIV);
 }
