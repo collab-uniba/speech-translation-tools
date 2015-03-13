@@ -76,16 +76,16 @@ rtcMultiConnection.onopen = function(e) {
 rtcMultiConnection.onmessage = function(e) {
   var whoIsTyping = document.getElementById(e.userid).lastChild;
   if (e.data.typing) {
-    whoIsTyping.innerHTML = ' is typing ...';
+    whoIsTyping.className = "who-is-typing";
     return;
   }
 
   if (e.data.stoppedTyping) {
-    whoIsTyping.innerHTML = '';
+    whoIsTyping.className = "hide";
     return;
   }
 
-  whoIsTyping.innerHTML = '';
+  whoIsTyping.className = "hide";
 
   //translate the incoming message only if the message language is different from the user language
   //and it's not transcribed with the speech recognition

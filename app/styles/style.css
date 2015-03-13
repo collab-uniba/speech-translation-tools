@@ -309,10 +309,9 @@ small {
 }
 .who-is-typing
 {
-	text-align: left;
-	position: absolute;
-	margin: 0 18px;
-	color: red;
+  display: inline;
+  float: right;
+  margin: 0 18px;
 }
 
 .playIcon{
