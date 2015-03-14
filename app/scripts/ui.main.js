@@ -58,7 +58,6 @@ function addSysMessage(args) {
 
   var p = document.createElement('p');
   p.className = 'system-message';
-  p.style = 'display: inline;width: 60%;margin: 0 auto;color: #FFFFFF;';
   p.innerHTML = args.message;
   userActivityDIV.appendChild(p);
 
@@ -91,8 +90,6 @@ function addNewMessage(args) {
 
       var username = document.createElement('p');
       username.innerHTML = args.header;
-      username.style.color = args.color;
-      username.style.fontWeight = 'bold';
       translatedMessage.appendChild(username);
 
       var playTTS = document.createElement('img');
@@ -142,6 +139,7 @@ function addNewMessage(args) {
 
       var label = document.createElement('p');
       label.innerHTML = _('originalText');
+      label.className = 'bold';
       originalMessage.appendChild(label);
     }else{
       var username = document.createElement('p');
@@ -170,11 +168,16 @@ function addNewMessage(args) {
 
 
     //if the message is from the user itself, use another class
-    if(args.source == rtcMultiConnection.userid)
+    if(args.source == rtcMultiConnection.userid){
       newMessageDIV.className = 'user-activity-me img-rounded';
+      newMessageDIV.lastChild.firstChild.style.fontWeight = 'bold';
+      newMessageDIV.lastChild.firstChild.style.color = 'forestgreen';
+    }
     else{
       newMessageDIV.className = 'user-activity img-rounded';
       newMessageDIV.style.borderColor = args.color;
+      newMessageDIV.children[1].firstChild.style.fontWeight = 'bold';
+      newMessageDIV.children[1].firstChild.style.color = args.color;
     }
 
 
@@ -254,12 +257,12 @@ window.onload = function() {
       message: _('searchingRoom'),
       userinfo: '<img src="images/action-needed.png">'
     });
-  },500);
+  },550);
 
   addPartecipant({
     username: username,
     userid: rtcMultiConnection.userid,
-    color: '#000000',
+    color: 'forestgreen',
     language: language
   });
 
@@ -381,16 +384,42 @@ getElement('#allow-webcam').onclick = function() {
 
         speakingNotification(stream);
 
+        transcript();
+
+        if(getElement('.users-container').style.display === 'none')
+          getElement('#openList').click();
+
         rtcMultiConnection.sendMessage({
             hasCamera: true,
             streamid: streamid,
             session: session
         });
+
+        getElement('#allow-webcam').className = 'hide';
+        getElement('#close-webcam').className = 'btn-default icon img-rounded';
+        getElement('#close-webcam').disabled = false;
+        getElement('#allow-mic').disabled = true;
     }, session);
+};
+
+getElement('#close-webcam').onclick = function() {
+  this.disabled = true;
+  this.className = 'hide';
+  speechEvents.stop(); //stops Hark
+  translator.stopTranscript(); //stops speak recognition
+  rtcMultiConnection.streams.stop('local');
+  var element = getElement('#media'+ rtcMultiConnection.userid);
+  if(element)
+    element.parentNode.removeChild(element);
+
+  getElement('#allow-webcam').className = 'btn-default icon img-rounded';
+  getElement('#allow-webcam').disabled = false;
+  getElement('#allow-mic').disabled = false;
 };
 
 getElement('#allow-mic').onclick = function() {
     this.disabled = true;
+
     var session = { audio: true };
 
     rtcMultiConnection.captureUserMedia(function(stream) {
@@ -399,14 +428,37 @@ getElement('#allow-mic').onclick = function() {
 
         speakingNotification(stream);
 
+        transcript();
+
         rtcMultiConnection.sendMessage({
             hasMic: true,
             streamid: streamid,
             session: session
         });
-    }, session);
 
-  var translator = new Translator();
+        getElement('#allow-mic').className = 'hide';
+        getElement('#close-mic').className = 'btn-default icon img-rounded';
+        getElement('#close-mic').disabled = false;
+    }, session);
+};
+
+getElement('#close-mic').onclick = function() {
+  this.disabled = true;
+  this.className = 'hide';
+  speechEvents.stop(); //stops Hark
+  translator.stopTranscript(); //stops speak recognition
+  rtcMultiConnection.streams.stop('local');
+  var element = getElement('#media'+ rtcMultiConnection.userid);
+  if(element)
+    element.parentNode.removeChild(element);
+
+  getElement('#allow-mic').className = 'btn-default icon img-rounded';
+  getElement('#allow-mic').disabled = false;
+};
+
+var translator;
+function transcript(){
+  translator = new Translator();
   translator.voiceToText(function (text) {
 
 
@@ -419,12 +471,12 @@ getElement('#allow-mic').onclick = function() {
     rtcMultiConnection.send({message: text, transcribed: true});
 
   }, rtcMultiConnection.extra.language);
+}
 
-};
-
+var speechEvents;
 function speakingNotification(audioStream){
   var options = {};
-  var speechEvents = hark(audioStream, options);
+  speechEvents = hark(audioStream, options);
 
   speechEvents.on('speaking', function() {
     rtcMultiConnection.send({
@@ -440,6 +492,9 @@ function speakingNotification(audioStream){
 }
 
 getElement('#logout').onclick = function() {
+  if(confirm(_('saveLogConfirm')))
+    saveLog();
+
   rtcMultiConnection.leave();
   localStorage.clear();
   window.location.replace('./index.html');

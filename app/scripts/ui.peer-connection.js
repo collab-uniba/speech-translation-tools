@@ -136,7 +136,7 @@ rtcMultiConnection.onmessage = function(e) {
         translator.translateLanguage(e.data.message, {
           from: e.extra.language.substring(0, 2),
           to: rtcMultiConnection.extra.language.substring(0, 2),
-          api_key: 'AIzaSyAs8hCMuWBOOfOo3kbnUWqzuu10r1j1-io', // use your own key
+          api_key: 'AIzaSyBADiOrgX7ov4A5r6q23o6DE782QNnbrN4', // use your own key
           callback: function (translatedText) {
             addNewMessage({
               header: e.extra.username,
@@ -225,10 +225,17 @@ rtcMultiConnection.onCustomMessage = function(message) {
                         streamid: message.streamid,
                         session: message.session
                     });
+                    if(getElement('.users-container').style.display === 'none')
+                      getElement('#openList').click();
                 };
 
                 div.querySelector('#share-your-cam').onclick = function() {
                     this.disabled = true;
+                    getElement('#allow-webcam').disabled = true;
+                    getElement('#allow-webcam').className = 'hide';
+                    getElement('#close-webcam').className = 'btn-default icon img-rounded';
+                    getElement('#close-webcam').disabled = false;
+                    getElement('#allow-mic').disabled = true;
 
                     if (!message.hasScreen) {
                         session = { audio: true, video: true };
@@ -267,6 +274,10 @@ rtcMultiConnection.onCustomMessage = function(message) {
 
                 div.querySelector('#share-your-mic').onclick = function() {
                     this.disabled = true;
+                    getElement('#allow-mic').disabled = true;
+                    getElement('#allow-mic').className = 'hide';
+                    getElement('#close-mic').className = 'btn-default icon img-rounded';
+                    getElement('#close-mic').disabled = false;
 
                     var session = { audio: true };
 
@@ -305,24 +316,69 @@ rtcMultiConnection.onstream = function(e) {
         addSysMessage({
             header: e.extra.username,
             message: e.extra.username + ' ' + _('enabledWebcam'),
-            userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></vide>',
+            userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></video>',
             color: e.extra.color
         });
     } else {
         addSysMessage({
             header: e.extra.username,
             message: e.extra.username + ' ' + _('enabledMicrophone'),
-            userinfo: '<audio src="' + URL.createObjectURL(e.stream) + '" controls muted=true volume=0></vide>',
+            userinfo: '<audio src="' + URL.createObjectURL(e.stream) + '" controls muted=true volume=0></audio>',
             color: e.extra.color
         });
     }
-    usersContainer.appendChild(e.mediaElement);
+
+    var container = document.createElement('div');
+    container.style.height = '100%';
+    container.style.padding = '5px';
+    usersContainer.appendChild(container);
+    var media = document.createElement('div');
+    media.style.height = 'calc(100% - 30px)';
+    if(!e.stream.getVideoTracks().length){
+      media.style.border = '1px solid';
+      var audioText = document.createElement('p');
+      audioText.innerHTML = _('audioText');
+      audioText.className = 'audioText';
+      media.appendChild(audioText);
+    }
+
+    media.appendChild(e.mediaElement);
+    container.appendChild(media);
+    var name = document.createElement('p');
+    name.innerHTML = e.extra.username;
+    if(e.userid == rtcMultiConnection.userid){
+      container.id = 'media' + rtcMultiConnection.userid;
+      name.style.color = 'forestgreen';
+    }
+    else{
+      container.id = 'media' + e.userid;
+      name.style.color = e.extra.color;
+    }
+
+    name.style.textAlign = 'center';
+    container.appendChild(name);
 };
 
 rtcMultiConnection.sendMessage = function(message) {
     message.userid = rtcMultiConnection.userid;
     message.extra = rtcMultiConnection.extra;
     rtcMultiConnection.sendCustomMessage(message);
+};
+
+rtcMultiConnection.onstreamended = function(e) {
+  var element = getElement('#media'+ e.userid);
+  if(element)
+    element.parentNode.removeChild(element);
+
+  if(e.isVideo)
+    addSysMessage({
+        message: e.extra.username + ' ' + _('disabledWebcam'),
+    });
+  else
+    addSysMessage({
+        message: e.extra.username + ' ' + _('disabledMicrophone'),
+    });
+
 };
 
 rtcMultiConnection.onclose = rtcMultiConnection.onleave = function(event) {

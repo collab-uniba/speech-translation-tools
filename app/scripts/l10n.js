@@ -1004,7 +1004,7 @@ document.webL10n = (function(window, document, undefined) {
     if (document.documentElement.lang === userLocale) {
       loadLocale(userLocale);
     } else {
-      loadLocale(userLocale, translateFragment);
+      //loadLocale(userLocale, translateFragment);
     }
   }
 
@@ -1190,4 +1190,3 @@ document.webL10n = (function(window, document, undefined) {
 if (window._ === undefined) {
   var _ = document.webL10n.get;
 }
-

@@ -22,11 +22,11 @@
 <body>
 <form role="form" class="form-inline">
     <div class="form-group img-rounded" id="usernameDiv">
-        <label data-l10n-id="usernameLabel" id="username">Your username is:</label>
+        <p data-l10n-id="usernameLabel" id="username">Your username is:</p>
     </div>
 
     <br/><br/>
-    <div class="users-container img-rounded"></div>
+    <div class="users-container img-rounded" style='display:none;'></div>
 
     <div class="users-list img-rounded" id="partecipants">
       <div id="partecipantsHeader">
@@ -41,8 +41,10 @@
     <div class="scrollable img-rounded" id="messageboard"></div>
 
     <div class="controls" style="float:left;">
-      <button data-l10n-id="allow-webcam" id="allow-webcam" class="icon img-rounded" disabled title="Enable your webcam"></button>
-      <button data-l10n-id="allow-mic" id="allow-mic" class="icon img-rounded" disabled title="Enable your microphone"></button>
+      <button data-l10n-id="allow-webcam" id="allow-webcam" class="btn-default icon img-rounded" disabled title="Enable your webcam"></button>
+      <button data-l10n-id="close-webcam" id="close-webcam" class="hide btn-default icon img-rounded" title="Disable your webcam"></button>
+      <button data-l10n-id="allow-mic" id="allow-mic" class="btn-default icon img-rounded" disabled title="Enable your microphone"></button>
+      <button data-l10n-id="close-mic" id="close-mic" class="hide btn-default icon img-rounded" title="Disable your microphone"></button>
       <button data-l10n-id="openList" type="button" class="btn btn-default" id="openList">Show Video</button>
     </div>
 
@@ -78,11 +80,11 @@
         <div class="form-group has-warning">
           <label data-l10n-id="TTSEngineLbl" for="TTSengine" title="Select your preferred TTS engine">Select Text to Speech engine</label>
           <select data-l10n-id="TTSengine" id="TTSengine" title="Select the TTS engine" data-width="auto">
-            <option value="0" selected>Google Translator</option>
-            <option value="1">Microsoft Translator</option>
+            <option value="1" selected>Microsoft Translator</option>
+            <option value="0">Google Translator</option>
             <option value="2">eSpeak</option>
           </select>
-          <label data-l10n-id="char100" id="char100" title="Limited to 100 characters" class="control-label">
+          <label data-l10n-id="char100" id="char100" title="Limited to 100 characters" class="control-label hide">
             <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> Please note that it is limited to 100 characters!!
           </label>
         </div>
