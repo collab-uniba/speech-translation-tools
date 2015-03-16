@@ -78,7 +78,12 @@ public:
 	UserListPTR getListUser(){ return m_luser; }
 	void setListUser(UserListPTR luser){ this->m_luser = luser; }
 
-	MessageQueuePTR getMessageQueue(){ return m_pending; }
+	MessagePTR getMessage(){ 
+		m_queue->push_back(m_pending);
+		return m_pending;
+	}
+
+	MessageQueuePTR getMessageQueue(){ return m_queue; }
 
 	char* Session::getApiGoogle();
 
@@ -87,7 +92,6 @@ public:
 	void deleteUser(UserPTR u);
 	bool checkUser(UserPTR u);	
 	bool checkUser(const char* u);
-
 
 	void addMSG(MessagePTR msg);
 
@@ -102,7 +106,7 @@ private:
 	ConfigPTR m_config;
 	UserListPTR m_luser;
 	char* m_translationEngine;
-	MessageQueuePTR m_pending;
+	MessagePTR m_pending;
 	MessageQueuePTR m_queue;
 };
 

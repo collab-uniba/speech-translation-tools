@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <stdio.h>
+#include <wx/string.h>
 #include <vector>
 
 #include <memory>
@@ -15,21 +16,23 @@ enum MSGDirection{
 
 class Message {
 public:
-	Message(MSGDirection dir, char* from, char* message, char* language) : m_message(message), m_dir(dir), m_from(from), m_language(language) { }
+	Message(MSGDirection dir, wxString from, wxString message, wxString language) : m_message(message), m_dir(dir), m_from(from), m_language(language) { }
 	~Message(){ }
 
 	void setIO(MSGDirection dir);
 	MSGDirection* getIO();
 	void setFrom(char* dir);
-	char* getFrom(){ return m_from; };
+	wxString getFrom(){ return m_from; };
 
-	void setMSG(char* dir){ m_from = strupr(dir); };
-	char* getMSG(){ return m_message; }
+	void setMSG(wxString dir){
+		m_from = dir;
+	};
+	wxString getMSG(){ return m_message; }
 private:
 	MSGDirection m_dir;
-	char* m_language;
-	char* m_from;
-	char* m_message;
+	wxString m_language;
+	wxString m_from;
+	wxString m_message;
 };
  
 

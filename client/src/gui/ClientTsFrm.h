@@ -42,6 +42,7 @@
 #include <wx/richtext/richtextctrl.h>
 #include <wx/textctrl.h>
 #include <wx/button.h>
+#include <wx/listctrl.h>
 #include <wx/grid.h>
 
 #include "../GlobalVariables.h"
@@ -75,7 +76,7 @@ private:
 	void ClientTsFrmActivate(wxActivateEvent& event);
 	void WxButton2Click(wxCommandEvent& event);
 	void WxTimer2Timer(wxTimerEvent& event);
-	void gridchatCellLeftClick(wxGridEvent& event);
+	void gridchatCellLeftClick(wxListEvent& event);
 	void Debug(wxCommandEvent& event);
 	void Wizard(wxCommandEvent& event);
 	void WxBitmapButton1Click(wxCommandEvent& event);
@@ -138,6 +139,7 @@ private:
 	wxBitmapButton *WxBitmapButton1;
 	/////
 	ClientTS clientts;   
+	wxListCtrl* chatbox;
 
     COLORE *colors;
 

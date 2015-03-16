@@ -8,7 +8,6 @@ Session* Session::m_pInstance = NULL;
 Session::Session(){
 	this->m_luser = std::make_shared<UserList>();
 	this->m_config = std::make_shared<Config>();
-	this->m_pending = std::make_shared<std::vector<MessagePTR>>();
 	this->m_queue = std::make_shared<std::vector<MessagePTR>>();
 	sound_flag = false;			//Flag to start/stop 
 	tts_flag = false;				//Flag to start/stop TextToSpeech 		
@@ -31,7 +30,7 @@ char* Session::getApiGoogle(){
 
 
 void Session::addMSG(MessagePTR msg){
-	m_pending->push_back(msg);
+	m_pending = msg;
 	notify(EventTS::MSG_RCV);
 }
 

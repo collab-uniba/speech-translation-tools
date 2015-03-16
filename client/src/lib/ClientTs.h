@@ -28,6 +28,7 @@
 #include "../gui/NationList.h"
 #include "../gui/NationInfo.h" 
 #include "../ArchiveLog.h"
+#include <wx/thread.h>
 
 #include "../GlobalVariables.h"
 #include "../translateController/translateController.h"
@@ -50,6 +51,8 @@ public:
 	static ConfigPTR config;
 	static bool flagSave;
 	static char LANG_MSG_SRC[500];
+	static long text_to_speech;
+	static wxSemaphore thread_semaphore;
 	static char MSG_SRC[500];
 	static cbClientTsFrm notifyMSGcb;
 	//static ISoundEngine* engine;				//Audio Engine to record sound
@@ -82,7 +85,7 @@ public:
 	template <typename Observer>
 	static void setCBClientTSMSG(Observer && fn){ notifyMSGcb = std::forward<Observer>(fn); }
 
-	static void speak(char *LANG, char*MSG);
+	static void speak(const char *LANG, const char*MSG);
 	static void Print(char*word);
 	static size_t read_callback(static void *ptr, size_t size, size_t nmemb, static void *userp);
 	static void writeWaveFile(const char* filename, SAudioStreamFormat format, static void* data);

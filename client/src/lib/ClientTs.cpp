@@ -26,7 +26,10 @@ it has two parameters: the language of message and body of message
 
 std::list<MESSAGE> diary;
 
+wxSemaphore ClientTS::thread_semaphore = 0;
+
 char ClientTS::MSG_SRC[500] = { "" };
+long ClientTS::text_to_speech = 0L;
 ConfigPTR ClientTS::config = NULL;
 bool ClientTS::flagSave = false;
 char  ClientTS::LANG_MSG_SRC[500] = { "" }; 
@@ -42,11 +45,9 @@ void ClientTS::sendMessage(wxString *msgToSend){
 	wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 	ts3client_logMessage("Message send on chat", LogLevel_INFO, "Chat message", Session::Instance()->scHandlerID);
-
-
 }
 
-void ClientTS::speak(char *LANG, char*MSG)
+void ClientTS::speak(const char *LANG, const char*MSG)
 {
 	HRESULT hr = S_OK;
 	CComPtr <ISpVoice>		cpVoice;
@@ -826,7 +827,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	//if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
 		StringTranslate = wxString::FromAscii(MSG_SRC);
-		msgC = std::make_shared<Message>(MSGDirection::out, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
+		msgC = std::make_shared<Message>(MSGDirection::out, strNick, strMessage, LANG_MSG_SRC);
 		session->addMSG(msgC);
 		///	callbckFrmGUI.notifyMsg(msgC);
 //		notify(EventTS::MSG_RCV);
@@ -1492,11 +1493,9 @@ void ClientTS::emptyInputBuffer() {
 DWORD WINAPI ClientTS::STT_THREAD(LPVOID lpParameter)
 {
 	char translate_jar[512] = { "" }; //tsclient
+	FILE *trad;
 	while (1)
 	{
-		Sleep(100);
-		FILE *trad;
-	a:
 		Sleep(100);
 		if (trad = fopen("translate.txt", "r")) //if file exist read the string from nuance dragon service
 		{
@@ -1516,10 +1515,7 @@ DWORD WINAPI ClientTS::STT_THREAD(LPVOID lpParameter)
 				Session::Instance()->sound_flag = false;								//Inform all thread to finish operation
 				Session::Instance()->finish_ctrl_flag = false;							//Inform the pushtotalk thread to finish operation
 			}
-
-
 		}
-		else goto a;
 	}
 }
 
@@ -1527,13 +1523,14 @@ DWORD WINAPI ClientTS::TTS_THREAD(LPVOID lpParameter)
 {
 	while (1)
 	{
-		if (Session::Instance()->tts_flag == true)
-		{
-			ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), ""); /// (char*)strSpeak.mb_str().data());
-			Sleep(300);
-			Session::Instance()->tts_flag = false;
-		}
-		Sleep(50);
+		thread_semaphore.Wait();
+		MessageQueuePTR ld = Session::Instance()->getMessageQueue();
+		auto  s = ld->begin();
+		auto  se =  ld->begin() + text_to_speech;  
+		ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), (*se)->getMSG().mb_str().data());
+
+		//}
+		//ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), ""); /// (char*)strSpeak.mb_str().data());
 	}
 	return 0;
 }
