@@ -74,12 +74,10 @@ FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title,
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer(wxHORIZONTAL);
 
-
 	bSizer4->Add(0, 0, 1, wxEXPAND, 5);
 
 	btnConfirm = new wxButton(this, wxID_ANY, labels.confirm, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer4->Add(btnConfirm, 0, wxALL, 5);
-
 
 	bSizer1->Add(bSizer4, 1, wxEXPAND, 5);
 
@@ -163,17 +161,19 @@ void FrmSaveChat::btnConfirmClick(wxCommandEvent& event)
 void FrmSaveChat::saveChatCSV(const char* filename){
 	configr = fopen(filename, "w");
 
-	list<MESSAGE>::iterator iter;
-	for (iter = diary.begin(); iter != diary.end(); iter++){
+	MessageQueuePTR msg_queue = Session::Instance()->getMessageQueue();
 
-		fprintf(configr, "\"" + (*iter).nick + "\";");
-		fprintf(configr, "\"" + (*iter).timestamp + "\";");
-		fprintf(configr, "\"" + (*iter).msgDir + "\";");
+	std::vector<MessagePTR>::iterator iter;
+	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
-		if (strcmp((*iter).msgDir, "-->"))
-			fprintf(configr, "\"" + (*iter).msgold + "\"\n");
-		else
-			fprintf(configr, "\"" + (*iter).lang + ";\"" + (*iter).msgold + ";\"#orig#\";\"" + settings->getLanguage() + ";\"" + (*iter).msgnew + "\"\n");
+		fprintf(configr, "\"" + (*iter)->getFrom() + "\";");
+		fprintf(configr, "\"" + (*iter)->getTimestamp() + "\";");
+		if (MSGDirection::out == (*iter)->getIO())
+		{
+			fprintf(configr, "\" ---> " + (*iter)->getMSG() + "\"\n");
+		}else{
+			fprintf(configr, "\" <--- " + (*iter)->getLaguage() + ";\"" + (*iter)->getMSG() + ";\"#orig#\";\"" + settings->getLanguage() + ";\"" + (*iter)->getTranslated() + "\"\n");
+		}  
 	}
 
 	fflush(configr);
@@ -182,21 +182,23 @@ void FrmSaveChat::saveChatCSV(const char* filename){
 
 void FrmSaveChat::saveChatTXT(const char* filename){
 
+	MessageQueuePTR msg_queue = Session::Instance()->getMessageQueue();
 	configr = fopen(filename, "w");
 
-	list<MESSAGE>::iterator iter;
-	for (iter = diary.begin(); iter != diary.end(); iter++){
+	vector<MessagePTR>::iterator iter;
+	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
-		fprintf(configr, (*iter).nick + " || ");
-		fprintf(configr, (*iter).timestamp + "  || ");
-		fprintf(configr, (*iter).msgDir + " ");
+		fprintf(configr, (*iter)->getFrom() + " || ");
+		fprintf(configr, (*iter)->getTimestamp() + "  || "); 
 
-		if (strcmp((*iter).msgDir, "-->") == 0)
-			fprintf(configr, (*iter).msgold + "\n");
-		else
-			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter).lang,(*iter).msgold, settings->getLanguage(),(*iter).msgnew);
+		if (MSGDirection::out == (*iter)->getIO())
+		{
+			fprintf(configr, " ---> " + (*iter)->getMSG() + "\n");
+		}
+		else{
+			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter)->getLaguage(), (*iter)->getMSG(), settings->getLanguage(), (*iter)->getTranslated());
+		}			
 	}
-	//Session::Instance()->getLanguage() 
 
 	fflush(configr);
 	fclose(configr);

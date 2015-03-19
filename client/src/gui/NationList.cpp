@@ -13,7 +13,7 @@ NationList::~NationList()
 	free(this->nations);
 }
 
-bool NationList::ReadFromFile(string path)
+bool NationList::ReadFromFile(const char* path)
 {
 	bool flagn = true;
 	string line;
@@ -54,12 +54,12 @@ vector<NationInfo>* NationList::GetList()
 	return this->nations;
 }
 
-char* NationList::Search(string language, SEARCHPARAMETER parameter)
+char* NationList::Search(const wxString *language, const SEARCHPARAMETER parameter)
 {
 	char* flag = "false";
 	for (int i = 0; i < this->nations->size(); i++)
 	{
-		if (strcmp(this->nations->at(i).GetLanguage(),language.c_str())==0)
+		if (strcmp(this->nations->at(i).GetLanguage(),language->mb_str())==0)
 		{
 			flag = "true";
 			switch (parameter)
@@ -76,15 +76,15 @@ char* NationList::Search(string language, SEARCHPARAMETER parameter)
 			};
 		}
 	}
-	if (strcmp(flag, "false") == 0) return flag;
+	return flag;
 }
 
-char* NationList::SearchForLocale(string language, string nation)
+char* NationList::SearchForLocale(const wxString* language, const wxString* nation)
 {
 	char temp[20];
 	for (int i = 0; i < this->nations->size(); i++)
 	{
-		if ((strcmp(this->nations->at(i).GetLanguage(),language.c_str()) == 0) && (strcmp(this->nations->at(i).GetNation(),nation.c_str())==0)){
+		if ((strcmp(this->nations->at(i).GetLanguage(),language->mb_str()) == 0) && (strcmp(this->nations->at(i).GetNation(),nation->mb_str())==0)){
 			strcpy(temp, this->nations->at(i).GetLocalCode());
 		}
 	}

@@ -28,12 +28,12 @@ std::list<MESSAGE> diary;
 
 wxSemaphore ClientTS::thread_semaphore = 0;
 
-char ClientTS::MSG_SRC[500] = { "" };
 long ClientTS::text_to_speech = 0L;
-ConfigPTR ClientTS::config = NULL;
 bool ClientTS::flagSave = false;
-char  ClientTS::LANG_MSG_SRC[500] = { "" }; 
+ConfigPTR ClientTS::config = NULL;
 Session* ClientTS::session = NULL;
+ClientTS *ClientTS::m_instance = NULL;
+
 IAudioRecorder* ClientTS::recorder = irrklang::createIrrKlangAudioRecorder(irrklang::createIrrKlangDevice());			//Flow of audio daa
  
 void ClientTS::sendMessage(wxString *msgToSend){ 
@@ -43,7 +43,7 @@ void ClientTS::sendMessage(wxString *msgToSend){
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + *msgToSend, (uint64)1, NULL);
 
 	wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg.mb_str(), (uint64)1, NULL);
 	ts3client_logMessage("Message send on chat", LogLevel_INFO, "Chat message", Session::Instance()->scHandlerID);
 }
 
@@ -64,9 +64,7 @@ void ClientTS::speak(const char *LANG, const char*MSG)
 	if (SUCCEEDED(hr)) hr = SpEnumTokens(SPCAT_VOICES, voice, NULL, &cpEnum);
 	if (SUCCEEDED(hr)) hr = cpEnum->Next(1, &cpToken, NULL);
 	if (SUCCEEDED(hr)) hr = cpVoice->SetVoice(cpToken);
-
 	if (SUCCEEDED(hr)) hr = cpVoice->SetOutput(NULL, TRUE);
-
 	if (SUCCEEDED(hr))
 	{
 		wchar_t* wString = new wchar_t[1024];
@@ -91,7 +89,7 @@ void ClientTS::Print(char*word)
 
 size_t ClientTS::read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 {
-	struct WriteThis *pooh = (struct WriteThis *)userp;
+	struct WriteThis *pooh = (struct WriteThis *) userp;
 
 	if (size*nmemb < 1)
 		return 0;
@@ -150,13 +148,11 @@ void ClientTS::writeWaveFile(const char* filename, SAudioStreamFormat format, vo
 		fwrite(&bitsPerChannel, 2, 1, file);
 
 		// write data
-
 		fwrite("data", 4, 1, file);
 		fwrite(&dataLen, 4, 1, file);
 		fwrite(data, dataLen, 1, file);
 
 		// finish
-
 		printf("Saved audio as %s\n", filename);
 		fclose(file);
 	}
@@ -191,7 +187,6 @@ void ClientTS::SetupColor(COLORE * colors)
 	colors[4].green = 100;
 	colors[4].blue = 0;
 
-
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it){
 		(*it)->setSpeak(0);
 	}
@@ -220,13 +215,11 @@ int recordSound = 0;
 */
 
 void ClientTS::onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
-	printf("Connect status changed: %llu %d %d\n", (unsigned long long)serverConnectionHandlerID, newStatus, errorNumber);
 	/* Failed to connect ? */
 	if (newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
 		ts3client_logMessage("No server running", LogLevel_ERROR, "Channel", session->scHandlerID);
 		exit(-1);
 	}
-
 }
 
 /*
@@ -244,15 +237,14 @@ void ClientTS::onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channe
 	char* name;
 	unsigned int error;
 
-	printf("onNewChannelEvent: %llu %llu %llu\n", (unsigned long long)serverConnectionHandlerID, (unsigned long long)channelID, (unsigned long long)channelParentID);
 	if ((error = ts3client_getChannelVariableAsString(serverConnectionHandlerID, channelID, CHANNEL_NAME, &name)) == ERROR_ok) {
-		printf("New channel: %llu %s \n", (unsigned long long)channelID, name);
+	//	printf("New channel: %llu %s \n", (unsigned long long)channelID, name);
 		ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 	}
 	else {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
-			printf("Error getting channel name in onNewChannelEvent: %s\n", errormsg);
+			//printf("Error getting channel name in onNewChannelEvent: %s\n", errormsg);
 			ts3client_freeMemory(errormsg);
 		}
 	}
@@ -272,11 +264,9 @@ void ClientTS::onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channe
 
 void ClientTS::onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint64 channelParentID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 	char* name;
-
 	/* Query channel name from channel ID */
 	if (ts3client_getChannelVariableAsString(serverConnectionHandlerID, channelID, CHANNEL_NAME, &name) != ERROR_ok)
-		return;
-	printf("New channel created: %s \n", name);
+		return; 
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
 
@@ -329,7 +319,6 @@ void ClientTS::onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, a
 		return;
 	}
 
-	printf("New client: %s \n", name);
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
 
@@ -369,7 +358,7 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		return;
 	if (status == STATUS_TALKING)
 	{
-		if (session->automatic_stt_flag == true)
+		if (session->automatic_stt_flag)
 		{
 			session->sound_flag = true;
 			recorder->startRecordingBufferedAudio();
@@ -383,7 +372,7 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		}
 
 
-		if (session->sound_flag == false && session->tasto_stt_flag == true)
+		if (!session->sound_flag && session->tasto_stt_flag)
 		{
 			session->sound_flag = true;
 			recorder->startRecordingBufferedAudio();
@@ -399,9 +388,9 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 			}
 		}
 
-		if (session->tasto_stt_flag == true || session->sound_flag == true || session->finish_ctrl_flag == true)
+		if (session->tasto_stt_flag  || session->sound_flag  || session->finish_ctrl_flag )
 		{
-			if (recorder->isRecording() == false) return;
+			if (!recorder->isRecording()) return;
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 
@@ -642,15 +631,14 @@ void ClientTS::onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerI
 * Print all channels of the given virtual server
 */
 
-
 void ClientTS::showChannels(uint64 serverConnectionHandlerID) {
 	uint64 *ids;
 	int i;
 	unsigned int error;
 
-	printf("\nList of channels on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
+	//printf("\nList of channels on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
 	if ((error = ts3client_getChannelList(serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of channel IDs */
-		printf("Error getting channel list: %d\n", error);
+		//printf("Error getting channel list: %d\n", error);
 		return;
 	}
 	if (!ids[0]) {
@@ -661,15 +649,12 @@ void ClientTS::showChannels(uint64 serverConnectionHandlerID) {
 	for (i = 0; ids[i]; i++) {
 		char* name;
 		if ((error = ts3client_getChannelVariableAsString(serverConnectionHandlerID, ids[i], CHANNEL_NAME, &name)) != ERROR_ok) {  /* Query channel name */
-			printf("Error getting channel name: %d\n", error);
+		//	printf("Error getting channel name: %d\n", error);
 			break;
 		}
-		printf("%llu - %s\n", (unsigned long long)ids[i], name);
-
-
+		//wxPrintf("%llu - %s\n", (unsigned long long)ids[i], name);
 		ts3client_freeMemory(name);
 	}
-	printf("\n");
 
 	ts3client_freeMemory(ids);  /* Release array */
 }
@@ -684,7 +669,7 @@ void ClientTS::showChannelClients(uint64 serverConnectionHandlerID, uint64 chann
 	int i;
 	unsigned int error;
 
-	printf("\nList of clients in channel %llu on virtual server %llu:\n", (unsigned long long)channelID, (unsigned long long)serverConnectionHandlerID);
+	//printf("\nList of clients in channel %llu on virtual server %llu:\n", (unsigned long long)channelID, (unsigned long long)serverConnectionHandlerID);
 	if ((error = ts3client_getChannelClientList(serverConnectionHandlerID, channelID, &ids)) != ERROR_ok) {  /* Get array of client IDs */
 		printf("Error getting client list for channel %llu: %d\n", (unsigned long long)channelID, error);
 		return;
@@ -750,10 +735,10 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	unsigned int error;
 	UserListPTR luser = Session::Instance()->getListUser();
 	//Message(MSGDirection dir, const char* from, const char* message) 
-	//MessagePTR msgj;
+	MessagePTR msg_text;
 
 	wxString mystring = wxString::FromAscii(message);
-	wxString strNick, strGlobale, strMessage;
+	wxString strNick, strGlobale, strMessage, strMessageLang;
 
 	if ((error = ts3client_getClientVariableAsString(serverConnectionHandlerID, fromID, CLIENT_NICKNAME, &name)) != ERROR_ok) {  /* Query client nickname... */
 		ts3client_logMessage("Error querying client nickname: %d\n", LogLevel_ERROR, "Channel", session->scHandlerID);
@@ -762,21 +747,16 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 
 	strtok((char*)name, "$");	//Extract from entire message the name value example: $Adam -> Adam
 	strNick = wxString::FromAscii(strtok(NULL, "$"));
-	strcpy(LANG_MSG_SRC, strtok((char*)message, "\n"));	//Extract from entire message the language field
-	strcpy(MSG_SRC, strtok(NULL, "\n"));				//Extract the body of message
-
-	//msgj = make_shared<Message>(MSGDirection::in, fromName, message); // it's the same that Message* Message = new Message ();
+	strMessageLang = wxString::FromAscii(strtok((char*)message, "\n"));	//Extract from entire message the language field
+	strMessage = wxString::FromAscii(strtok(NULL, "\n"));				//Extract the body of message
 
 	/* Example $Adam$English$How are you?
 	strNick= Adam;
 	LANG_MSG_SRC=English
 	MSG_SRC=How are you? */
-
-	wxString parsata = wxString::FromAscii(MSG_SRC); //convert char * to wxString
-
-	if (parsata == "write1")	//if it is true the client is typing a message
+	 
+	if (strMessage == "write1")	//if it is true the client is typing a message
 	{
-
 		for (auto it = luser->cbegin(); it != luser->cend(); ++it){
 			if ((*it)->getName() == strNick)
 				(*it)->setWrite(1);
@@ -784,7 +764,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 		return;
 	}
 
-	if (parsata == "write0")	//if it is true the client has stopped to write
+	if (strMessage == "write0")	//if it is true the client has stopped to write
 	{
 		for (auto it = luser->cbegin(); it != luser->cend(); ++it){
 			if ((*it)->getName() == strNick)
@@ -792,24 +772,13 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 		}
 		return;
 	}
-
-	strGlobale = wxString::FromAscii(name) + ": " + mystring;
-
-	/*
-	Ignore Debug value from Translation Service
-	*/
-
-	if (MSG_SRC[0] == '<') return;
-	strMessage = wxString::FromAscii(MSG_SRC);
-
-
-	if (parsata == "</html>") return;
-	if (parsata == ">") return;
+	
+	/* 	Ignore Debug value from Translation Service  */
+	if (strMessage[0] == '<') return; 
+	if (strMessage == "</html>") return;
+	if (strMessage == ">") return;
 
 	StringTranslate = "";
-
-	//crash
-	//Session::gridptr->Scroll(Session::curRow + 20, Session::curCol + 20);	//ScrollDown chat when message is arrived
 
 	// to get timestamp
 	char timestamp[100];
@@ -818,79 +787,45 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	strftime(timestamp, 100, "%c", timeinfo);
-	puts(timestamp);
 	// end timestamp
 
-	/******* begin adding new entry to the log variable*/
-	MessagePTR msgC;
-	MESSAGE msg;
-	//if (strcmp(LANG_MSG_SRC, config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
+	/******* begin adding new entry to the log variable  ******/
+
+	if (strcmp(strMessageLang.mb_str(), config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
-		StringTranslate = wxString::FromAscii(MSG_SRC);
-		msgC = std::make_shared<Message>(MSGDirection::out, strNick, strMessage, LANG_MSG_SRC);
-		session->addMSG(msgC);
-		///	callbckFrmGUI.notifyMsg(msgC);
-//		notify(EventTS::MSG_RCV);
-		 
-		msg.nick = strNick;
-		msg.lang = LANG_MSG_SRC;
-		msg.timestamp = timestamp;
-		if (strcmp(strNick, config->getNick()) == 0)// incoming and outgoing messages here
-			msg.msgDir = "-->";
-		else
-			msg.msgDir = "<--";
-		msg.msgold = StringTranslate;	//Save original message
-		msg.msgnew = StringTranslate;	//Save translate message
-
-		diary.push_back(msg);
-
+		StringTranslate = strMessage;
+		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, StringTranslate, timestamp); // it's the same that Message* Message = new Message ();
+		session->addMSG(msg_text);
 		setFlagSave(false);
 		return;
 	}
-	/*
-	/*** end log * /
+
+	/*** end log */
 	if (strcmp(config->getService(), "google") == 0)
 	{
-		if (strcmp(MSG_SRC, TranslateController::richiestaGoogle(MSG_SRC, LANG_MSG_SRC)) == 0)
-			StringTranslate = wxString::FromAscii(MSG_SRC);
+		if (strcmp(strMessageLang.mb_str(), TranslateController::richiestaGoogle(&strMessage, &strMessageLang)) == 0)
+			StringTranslate = strMessage;
 		else
 		{
-			TranslateController::parseGoogle(TranslateController::richiestaGoogle(parsata, LANG_MSG_SRC));
-			msgC = std::make_shared<Message>(MSGDirection::in, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
-			session->addMSG(msgC);
-
-			msg.nick = strNick;
-			msg.lang = LANG_MSG_SRC;
-			msg.timestamp = timestamp;
-			msg.msgDir = "<--";  // always incoming messages here
-			msg.msgold = wxString::FromUTF8(parsata);	//Save original message
-			msg.msgnew = StringTranslate;				//Save translate message
-
-			diary.push_back(msg);
+			TranslateController::parseGoogle(TranslateController::richiestaGoogle(&strMessage, &strMessageLang));
+			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, StringTranslate, timestamp); // it's the same that Message* Message = new Message ();	
+			session->addMSG(msg_text);
 			setFlagSave(false);
 		}
 	}
 
 	if (strcmp(config->getService(), "bing") == 0)
 	{
-		if (strcmp(MSG_SRC, TranslateController::richiestaBing(MSG_SRC, LANG_MSG_SRC)) == 0)
-			StringTranslate = wxString::FromAscii(MSG_SRC);
+		if (strcmp(strMessage, TranslateController::richiestaBing(&strMessage, &strMessageLang)) == 0)
+			StringTranslate = strMessage;
 		else
 		{
-			TranslateController::parseBing(TranslateController::richiestaBing(parsata, LANG_MSG_SRC));
-
-			msg.nick = strNick;
-			msg.lang = LANG_MSG_SRC;
-			msg.timestamp = timestamp;
-			msg.msgDir = "<--"; // always incoming messages here
-			msg.msgold = wxString::FromUTF8(parsata);	//Save original message
-			msg.msgnew = StringTranslate;				//Save translate message
-			msgC = std::make_shared<Message>(MSGDirection::in, (char*)strNick.t_str(), MSG_SRC, LANG_MSG_SRC);
-			session->addMSG(msgC);
-			diary.push_back(msg);
+			TranslateController::parseBing(TranslateController::richiestaBing(&strMessage, &strMessageLang));
+			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, StringTranslate, timestamp); // it's the same that Message* Message = new Message ();	
+			session->addMSG(msg_text);
 			setFlagSave(false);
 		}
-	}*/
+	}
 	return;
 }
 
@@ -935,14 +870,6 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 	/*
 	Reset informations about clients
 	*/
-	/*for (i = 0; i < MAX; i++)
-	{
-	person[i].name = "";
-	person[i].used = 0;
-	person[i].lang = "";
-	person[i].speak = 0;
-
-	}*/
 
 	for (i = 0; ids[i]; i++)
 	{
@@ -1010,10 +937,10 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 
 uint64 ClientTS::enterChannelID() {
 	uint64 channelID;
-	int n;
+	int n = 0;
 
 	printf("\nEnter channel ID: ");
-	n = scanf("%llu", (unsigned long long*)&channelID);
+//	n = scanf("%llu", (unsigned long long*)&channelID);
 	emptyInputBuffer();
 	if (n == 0) {
 		printf("Invalid input. Please enter a number.\n\n");
@@ -1138,18 +1065,9 @@ void toggleVAD(uint64 serverConnectionHandlerID) {
 }
 
 void ClientTS::setVadLevel(uint64 serverConnectionHandlerID) {
-	int vad, n;
+	int vad;
 	unsigned int error;
 	char s[100];
-
-	printf("\nEnter VAD level: ");
-	n = scanf("%d", &vad);
-	emptyInputBuffer();
-	if (n == 0) {
-		printf("Invalid input. Please enter a number.\n\n");
-		return;
-	}
-
 
 	/*
 	Load vad value from file
@@ -1168,7 +1086,7 @@ void ClientTS::setVadLevel(uint64 serverConnectionHandlerID) {
 		printf("Error setting VAD level: %d\n", error);
 		return;
 	}
-	printf("\nSet VAD level to %s.\n\n", s);
+	//printf("\nSet VAD level to %s.\n\n", s);
 }
 
 
@@ -1288,14 +1206,14 @@ int ClientTS::writeIdentity(const char* identity) {
 	FILE *file;
 
 	if ((file = fopen("..\\conf\\identity.txt", "w")) == NULL) {
-		printf("Could not open file 'identity.txt' for writing.\n");
+		//printf("Could not open file 'identity.txt' for writing.\n");
 		return -1;
 	}
 
 	fputs(identity, file);
 	if (ferror(file) != 0) {
 		fclose(file);
-		printf("Error writing identity to file 'identity.txt'.\n");
+		//printf("Error writing identity to file 'identity.txt'.\n");
 		return -1;
 	}
 	fclose(file);
@@ -1316,38 +1234,39 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	char *version;
 	char identity[IDENTITY_BUFSIZE];
 
+	ClientTS *cn = ClientTS::m_instance;
+
 	/* Create struct for callback function pointers */
-	struct ClientUIFunctions funcs;
 
 	/* Initialize all callbacks with NULL */
-	memset(&funcs, 0, sizeof(struct ClientUIFunctions));
+	memset(&cn->funcs, 0, sizeof(struct ClientUIFunctions));
 
 	/* Callback function pointers */
 	/* It is sufficient to only assign those callback functions you are using. When adding more callbacks, add those function pointers here. */
-	funcs.onConnectStatusChangeEvent = ClientTS::onConnectStatusChangeEvent;
-	funcs.onNewChannelEvent = ClientTS::onNewChannelEvent;
-	funcs.onNewChannelCreatedEvent = ClientTS::onNewChannelCreatedEvent;
-	funcs.onDelChannelEvent = ClientTS::onDelChannelEvent;
-	funcs.onClientMoveEvent = ClientTS::onClientMoveEvent;
-	funcs.onClientMoveSubscriptionEvent = ClientTS::onClientMoveSubscriptionEvent;
-	funcs.onClientMoveTimeoutEvent = ClientTS::onClientMoveTimeoutEvent;
-	funcs.onTalkStatusChangeEvent = ClientTS::onTalkStatusChangeEvent;
+	cn->funcs.onConnectStatusChangeEvent = ClientTS::onConnectStatusChangeEvent;
+	cn->funcs.onNewChannelEvent = ClientTS::onNewChannelEvent;
+	cn->funcs.onNewChannelCreatedEvent = ClientTS::onNewChannelCreatedEvent;
+	cn->funcs.onDelChannelEvent = ClientTS::onDelChannelEvent;
+	cn->funcs.onClientMoveEvent = ClientTS::onClientMoveEvent;
+	cn->funcs.onClientMoveSubscriptionEvent = ClientTS::onClientMoveSubscriptionEvent;
+	cn->funcs.onClientMoveTimeoutEvent = ClientTS::onClientMoveTimeoutEvent;
+	cn->funcs.onTalkStatusChangeEvent = ClientTS::onTalkStatusChangeEvent;
 
-	funcs.onTextMessageEvent = ClientTS::onTextMessageEvent;
-	funcs.onIgnoredWhisperEvent = ClientTS::onIgnoredWhisperEvent;
-	funcs.onServerErrorEvent = ClientTS::onServerErrorEvent;
+	cn->funcs.onTextMessageEvent = ClientTS::onTextMessageEvent;
+	cn->funcs.onIgnoredWhisperEvent = ClientTS::onIgnoredWhisperEvent;
+	cn->funcs.onServerErrorEvent = ClientTS::onServerErrorEvent;
 
-	funcs.onUserLoggingMessageEvent = ClientTS::onUserLoggingMessageEvent;
-	funcs.onCustomPacketEncryptEvent = ClientTS::onCustomPacketEncryptEvent;
-	funcs.onCustomPacketDecryptEvent = ClientTS::onCustomPacketDecryptEvent;
-	funcs.onEditMixedPlaybackVoiceDataEvent = ClientTS::onEditMixedPlaybackVoiceDataEvent;
+	cn->funcs.onUserLoggingMessageEvent = ClientTS::onUserLoggingMessageEvent;
+	cn->funcs.onCustomPacketEncryptEvent = ClientTS::onCustomPacketEncryptEvent;
+	cn->funcs.onCustomPacketDecryptEvent = ClientTS::onCustomPacketDecryptEvent;
+	cn->funcs.onEditMixedPlaybackVoiceDataEvent = ClientTS::onEditMixedPlaybackVoiceDataEvent;
 
  
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
 
-	if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
+	if ((error = ts3client_initClientLib(&cn->funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
 			//wxMessageBox("Error initialzing serverlib");
@@ -1368,7 +1287,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		wxMessageBox("Error getting default capture mode");
 		return 1;
 	}
-	printf("Default capture mode: %s\n", mode);
+	//printf("Default capture mode: %s\n", mode);
 
 	/* Get default capture device */
 	if ((error = ts3client_getDefaultCaptureDevice(mode, &device)) != ERROR_ok) {
@@ -1445,15 +1364,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	ts3client_freeMemory(version);  /* Release dynamically allocated memory */
 	version = NULL;
 
- 
-	/*While flagg==false the client is running*/
-	while (1)
-	{
-		SLEEP(50000);
-	}
-
 	/* Disconnect from server */
-	
 	return 0;
 }
 
@@ -1525,12 +1436,8 @@ DWORD WINAPI ClientTS::TTS_THREAD(LPVOID lpParameter)
 	{
 		thread_semaphore.Wait();
 		MessageQueuePTR ld = Session::Instance()->getMessageQueue();
-		auto  s = ld->begin();
-		auto  se =  ld->begin() + text_to_speech;  
+		auto se = ld->begin() + text_to_speech;  
 		ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), (*se)->getMSG().mb_str().data());
-
-		//}
-		//ClientTS::speak((char*)Session::Instance()->getConfig()->getLanguage(), ""); /// (char*)strSpeak.mb_str().data());
 	}
 	return 0;
 }

@@ -5,7 +5,7 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
 	EVT_CLOSE(ClientTsFrm::OnClose)
 	EVT_TIMER(ID_WXTIMER2, ClientTsFrm::WxTimer2Timer)
-	EVT_TIMER(ID_WXTIMER1, ClientTsFrm::WxTimer1Timer)
+	EVT_TIMER(ID_WXTIMER1, ClientTsFrm::updateClientListTimer)
 	EVT_BUTTON(ID_WXBITMAPBUTTON1, ClientTsFrm::WxBitmapButton1Click)
 	EVT_BUTTON(ID_WXBUTTON2, ClientTsFrm::btnsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3, ClientTsFrm::txtmsgEnter)
@@ -62,10 +62,11 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	}
 
 	chatbox = new wxListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350), wxLC_REPORT, wxDefaultValidator, wxT("moviesTable"));
-	chatbox->InsertColumn(0, wxT("Data"), wxLIST_FORMAT_LEFT, 70);
-	chatbox->InsertColumn(1, wxT("Nick"), wxLIST_FORMAT_LEFT, 80);
-	chatbox->InsertColumn(2, wxT("Message"), wxLIST_FORMAT_LEFT, 480);
-	chatbox->InsertColumn(3, wxT("Listen"), wxLIST_FORMAT_RIGHT, 50);
+
+
+	chatbox->InsertColumn(1, wxT("Data"), wxLIST_FORMAT_LEFT, 70);
+	chatbox->InsertColumn(2, wxT("Nick"), wxLIST_FORMAT_LEFT, 80);
+	chatbox->InsertColumn(3, wxT("Message"), wxLIST_FORMAT_LEFT, 520);
 
 
 	/*gridchat = new wxGrid(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350));
@@ -90,7 +91,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	WxTimer1 = new wxTimer();
 	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(200);
+	WxTimer1->Start(2000);
 
 
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
@@ -161,28 +162,8 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 #endif
 	////GUI Items Creation End
 
-	conta = 10.0;
-	FILE *api;
-	/*FILE*config;
-	
-	if (config = fopen("..\\bin\\conf\\config.txt", "r"))
-	{
-		fscanf(config, "%s", &SERVER_ADDRESS);
-		fscanf(config, "%s", &NICK);
-		fscanf(config, "%d", &cmbel);
-		fscanf(config, "%s", &CURRENT_LANG);
-		fscanf(config, "%s", &SERVICE);
-		fclose(config);
-	}
-	
-	if (api = fopen("..\\bin\\conf\\GOOGLE.txt", "r"))
-	{
-		char API[200];
-		fscanf(api, "%s", API);
-		session->setGoogleAPIKey(API);
-		fclose(api);
-	}
-	*/
+	conta = 10.0; 
+
 	txtnick->AppendText(config->getNick());
 	txtlingua->AppendText(config->getLanguage());
 	HANDLE myHandle = CreateThread(0, 0, clientts.ClientStart, NULL, 0, &myThreadID);
@@ -194,6 +175,8 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	wchar_t* wString = new wchar_t[4096];
 	MultiByteToWideChar(CP_ACP, 0, str, -1, wString, 4096);
 	MessageBox(NULL, wString, L"Test print handler", MB_OK);*/
+
+	updateClientListTimer(wxTimerEvent());
 }
 
  
@@ -201,7 +184,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 void MyGridCellRenderer::Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rect, int row, int col, bool isSelected)
 {
 	wxGridCellStringRenderer::Draw(grid, attr, dc, rect, row, col, isSelected);
-
 	dc.DrawBitmap(*bitmap, 0, 0, 0);
 	dc.DrawBitmap(*bitmap, rect.x + 6, rect.y + 4);
 }
@@ -225,12 +207,30 @@ void ClientTsFrm::OnClose(wxCloseEvent& event)
 	Destroy();
 }
 
-/*Refresh chat for new message or new clients*/
-void ClientTsFrm::RefreshChat()
+/*
+ * WxButton1Click
+ */
+void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
 {
-	int i=0;
-	UserListPTR luser = Session::Instance()->getListUser(); 
+}
 
+/*
+ * btnsendClick
+ */
+void ClientTsFrm::btnsendClick(wxCommandEvent& event)
+{
+	txtmsg->DiscardEdits();		//Clear buffer of textbox
+	clientts.sendMessage(&txtmsg->GetValue());
+	txtmsg->Clear();
+}
+
+/*
+ * WxTimer1Timer
+ */
+void ClientTsFrm::updateClientListTimer(wxTimerEvent& event)
+{
+	int i = 0;
+	UserListPTR luser = Session::Instance()->getListUser();
 	wxUniChar ch = ':';
 	time_t     now = time(0);
 	struct tm  tstruct;
@@ -248,14 +248,14 @@ void ClientTsFrm::RefreshChat()
 				txtclient->BeginTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue));
 			if (uptr->getSpeak() == 1)	//if this client is speaking show microphone 
 			{
-				wxString naz = this->nations->Search(uptr->getLang().ToStdString(), COUNTRY);
+				wxString naz = this->nations->Search(&uptr->getLang(), COUNTRY);
 				wxBitmap bitmap = wxBitmap();
 				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
 				txtclient->WriteImage(bitmap);
 
 				txtclient->WriteText(uptr->getName() + "\t");
 				//if (person[i].lang == "Italian") { 
-					//txtclient->WriteImage(wxBitmap(italy_xpm));
+				//txtclient->WriteImage(wxBitmap(italy_xpm));
 				//}
 
 				//if (strncmp(person[i].lang,"English",7)==0)  { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp"));*/ txtclient->WriteImage(wxBitmap(usa_xpm)); }
@@ -264,8 +264,8 @@ void ClientTsFrm::RefreshChat()
 				txtclient->WriteImage(wxBitmap(microphone_xpm));
 			}
 			else if (uptr->getSpeak() == 0)	//if this client is writing show keayboard
-			{ 
-				wxString naz = this->nations->Search(uptr->getLang().ToStdString(), COUNTRY);
+			{
+				wxString naz = this->nations->Search(&uptr->getLang(), COUNTRY);
 				wxBitmap bitmap = wxBitmap();
 				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
 				txtclient->WriteImage(bitmap);
@@ -290,34 +290,6 @@ void ClientTsFrm::RefreshChat()
 		}
 	}
 
-
-}
-
-/*
- * WxButton1Click
- */
-void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
-{
-
-}
-
-/*
- * btnsendClick
- */
-void ClientTsFrm::btnsendClick(wxCommandEvent& event)
-{
-	txtmsg->DiscardEdits();		//Clear buffer of textbox
-	clientts.sendMessage(&txtmsg->GetValue());
-	txtmsg->Clear();
-}
-
-/*
- * WxTimer1Timer
- */
-void ClientTsFrm::WxTimer1Timer(wxTimerEvent& event)
-{
-
-	RefreshChat();
 }
 
 /*
@@ -465,8 +437,8 @@ void ClientTsFrm::updatePanelMsg(){
 	
 	/*for (auto itmsg = lptr->cbegin(); itmsg != lptr->cend(); ++itmsg)
 	{*/
-		if (msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>')
-			return; 
+	if (msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>')
+		return; 
 		/*wxListItem item; 
 		wxString messaggio = wxString::FromUTF8( + "(" + buf + "): " + wxString::FromUTF8(msgptr->getMSG());
 		item.SetText(messaggio);
@@ -474,20 +446,19 @@ void ClientTsFrm::updatePanelMsg(){
 		chatbox->InsertItem(item);*/
 		
 		//chatbox->Hide();
-		long itemIndex = chatbox->InsertItem(curRow, wxString::FromUTF8(buf)); //want this for col. 1
-		chatbox->SetItem(itemIndex, 1, msgptr->getFrom()); //want this for col. 2
+	long itemIndex = chatbox->InsertItem(curRow, wxString::FromUTF8(buf)); //want this for col. 1
+	chatbox->SetItem(itemIndex, 1, msgptr->getFrom()); //want this for col. 2
 		
-		wxImageList *il = new wxImageList(16, 16, false, 0);
-		il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));//wxBitmap(wxT("icon1"), wxBITMAP_TYPE_BMP_RESOURCE));
-		chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
+	wxImageList *il = new wxImageList(16, 16, false, 0);
+	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));//wxBitmap(wxT("icon1"), wxBITMAP_TYPE_BMP_RESOURCE));
+	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
 
-		chatbox->SetItem(itemIndex, 2, msgptr->getMSG()); //col. 3
+	chatbox->SetItem(itemIndex, 2, msgptr->getMSG()); //col. 3
 		 
 		//chatbox->SetItem(itemIndex, 3, wxIcon(wxT(".. / res / play.bmp"), wxBITMAP_TYPE_BMP_RESOURCE)); //col. 3
 		//chatbox->Show();
-		chatbox->ScrollList(0, curRow);
-
-		curRow++;
+	chatbox->ScrollList(0, curRow);
+	curRow++;
 		//chatbox->SetItem(itemIndex, 3, new MyGridCellRenderer(L"../res/play.bmp"));
 
 		/*gridchat->Scroll(curRow + 20, curCol + 20);
@@ -544,19 +515,8 @@ void ClientTsFrm::updatePanelMsg(){
 		}
 	}*/
 }
- 
- 
-/*
-template <typename T_object>
-CallbackHandler::Callback_ID NotifyOnNewMail(T_object* object, void(T_object::*function)(void*, void*), void* user_data)
-{
-	new_mail_callbacks.RegisterCallback(object, function, user_data);
-}*/
 
- 
 void notifyMSG(ClientTsFrm *fn)
-
 {
- 
-	fn->updatePanelMsg();
+ 	fn->updatePanelMsg();
 }

@@ -1,7 +1,7 @@
-#ifndef __FRMSAVECHAT_H__
-#define __FRMSAVECHAT_H__
+#pragma once 
 
 #include "../data/Session.h"
+#include "../data/Message.h"
 
 #include <wx/wx.h>
 #include <wx/artprov.h>
@@ -27,8 +27,8 @@
 #include <wx/checkbox.h>
 #include <wx/filepicker.h>
 #include <stdio.h>
-#include "..\translateController\translateVariable.h"
-#include "..\GlobalVariables.h"
+#include "../translateController/translateVariable.h"
+#include "../GlobalVariables.h"
 
 class FrmSaveChat : public wxDialog
 {
@@ -63,5 +63,3 @@ public:
 	~FrmSaveChat();
 
 };
-
-#endif

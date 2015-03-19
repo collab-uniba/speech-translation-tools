@@ -158,9 +158,9 @@ void TranslateController::parseGoogle(char *str)
 	}
 }
 
-char *TranslateController::richiestaBing(wxString StringSource, char * lang)
+char *TranslateController::richiestaBing(const wxString* StringSource, const wxString* lang)
 {
-	if (strcmp(lang, configc->getLanguage()) == 0) return (char*)StringSource.mb_str().data();	//If the message is written in client's language then return
+	if (strcmp(lang->mb_str(), configc->getLanguage()) == 0) return (char*)StringSource->mb_str().data();	//If the message is written in client's language then return
 
 	CURL *curl2;
 	CURL *curl3;
@@ -176,7 +176,6 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 	curl2 = curl_easy_init();
 	if (curl2)
 	{
-
 		curl_easy_setopt(curl2, CURLOPT_URL, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13"); //Set the url of http request
 		curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYHOST, 0L);	//Use SSL Protocol
 		curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYPEER, 0L);	//Use SSL protocol
@@ -189,7 +188,6 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		FILE *bing;
 		if (bing = fopen("..\\bin\\conf\\BING.txt", "r"))
 		{
-
 			char CLIENT_ID[50] = "";
 			char CLIENT_SECRET[128] = "";
 
@@ -197,12 +195,9 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 			fscanf(bing, "%s", CLIENT_SECRET);
 
 			char * encode_key = curl_easy_escape(curl2, CLIENT_SECRET, strlen(CLIENT_SECRET));	//Leave incorrect url characters from CLIENT_ID nad CLIENT_SECRET
-			char url2[1024] = { "" };
-			strcpy(url2, "client_id=");
-			strcat(url2, CLIENT_ID);
-			strcat(url2, "&client_secret=");
-			strcat(url2, encode_key);
-			strcat(url2, "&scope=http://api.microsofttranslator.com&grant_type=client_credentials");
+
+			char url2[1024];
+			sprintf(url2, "client_id=%s&client_secret=%s&scope=http://api.microsofttranslator.com&grant_type=client_credentials", CLIENT_ID, encode_key);
 			curl_easy_setopt(curl2, CURLOPT_POSTFIELDS, url2);
 		}
 		else
@@ -251,13 +246,13 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		nations->ReadFromFile("..\\conf\\locales_code.txt");
 
 		strcpy(languagesrc, nations->Search(lang,APICODE));
-		strcpy(languagedst, nations->Search(configc->getLanguage(), APICODE));
+		strcpy(languagedst, nations->Search(&wxString(configc->getLanguage()), APICODE));
 		
 		curl3 = curl_easy_init();
 		char *trueheader = curl_easy_unescape(curl3, header, 0, NULL);
 
 
-		const char *BufferSource = curl_easy_escape(curl3, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
+		const char *BufferSource = curl_easy_escape(curl3, (char*)StringSource->mb_str().data(), strlen((char*)StringSource->mb_str().data()));
 
 
 		char url3[512] = { "" };
@@ -269,9 +264,6 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 		strcat(url3, languagesrc);
 		strcat(url3, "&to=");
 		strcat(url3, languagedst);
-
-		
-		
 
 		curl_easy_setopt(curl3, CURLOPT_URL, url3);
 		curl_easy_setopt(curl3, CURLOPT_USERAGENT, "libcurl-agent/1.0");
@@ -305,27 +297,25 @@ char *TranslateController::richiestaBing(wxString StringSource, char * lang)
 	return p.ptr;
 }
 
-char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
+char *TranslateController::richiestaGoogle(wxString* StringSource, wxString* lang)
 {
 
-	if (strcmp(lang, configc->getLanguage()) == 0) return (char*)StringSource.mb_str().data();
+	if (strcmp(lang->mb_str(), configc->getLanguage()) == 0) return (char*)StringSource->mb_str().data();
 
 	CURL *curl;
 	CURLcode res;
-
-	strcpy(url, "");
-	char languagesrc[30] = { "" };
-	char languagedst[30] = { "" };
+	char url[256];
+	char languagesrc[30];
+	char languagedst[30];
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 
 	curl = curl_easy_init();
 	struct stringa s;
 	ConnectionController::init_string(&s);
-	NationList *nations = new NationList();
+	NationList *nations = new NationList;
 	nations->ReadFromFile("..\\conf\\locales_code.txt");
 	strcpy(languagesrc, nations->Search(lang, APICODE));
-	strcpy(languagedst, nations->Search(configc->getLanguage(), APICODE));
-
+	strcpy(languagedst, nations->Search(&wxString(configc->getLanguage()), APICODE));
 
 	if (curl)
 	{
@@ -335,13 +325,12 @@ char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 		strcat(url, GOOGLE_API_KEY);*/
 
 		strcat(url, "&q=");
-		const char *BufferSource = curl_easy_escape(curl, (char*)StringSource.mb_str().data(), strlen((char*)StringSource.mb_str().data()));
+		const char *BufferSource = curl_easy_escape(curl, (char*)StringSource->mb_str().data(), strlen((char*)StringSource->mb_str().data()));
 		strcat(url, BufferSource);
 		strcat(url, "&source=");
 		strcat(url, languagesrc);
 		strcat(url, "&target=");
 		strcat(url, languagedst);
-
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ConnectionController::writefunc);
@@ -356,7 +345,6 @@ char *TranslateController::richiestaGoogle(wxString StringSource, char * lang)
 			char errormessage[60];
 			strcpy(errormessage, "curl_easy_perform() failed");
 			strcat(errormessage, curl_easy_strerror(res));
-
 			ts3client_logMessage(errormessage, LogLevel_ERROR, "Google translate", Session::Instance()->scHandlerID);
 		}
 

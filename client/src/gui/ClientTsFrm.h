@@ -69,9 +69,8 @@ private:
 	void txtchatClick(wxRichTextEvent& event);
 	void txtchatEnter(wxCommandEvent& event);
 	void OnTimerTimeout(wxTimerEvent& event);
-	void WxTimer1Timer(wxTimerEvent& event);
+	void updateClientListTimer(wxTimerEvent& event);
 	void txtmsgEnter(wxCommandEvent& event);
-	void RefreshChat();
 	void btnspeechClick(wxCommandEvent& event);
 	void ClientTsFrmActivate(wxActivateEvent& event);
 	void WxButton2Click(wxCommandEvent& event);
@@ -85,30 +84,14 @@ private:
 	void Save(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
 
-	
-
-public:  
-
-	
-//	virtual void Notify(Observee* observee);
-
+public:
 
 	ClientTsFrm(LoginWarnings *warn, wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),
 		const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
 		long style = wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX | wxRESIZE_BORDER);
 
 	virtual ~ClientTsFrm(){};
- 
-
-	/*ClientTsFrm(const ClientTsFrm &o)
-	{
-		&this = &o;
-	}*/
-
 	void updatePanelMsg();
-	void didit(){
-		cout << "i did it";
-	}
 
 private:
 	unsigned int curRow;			//Initialize Row index
@@ -137,12 +120,9 @@ private:
 	wxMenu *ID_MNU_FILE_1001_Mnu_Obj;
 	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
 	wxBitmapButton *WxBitmapButton1;
-	/////
 	ClientTS clientts;   
 	wxListCtrl* chatbox;
-
     COLORE *colors;
-
 	enum
 	{
 		////GUI Enum Control ID Start
@@ -172,7 +152,6 @@ private:
 		////GUI Enum Control ID End
 		ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values
 	};
-
 };
 
 class MyGridCellRenderer : public wxGridCellStringRenderer

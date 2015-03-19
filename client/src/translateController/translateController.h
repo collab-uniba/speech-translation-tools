@@ -19,13 +19,12 @@
 #include <fstream>
 #include "../tinyxml2.h"
 #include <curl/curl.h>
-#include "..\gui\NationList.h"
-#include "..\gui\NationInfo.h"
+#include "../gui/NationList.h"
+#include "../gui/NationInfo.h"
 
 using namespace tinyxml2;
 using namespace std;
 
-static char url[256] = { "" };
 class TranslateController
 {
 	public:
@@ -34,8 +33,8 @@ class TranslateController
 		static void readXmlLangDoc(char* filename);
 		static void parseBing(char *word);
 		static void parseGoogle(char *str);
-		static char *richiestaBing(wxString StringSource, char * lang);
-		static char *richiestaGoogle(wxString StringSource, char * lang);
+		static char *richiestaGoogle(wxString* StringSource, wxString* lang);
+		static char *richiestaBing(const wxString* StringSource, const wxString* lang);
 };
 
 #endif

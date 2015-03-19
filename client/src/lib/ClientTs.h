@@ -47,24 +47,24 @@ typedef std::function<void()> cbClientTsFrm;
 
 class ClientTS  {
 public:
-	static Session* session;
-	static ConfigPTR config;
+	static  Session* session;
+	static  ConfigPTR config;
 	static bool flagSave;
-	static char LANG_MSG_SRC[500];
-	static long text_to_speech;
-	static wxSemaphore thread_semaphore;
-	static char MSG_SRC[500];
-	static cbClientTsFrm notifyMSGcb;
+	static  long text_to_speech;
+	static  wxSemaphore thread_semaphore;
+	static  cbClientTsFrm notifyMSGcb;
 	//static ISoundEngine* engine;				//Audio Engine to record sound
 	static IAudioRecorder* recorder;			//Flow of audio daa
 	//static uint64 scHandlerID;
+	struct ClientUIFunctions funcs;
+	static  char identity[IDENTITY_BUFSIZE];
+	static ClientTS *m_instance;
 
-	static char identity[IDENTITY_BUFSIZE];
 
-	/* Create struct for callback function pointers */
-	static struct ClientUIFunctions funcs;
 public:
 	ClientTS(){
+		if (!m_instance)
+			m_instance = this;
 		session = Session::Instance();
 		config = session->getConfig();
 	}
@@ -73,10 +73,8 @@ public:
 
 	static void sendMessage(wxString *msgToSend);
 
-	static void disconnect();
-	static char* getLANG_MSG_SRC(){ return LANG_MSG_SRC; }
-
-	static char* getMSG_SRC(){ return MSG_SRC; }
+	static void disconnect(); 
+	
 	static IAudioRecorder* getIAudioRecorder(){ return recorder; }
 
 	static bool getFlagSave(){ return flagSave; }

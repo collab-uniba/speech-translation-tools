@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <wx/string.h>
 #include <sstream>
 
 
@@ -25,11 +26,11 @@ class NationList
 public:
 	NationList();
 	~NationList();
-	bool ReadFromFile(string);
+	bool ReadFromFile(const char* file);
 	int GetSize();
 	vector<NationInfo>* GetList();
-	char* Search(string, SEARCHPARAMETER);
-	char* SearchForLocale(string language, string nation);
+	char* Search(const wxString* language, const SEARCHPARAMETER parameter);
+	char* SearchForLocale(const wxString* language, const wxString* nation);
 	NationInfo Get(int index);
 
 private:
