@@ -92,6 +92,7 @@ public:
 
 	virtual ~ClientTsFrm(){};
 	void updatePanelMsg();
+	void OnGUIThreadEvent(wxThreadEvent& event);
 
 private:
 	unsigned int curRow;			//Initialize Row index
@@ -150,7 +151,8 @@ private:
 		ID_MNU_SPEECH_1006 = 1116,
 		ID_WXBITMAPBUTTON1 = 1024,
 		////GUI Enum Control ID End
-		ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values
+		ID_DUMMY_VALUE_, //don't remove this value unless you have other enum values
+		ID_MESSAGEIO
 	};
 };
 
@@ -175,3 +177,21 @@ public:
 };
 
 void notifyMSG(ClientTsFrm *fn);
+/*
+class MyWorkerThread : public wxThread
+{
+public:
+	MyWorkerThread(ClientTsFrm *frame);
+
+	// thread execution starts here
+	virtual void *Entry();
+
+	// called when the thread exits - whether it terminates normally or is
+	// stopped with Delete() (but not when it is Kill()ed!)
+	virtual void OnExit();
+
+public:
+	ClientTsFrm *m_frame;
+	unsigned m_count;
+};
+*/

@@ -27,7 +27,6 @@ it has two parameters: the language of message and body of message
 std::list<MESSAGE> diary;
 
 wxSemaphore ClientTS::thread_semaphore = 0;
-
 long ClientTS::text_to_speech = 0L;
 bool ClientTS::flagSave = false;
 ConfigPTR ClientTS::config = NULL;
@@ -731,14 +730,15 @@ unsigned int ts3client_requestSendServerTextMsg(uint64 serverConnectionHandlerID
 
 void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message)
 {
-	char *name;
-	unsigned int error;
-	UserListPTR luser = Session::Instance()->getListUser();
-	//Message(MSGDirection dir, const char* from, const char* message) 
-	MessagePTR msg_text;
+	char			*name;
+	unsigned int	error;
+	UserListPTR		luser			= Session::Instance()->getListUser();
+	MessagePTR		msg_text;
+	wxString		mystring		= wxString::FromAscii(message);
+	wxString		strNick,
+					strMessage,
+					strMessageLang;
 
-	wxString mystring = wxString::FromAscii(message);
-	wxString strNick, strGlobale, strMessage, strMessageLang;
 
 	if ((error = ts3client_getClientVariableAsString(serverConnectionHandlerID, fromID, CLIENT_NICKNAME, &name)) != ERROR_ok) {  /* Query client nickname... */
 		ts3client_logMessage("Error querying client nickname: %d\n", LogLevel_ERROR, "Channel", session->scHandlerID);
@@ -781,12 +781,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	StringTranslate = "";
 
 	// to get timestamp
-	char timestamp[100];
-	time_t rawtime;
-	struct tm * timeinfo;
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	strftime(timestamp, 100, "%c", timeinfo);
+
 	// end timestamp
 
 	/******* begin adding new entry to the log variable  ******/
@@ -794,37 +789,50 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	if (strcmp(strMessageLang.mb_str(), config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
 		StringTranslate = strMessage;
-		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, StringTranslate, timestamp); // it's the same that Message* Message = new Message ();
+		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
 		session->addMSG(msg_text);
-		setFlagSave(false);
+		/*wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
+
+		evt.SetPayload<MessagePTR>(msg_text);
+		wxQueueEvent(m_instance->observer,evt.Clone());*/
+		setFlagSave(false); 
+		
 		return;
 	}
 
 	/*** end log */
-	if (strcmp(config->getService(), "google") == 0)
+	if (strcmp(config->getTranslationEngine(), "google") == 0)
 	{
 		if (strcmp(strMessageLang.mb_str(), TranslateController::richiestaGoogle(&strMessage, &strMessageLang)) == 0)
 			StringTranslate = strMessage;
 		else
 		{
 			TranslateController::parseGoogle(TranslateController::richiestaGoogle(&strMessage, &strMessageLang));
-			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, StringTranslate, timestamp); // it's the same that Message* Message = new Message ();	
+			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
+			msg_text->setSrtTranslate(strMessage);
 			session->addMSG(msg_text);
 			setFlagSave(false);
 		}
 	}
 
-	if (strcmp(config->getService(), "bing") == 0)
+	if (strcmp(config->getTranslationEngine(), "bing") == 0)
 	{
-		if (strcmp(strMessage, TranslateController::richiestaBing(&strMessage, &strMessageLang)) == 0)
-			StringTranslate = strMessage;
-		else
-		{
-			TranslateController::parseBing(TranslateController::richiestaBing(&strMessage, &strMessageLang));
-			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, StringTranslate, timestamp); // it's the same that Message* Message = new Message ();	
-			session->addMSG(msg_text);
-			setFlagSave(false);
-		}
+		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
+		auto p = [](wxString strMessage, wxString strMessageLang, MessagePTR msg_text) {
+			StringTranslate = TranslateController::richiestaBing(&strMessage, &strMessageLang);
+
+			//	TranslateController::parseBing(TranslateController::richiestaBing(&strMessage, &strMessageLang));
+			msg_text->setMSG(StringTranslate);
+
+		
+			//session->addMSG(msg_text);
+			setFlagSave(false); 
+		};
+		std::thread t1(p, strMessage, strMessageLang, msg_text);
+
+		t1.join();
+		
+		
 	}
 	return;
 }
@@ -842,13 +850,12 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 	anyID *ids;
 	anyID ownClientID;
 	int i;
-
-	UserListPTR luserOLD = Session::Instance()->getListUser();
-
-	UserListPTR luser = make_shared<UserList>();
-
 	unsigned int error;
 	int count_client = 0;
+
+	UserListPTR luserOLD = Session::Instance()->getListUser();
+	UserListPTR luser = make_shared<UserList>();
+
 
 	printf("\nList of all visible clients on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
 	if ((error = ts3client_getClientList(serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of client IDs */
@@ -887,7 +894,7 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 				break;
 			}
 		}
-		else {
+		else{
 			if ((error = ts3client_getClientVariableAsInt(serverConnectionHandlerID, ids[i], CLIENT_FLAG_TALKING, &talkStatus)) != ERROR_ok) {
 				printf("Error querying client talk status: %d\n", error);
 				break;
@@ -897,7 +904,7 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 
 		//if(strcmp(name,NICK)==0) set_color_client=i;
 
-		printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
+		//printf("%u - %s (%stalking)\n", ids[i], name, (talkStatus == STATUS_TALKING ? "" : "not "));
 		count_client++;
 
 		char* lang = strtok((char*)name, "$");
@@ -905,7 +912,8 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 		int color = i;
 		int used = 1;
 		bool findit = false;
-		for (auto it = luserOLD->cbegin(); it != luserOLD->cend(); ++it){
+
+		for (auto it = luserOLD->cbegin(); it != luserOLD->cend() && !findit; ++it){
 			UserPTR uptr = *it;
 			if (uptr->getName() == name2){
 				uptr->setColor(i);
@@ -1237,7 +1245,6 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	ClientTS *cn = ClientTS::m_instance;
 
 	/* Create struct for callback function pointers */
-
 	/* Initialize all callbacks with NULL */
 	memset(&cn->funcs, 0, sizeof(struct ClientUIFunctions));
 
@@ -1274,7 +1281,6 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		}
 		return 1;
 	}
-
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
 	if ((error = ts3client_spawnNewServerConnectionHandler(0, &Session::Instance()->scHandlerID)) != ERROR_ok) {
@@ -1340,27 +1346,25 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	}
 	printf("Using identity: %s\n", identity);
 
-	char final_nick[50] = { "" };
+	char final_nick[50];
 	strcpy(final_nick, Session::Instance()->getConfig()->getLanguage());
 	strcat(final_nick, "$");
 	strcat(final_nick, Session::Instance()->getConfig()->getNick());
 	strcat(final_nick, "$");
+
 	/* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
 	if ((error = ts3client_startConnection(Session::Instance()->scHandlerID, identity, Session::Instance()->getConfig()->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
 		wxMessageBox("Error connecting to server");
 		ts3client_logMessage("Error connecting to server", LogLevel_ERROR, "Channel", 10);
 		return 1;
 	}
-	 
-
-	printf("Client lib initialized and running\n");
 
 	/* Query and print client lib version */
 	if ((error = ts3client_getClientLibVersion(&version)) != ERROR_ok) {
 		wxMessageBox("Failed to get clientlib version");
 		return 1;
 	}
-	printf("Client lib version: %s\n", version);
+
 	ts3client_freeMemory(version);  /* Release dynamically allocated memory */
 	version = NULL;
 
@@ -1447,18 +1451,16 @@ DWORD WINAPI ClientTS::CTRL_STT(LPVOID lpParameter)
 
 	while (1)
 	{
-		if (GetAsyncKeyState(VK_CONTROL) && Session::Instance()->finish_ctrl_flag == false)
+		if (GetAsyncKeyState(VK_CONTROL) && !Session::Instance()->finish_ctrl_flag)
 		{
-			if (recorder->isRecording() == false)
+			if (!recorder->isRecording())
 			{
 				recorder->startRecordingBufferedAudio();
 				Session::Instance()->finish_ctrl_flag = true;
 			}
 			Sleep(50);
 		}
-
 		Sleep(50);
-
 	}
 	return 1;
 }

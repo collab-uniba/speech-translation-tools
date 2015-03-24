@@ -17,29 +17,44 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
 	EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
 	EVT_LIST_ITEM_SELECTED(ID_GRIDCHAT, ClientTsFrm::gridchatCellLeftClick)
+	EVT_THREAD(wxID_ANY, ClientTsFrm::OnGUIThreadEvent)
 
-END_EVENT_TABLE()
-//EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
+	END_EVENT_TABLE()
+	//EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
+
+void ClientTsFrm::OnGUIThreadEvent(wxThreadEvent& event){
+	MessagePTR msgptr = event.GetPayload<MessagePTR>();
+
+	long itemIndexChat = chatbox->InsertItem(curRow, wxString::FromUTF8("")); //want this for col. 1
+	printf("");
+	chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
+
+	/*il = new wxImageList(16, 16, false, 0);
+	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
+	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);*/
+	chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
+	chatbox->ScrollList(0, curRow);
+	curRow++;
+}
 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
 {
 	this->nations = new NationList();
-	//registerObserver<ClientTsFrm>(&ClientTsFrm::notify, *this);
+	//session->registerObserver<ClientTsFrm>(&ClientTsFrm::notify, *this);
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
 	config = session->getConfig();
-	//clientts.setCBClientTSMSG(notify);
-	//clientts = new ClientTS;
-	//session->registerObserver<ClientTsFrm>(*this);
+
 	colors = (COLORE*)malloc(10 * sizeof(COLORE));
-	session->registerObserver(EventTS::MSG_RCV, &notifyMSG, this);//.AddObserver(this);
+
+	session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
+
+//	MyWorkerThread *thread = new MyWorkerThread(this);
 
 	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
 	 curRow = 0;			//Initialize Row index
-	 curCol = 0;
-
 	
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
@@ -63,27 +78,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	chatbox = new wxListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350), wxLC_REPORT, wxDefaultValidator, wxT("moviesTable"));
 
-
 	chatbox->InsertColumn(1, wxT("Data"), wxLIST_FORMAT_LEFT, 70);
 	chatbox->InsertColumn(2, wxT("Nick"), wxLIST_FORMAT_LEFT, 80);
 	chatbox->InsertColumn(3, wxT("Message"), wxLIST_FORMAT_LEFT, 520);
-
-
-	/*gridchat = new wxGrid(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350));
-
-	gridchat->CreateGrid(0, 2, wxGrid::wxGridSelectCells);
-
-	gridchat->SetColLabelValue(0, wxString::FromUTF8(labels.gridMessage.c_str()));
-	gridchat->SetColLabelValue(1, "Play");
-
-	gridchat->SetRowSize(curRow + 1, 40);
-	gridchat->SetColSize(curCol, 610);
-	gridchat->SetColSize(curCol + 1, 30);/
-
-	/*gridchat->SetCellValue(messaggio, curRow, 0);
-	gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-	gridchat->AutoSizeRow(curRow - 1, true);
-	gridchat->SetColSize(curCol + 1, 30);*/
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
@@ -99,6 +96,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	txtclient->SetFocus();
 	txtclient->SetInsertionPointEnd();
 	txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+	txtclient->WriteText(wxString("Loading...."));
 
 	/*txtlingua shows the language chosen*/
 	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
@@ -162,14 +160,12 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 #endif
 	////GUI Items Creation End
 
-	conta = 10.0; 
-
 	txtnick->AppendText(config->getNick());
 	txtlingua->AppendText(config->getLanguage());
 	HANDLE myHandle = CreateThread(0, 0, clientts.ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, clientts.TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, clientts.STT_THREAD, NULL, 0, &myThreadID4);
-	/*HANDLE myHandle4 = CreateThread(0, 0, CTRL_STT, NULL, 0, &myThreadID4);*/
+	HANDLE myHandle4 = CreateThread(0, 0, clientts.CTRL_STT, NULL, 0, &myThreadID4);
 	clientts.SetupColor(colors);
 	/*char *str = this->nations->Search(CURRENT_LANG, APICODE);
 	wchar_t* wString = new wchar_t[4096];
@@ -229,67 +225,47 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
  */
 void ClientTsFrm::updateClientListTimer(wxTimerEvent& event)
 {
-	int i = 0;
-	UserListPTR luser = Session::Instance()->getListUser();
-	wxUniChar ch = ':';
-	time_t     now = time(0);
-	struct tm  tstruct;
-	char       buf[80];
+	int			i			= 0;
+	UserListPTR luser		= Session::Instance()->getListUser();
+	wxUniChar   ch			= ':';
+	time_t		now			= time(0);
+	struct tm	tstruct;
+	char		buf[80];
+
 	tstruct = *localtime(&now);
 	strftime(buf, sizeof(buf), "%X", &tstruct);
 	clientts.showClients(DEFAULT_VIRTUAL_SERVER);
+
 	txtclient->Clear();	//Clear client window
+
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
 		UserPTR uptr = *it;
-		if (uptr->getName() != "") //if there is a client name
+		txtclient->BeginTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue));
+			
+		wxString naz = this->nations->Search(&uptr->getLang(), COUNTRY);
+		wxBitmap bitmap = wxBitmap();
+		bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
+		txtclient->WriteImage(bitmap);
+
+		txtclient->WriteText(" " +uptr->getName() + "\t");
+
+		if (uptr->getSpeak() == 1)	//if this client is speaking, show microphone 
 		{
-			if (uptr->getSpeak() == 0 && uptr->getWrite() == 0) //gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L""));
-				txtclient->BeginTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue));
-			if (uptr->getSpeak() == 1)	//if this client is speaking show microphone 
-			{
-				wxString naz = this->nations->Search(&uptr->getLang(), COUNTRY);
-				wxBitmap bitmap = wxBitmap();
-				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
-				txtclient->WriteImage(bitmap);
-
-				txtclient->WriteText(uptr->getName() + "\t");
-				//if (person[i].lang == "Italian") { 
-				//txtclient->WriteImage(wxBitmap(italy_xpm));
-				//}
-
-				//if (strncmp(person[i].lang,"English",7)==0)  { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp"));*/ txtclient->WriteImage(wxBitmap(usa_xpm)); }
-				//if (person[i].lang == "Portuguese") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp"));*/ txtclient->WriteImage(wxBitmap(brasil_xpm)); }
-				txtclient->WriteText("\t");
-				txtclient->WriteImage(wxBitmap(microphone_xpm));
-			}
-			else if (uptr->getSpeak() == 0)	//if this client is writing show keayboard
-			{
-				wxString naz = this->nations->Search(&uptr->getLang(), COUNTRY);
-				wxBitmap bitmap = wxBitmap();
-				bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
-				txtclient->WriteImage(bitmap);
-				/*gridclient->SetCellTextColour(wxColour(colors[i].red, colors[i].green, colors[i].blue), i, 0);
-				gridclient->SetCellValue(i, 0, person[i].name);*/
-				txtclient->WriteText(uptr->getName() + "\t");
-				//if (person[i].lang == "Italian") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/.bmp"));*/ txtclient->WriteImage(wxBitmap(italy_xpm)); }
-				//if (strncmp(person[i].lang, "English", 7) == 0) { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/usa.bmp")); */txtclient->WriteImage(wxBitmap(usa_xpm)); }
-				//if (person[i].lang == "Portuguese") { /*gridclient->SetCellRenderer(i, 1, new MyGridCellRenderer(L"../res/brasil.bmp"));*/ txtclient->WriteImage(wxBitmap(brasil_xpm)); }
-				if (uptr->getWrite() == 1)
-				{
-					txtclient->WriteText("\t");
-					txtclient->WriteImage(wxBitmap(keyboard_xpm));
-					//gridclient->SetCellRenderer(i, 2, new MyGridCellRenderer(L"../res/keyboard.bmp"));
-				}
-
-
-			}
-			txtclient->EndTextColour();
-			txtclient->Newline();
-			i++;
+			txtclient->WriteText("\t");
+			txtclient->WriteImage(wxBitmap(microphone_xpm));
 		}
-	}
 
+		if (uptr->getWrite() == 1)
+		{
+			txtclient->WriteText("\t");
+			txtclient->WriteImage(wxBitmap(keyboard_xpm));
+		}
+		
+		txtclient->EndTextColour();
+		txtclient->Newline();
+		i++;
+	}
 }
 
 /*
@@ -346,7 +322,6 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 			}
 		}
 	}
-
 }
 
 void ClientTsFrm::Debug(wxCommandEvent& event)
@@ -407,7 +382,8 @@ void ClientTsFrm::askForSaving(){
 		{
 			FrmSaveChat *frame = new FrmSaveChat(NULL);
 			result = frame->ShowModal();
-			if (result == wxID_YES){
+			if (result == wxID_YES)
+			{
 				clientts.setFlagSave(true); // chat saved
 				wxMessageBox(labels.saveSuccess);
 			}
@@ -423,84 +399,35 @@ void ClientTsFrm::askForSaving(){
 void ClientTsFrm::updatePanelMsg(){
 	/****
 	* add new message to chat grid
-	* ***/
+	****/
 
-	time_t     now = time(0);
-	struct tm  tstruct;
-	char       buf[80];
+	time_t			now = time(0);
+	struct tm		tstruct;
+	char			buf[80];
+	wxImageList		*il;
+	UserListPTR		luser			= Session::Instance()->getListUser();
+	MessagePTR		msgptr			= Session::Instance()->getMessage();
+	long			itemIndexChat;
+
 	tstruct = *localtime(&now);
 	strftime(buf, sizeof(buf), "%X", &tstruct);
 
-	UserListPTR luser = Session::Instance()->getListUser();
-	MessagePTR msgptr = Session::Instance()->getMessage();
+	if (!(msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>'))
+	{
+		itemIndexChat = chatbox->InsertItem(curRow, wxString::FromUTF8(buf)); //want this for col. 1
+		printf("");
+		chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
 
-	
-	/*for (auto itmsg = lptr->cbegin(); itmsg != lptr->cend(); ++itmsg)
-	{*/
-	if (msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>')
-		return; 
-		/*wxListItem item; 
-		wxString messaggio = wxString::FromUTF8( + "(" + buf + "): " + wxString::FromUTF8(msgptr->getMSG());
-		item.SetText(messaggio);
+		il = new wxImageList(16, 16, false, 0);
+		il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
+		chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
+		chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
+		chatbox->ScrollList(0, curRow);
+		curRow++;
+	}
 
-		chatbox->InsertItem(item);*/
-		
-		//chatbox->Hide();
-	long itemIndex = chatbox->InsertItem(curRow, wxString::FromUTF8(buf)); //want this for col. 1
-	chatbox->SetItem(itemIndex, 1, msgptr->getFrom()); //want this for col. 2
-		
-	wxImageList *il = new wxImageList(16, 16, false, 0);
-	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));//wxBitmap(wxT("icon1"), wxBITMAP_TYPE_BMP_RESOURCE));
-	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
 
-	chatbox->SetItem(itemIndex, 2, msgptr->getMSG()); //col. 3
-		 
-		//chatbox->SetItem(itemIndex, 3, wxIcon(wxT(".. / res / play.bmp"), wxBITMAP_TYPE_BMP_RESOURCE)); //col. 3
-		//chatbox->Show();
-	chatbox->ScrollList(0, curRow);
-	curRow++;
-		//chatbox->SetItem(itemIndex, 3, new MyGridCellRenderer(L"../res/play.bmp"));
-
-		/*gridchat->Scroll(curRow + 20, curCol + 20);
-		gridchat->AppendRows(1, true); //Add a new message row
-		wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
-		gridchat->SetCellValue(messaggio, curRow, 0);
-	 	gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-		gridchat->AutoSizeRow(curRow - 1, true);
-		gridchat->SetColSize(curCol + 1, 30);*/
-	//}
-/*
- 
-	//if (strGlobale != "" && StringTranslate != oldStringTranslate/* strGlobale!=oldstrGlobale && StringTranslate != "" * /)
-	
-		if (wxString::FromAscii(clientts.LANG_MSG_SRC) == ">" || wxString::FromAscii(clientts.LANG_MSG_SRC) == "</html>" || clientts.LANG_MSG_SRC[0] == '<' || clientts.LANG_MSG_SRC[0] == '>')
-			return;
-
-		gridchat->AppendRows(1, true); //Add a new message row
-		if (strNick == config->getNick())
-		{
-			wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
-//			gridchat->SetCellValue(messaggio, Session::Session::curRow, 0);
-			gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-			gridchat->AutoSizeRow(curRow - 1, true);
-			gridchat->SetColSize(curCol + 1, 30);
-		}
-		else
-		{
-			for (auto it = luser->cbegin(); it != luser->cend(); ++it)
-			{
-				/*if (wxString::FromUTF8((*itmsg)->getFrom()) == (*it)->getName() && (*it)->getUsed() == 1)
-				{* /
-					wxString messaggio = wxString::FromUTF8((*itmsg)->getFrom()) + "(" + buf + "): " + wxString::FromUTF8((*itmsg)->getMSG());
-					gridchat->SetCellTextColour(curRow, 0, wxColour(colors[(*it)->getColor()].red, colors[(*it)->getColor()].green, colors[(*it)->getColor()].blue));
-					gridchat->SetCellValue(messaggio, curRow, 0);
-					gridchat->SetRowSize(curRow, 40);
-					gridchat->SetColSize(curCol, 578);
-					gridchat->SetColSize(curCol + 1, 60);
-					gridchat->SetCellRenderer(curRow++, 1, new MyGridCellRenderer(L"../res/play.bmp"));
-			//	}
-			}
-		}
+	/*
 
 		oldStringTranslate = StringTranslate;
 		oldstrGlobale = strGlobale;
@@ -515,8 +442,24 @@ void ClientTsFrm::updatePanelMsg(){
 		}
 	}*/
 }
-
-void notifyMSG(ClientTsFrm *fn)
+/*
+MyWorkerThread::MyWorkerThread(ClientTsFrm *frame)
+: wxThread()
 {
- 	fn->updatePanelMsg();
+	m_frame = frame;
+	m_count = 0;
+	//session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
 }
+
+MyWorkerThread::Entry()
+{
+
+
+	
+	wxThreadEvent event(wxEVT_THREAD, WORKER_EVENT);
+	event.SetInt(-1); // that's all
+	wxQueueEvent(m_frame, event.Clone());
+
+
+	return NULL;
+}*/

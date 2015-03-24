@@ -10,13 +10,15 @@
 #else
 #include <wx/wxprec.h>
 #endif
- 
+
 #include "../data/Session.h"
 #include "../data/Message.h"
 #include "../data/Config.h"
 
 #include "EventType.h" 
 
+#include <thread>
+#include <wx/event.h>
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <wx/timer.h>
@@ -44,9 +46,10 @@
 
 typedef std::function<void()> cbClientTsFrm;
 
-
+class ClientTsFrm;
 class ClientTS  {
 public:
+	ClientTsFrm* observer;
 	static  Session* session;
 	static  ConfigPTR config;
 	static bool flagSave;
@@ -72,7 +75,7 @@ public:
 	virtual ~ClientTS(){}
 
 	static void sendMessage(wxString *msgToSend);
-
+	static void onTextMessageEventss(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message);
 	static void disconnect(); 
 	
 	static IAudioRecorder* getIAudioRecorder(){ return recorder; }
@@ -82,7 +85,6 @@ public:
 	static void setFlagSave(bool flg){ flagSave = flg; }
 	template <typename Observer>
 	static void setCBClientTSMSG(Observer && fn){ notifyMSGcb = std::forward<Observer>(fn); }
-
 	static void speak(const char *LANG, const char*MSG);
 	static void Print(char*word);
 	static size_t read_callback(static void *ptr, size_t size, size_t nmemb, static void *userp);
@@ -128,6 +130,10 @@ public:
 	static DWORD WINAPI STT_THREAD(LPVOID lpParameter);
 };
 
+/*
+class msgEvent : public wxThreadEvent{
+
+};*/
 /*struct user* getPerson();
 char* getLANG_MSG_SRC();
 char* getMSG_SRC();

@@ -13,10 +13,21 @@ enum MSGDirection{
 	out
 };
 
-
 class Message {
 public:
-	Message(MSGDirection dir, wxString from, wxString message, wxString language, wxString translated, wxString timestamp) : m_message(message), m_dir(dir), m_from(from), m_language(language), m_translated(translated), m_timestamp(timestamp) { }
+	Message(MSGDirection dir, wxString from, wxString message, wxString language_org, wxString language_dest) : m_message(message), m_dir(dir), m_from(from), m_language_orig(language_org), m_language_dest(language_dest) {
+	
+		time_t			rawtime;
+		struct tm*		timeinfo;
+		char			timestamp[100];
+
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(timestamp, 100, "%c", timeinfo);
+		m_timestamp = timestamp;
+
+	}
+
 	~Message(){ }
 
 	void setIO(MSGDirection dir);
@@ -29,14 +40,18 @@ public:
 	};
 	wxString getMSG(){ return m_message; }
 	wxString getTranslated(){ return m_translated; }
-	wxString getTimestamp(){ return m_timestamp; }
-	wxString getLaguage(){ return m_language; }
+	wxString getTimeStamp(){ return m_timestamp; }
+	wxString getLanguageOrig(){ return m_language_orig; }
+
+	wxString getLanguageDest(){ return m_language_dest; }
+	void  setSrtTranslate(wxString str){ m_translated = str; }
 private:
 	MSGDirection m_dir;
-	wxString m_language;
+	wxString m_language_orig;
 	wxString m_from;
 	wxString m_message;
 	wxString m_timestamp;
+	wxString m_language_dest;
 	wxString m_translated;
 };
  

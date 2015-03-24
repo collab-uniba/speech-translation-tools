@@ -1,5 +1,4 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include <wx/string.h>
 #include <memory>
@@ -52,4 +51,3 @@ private:
 typedef std::shared_ptr<Config> ConfigPTR;
 
 
-#endif

@@ -26,8 +26,6 @@ public:
  
 	void registerObserver(const Event& event, fnobserver fn, Observer * ob)
 	{
-		observers absr = { fn, ob };
-
 		observers_[event].push_back({ fn, ob });
 		//observers_[event].push_back(std::forward<Observer>(observer));
 	}
@@ -39,8 +37,8 @@ public:
 		}
 	}
 	// disallow copying and assigning
-	Subject(const Subject&) = delete;
-	Subject& operator=(const Subject&) = delete;
+	Subject (const Subject&) = delete;
+	Subject& operator = (const Subject&) = delete;
 
 };
 

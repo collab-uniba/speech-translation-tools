@@ -43,7 +43,6 @@ class Login : public wxDialog
 {
 	private:
 		DECLARE_EVENT_TABLE();
-		
 	public:
 		Login(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("Login"), 
 			const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, 

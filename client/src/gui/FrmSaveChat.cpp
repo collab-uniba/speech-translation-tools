@@ -167,12 +167,12 @@ void FrmSaveChat::saveChatCSV(const char* filename){
 	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
 		fprintf(configr, "\"" + (*iter)->getFrom() + "\";");
-		fprintf(configr, "\"" + (*iter)->getTimestamp() + "\";");
+		fprintf(configr, "\"" + (*iter)->getTimeStamp() + "\";");
 		if (MSGDirection::out == (*iter)->getIO())
 		{
 			fprintf(configr, "\" ---> " + (*iter)->getMSG() + "\"\n");
 		}else{
-			fprintf(configr, "\" <--- " + (*iter)->getLaguage() + ";\"" + (*iter)->getMSG() + ";\"#orig#\";\"" + settings->getLanguage() + ";\"" + (*iter)->getTranslated() + "\"\n");
+			fprintf(configr, "\" <--- " + (*iter)->getLanguageOrig() + ";\"" + (*iter)->getMSG() + ";\"#orig#\";\"" + (*iter)->getLanguageDest() + ";\"" + (*iter)->getTranslated() + "\"\n");
 		}  
 	}
 
@@ -189,14 +189,14 @@ void FrmSaveChat::saveChatTXT(const char* filename){
 	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
 		fprintf(configr, (*iter)->getFrom() + " || ");
-		fprintf(configr, (*iter)->getTimestamp() + "  || "); 
+		fprintf(configr, (*iter)->getTimeStamp() + "  || ");
 
 		if (MSGDirection::out == (*iter)->getIO())
 		{
 			fprintf(configr, " ---> " + (*iter)->getMSG() + "\n");
 		}
 		else{
-			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter)->getLaguage(), (*iter)->getMSG(), settings->getLanguage(), (*iter)->getTranslated());
+			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter)->getLanguageDest(), (*iter)->getMSG(), (*iter)->getLanguageOrig(), (*iter)->getTranslated());
 		}			
 	}
 
