@@ -32,10 +32,20 @@ static size_t writefunc(void *ptr, size_t size, size_t nmemb, struct Translation
 	return size*nmemb;
 }
 
+void Translation::BingTranslate::init_string(struct Translation::MemoryStruct *s) {
+	s->size = 0;
+	s->memory = (char*)malloc(s->size + 1);
+	if (s->memory == NULL) {
+		fprintf(stderr, "malloc() failed\n");
+		exit(EXIT_FAILURE);
+	}
+	s->memory[0] = '\0';
+}
+
 void Translation::BingTranslate::translateThis(MessagePTR msg)
 {
 
-
+	getToken();
 }
 
 void Translation::BingTranslate::getToken(){

@@ -17,8 +17,11 @@
 #include "gui/ClientTsFrm.h"
 #include "gui/AudioWizard.h"
 #include "gui/SplashScreen.h"
+
+#include "translatecontroller/translate.h"
 #include "../res/Splash.xpm"
 
+using namespace Translation;
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
@@ -99,7 +102,10 @@ bool APTT::OnInit()
     // few common command-line options but it could be do more in the future
     if ( !wxApp::OnInit() )
         return false;
-	SplashScreen::GetSplashScreen(wxBitmap(Splash), 3000);
+	/*MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "strMessage", "Italian", "strMessageLang");
+	BingTranslate bng;
+	bng.translateThis(msg_text);
+	SplashScreen::GetSplashScreen(wxBitmap(Splash), 3000);*/
 	Login * dialog = new Login(NULL);
 	SetTopWindow(dialog);
 	dialog->Show();

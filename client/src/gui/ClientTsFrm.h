@@ -91,8 +91,7 @@ public:
 		long style = wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX | wxRESIZE_BORDER);
 
 	virtual ~ClientTsFrm(){};
-	void updatePanelMsg();
-	void OnGUIThreadEvent(wxThreadEvent& event);
+	void updatePanelMsg(wxThreadEvent& event);
 
 private:
 	unsigned int curRow;			//Initialize Row index

@@ -33,9 +33,13 @@ namespace Translation{
 
 	class BingTranslate : public TranslateX {
 	public:
+		BingTranslate(){
+			init_string(&token);
+		}
 		void translateThis(MessagePTR msg);
 	private:
 		float GetRemainingTime();
+		void init_string(struct Translation::MemoryStruct *s);
 		void getToken();
 	private:
 		UINT64	m_ExpirationTime;

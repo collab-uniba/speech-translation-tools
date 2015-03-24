@@ -46,10 +46,10 @@
 
 typedef std::function<void()> cbClientTsFrm;
 
-class ClientTsFrm;
+//class ClientTsFrm;
 class ClientTS  {
 public:
-	ClientTsFrm* observer;
+	wxFrame* observer;
 	static  Session* session;
 	static  ConfigPTR config;
 	static bool flagSave;

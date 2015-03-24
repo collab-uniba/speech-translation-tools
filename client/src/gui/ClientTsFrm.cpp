@@ -17,26 +17,13 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
 	EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
 	EVT_LIST_ITEM_SELECTED(ID_GRIDCHAT, ClientTsFrm::gridchatCellLeftClick)
-	EVT_THREAD(wxID_ANY, ClientTsFrm::OnGUIThreadEvent)
+	EVT_THREAD(wxID_ANY, ClientTsFrm::updatePanelMsg)
 
 	END_EVENT_TABLE()
 	//EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
 
 
-void ClientTsFrm::OnGUIThreadEvent(wxThreadEvent& event){
-	MessagePTR msgptr = event.GetPayload<MessagePTR>();
 
-	long itemIndexChat = chatbox->InsertItem(curRow, wxString::FromUTF8("")); //want this for col. 1
-	printf("");
-	chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
-
-	/*il = new wxImageList(16, 16, false, 0);
-	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
-	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);*/
-	chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
-	chatbox->ScrollList(0, curRow);
-	curRow++;
-}
 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, size, style)
@@ -49,13 +36,13 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	colors = (COLORE*)malloc(10 * sizeof(COLORE));
 
-	session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
+//	session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
 
 //	MyWorkerThread *thread = new MyWorkerThread(this);
 
 	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
 	 curRow = 0;			//Initialize Row index
-	
+	 clientts.observer = this;
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
 	if (warnings->IsNicknameEmpty())
@@ -396,26 +383,19 @@ void ClientTsFrm::askForSaving(){
 		wxMessageBox(labels.noSave);
 }
 
-void ClientTsFrm::updatePanelMsg(){
+void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	/****
 	* add new message to chat grid
 	****/
 
-	time_t			now = time(0);
-	struct tm		tstruct;
-	char			buf[80];
 	wxImageList		*il;
-	UserListPTR		luser			= Session::Instance()->getListUser();
-	MessagePTR		msgptr			= Session::Instance()->getMessage();
+	MessagePTR		msgptr			= event.GetPayload<MessagePTR>();
 	long			itemIndexChat;
-
-	tstruct = *localtime(&now);
-	strftime(buf, sizeof(buf), "%X", &tstruct);
 
 	if (!(msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>'))
 	{
-		itemIndexChat = chatbox->InsertItem(curRow, wxString::FromUTF8(buf)); //want this for col. 1
-		printf("");
+		itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
+
 		chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
 
 		il = new wxImageList(16, 16, false, 0);

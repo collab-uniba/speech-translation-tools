@@ -790,11 +790,11 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	{
 		StringTranslate = strMessage;
 		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
-		session->addMSG(msg_text);
-		/*wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
+		//session->addMSG(msg_text);
+		wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
 
 		evt.SetPayload<MessagePTR>(msg_text);
-		wxQueueEvent(m_instance->observer,evt.Clone());*/
+		wxQueueEvent(m_instance->observer,evt.Clone());
 		setFlagSave(false); 
 		
 		return;
