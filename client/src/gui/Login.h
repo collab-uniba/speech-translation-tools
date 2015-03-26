@@ -90,12 +90,14 @@ class Login : public wxDialog
 			ID_WXEDIT1 = 1002,
 			ID_WXSTATICTEXT1 = 1001,
 			////GUI Enum Control ID End
-			ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values
+			ID_DUMMY_VALUE_ ,//don't remove this value unless you have other enum values
+			ID_GTRANSLATE = 1220
 		};
 	
 	private:
 		void OnClose(wxCloseEvent& event);
 		void CreateGUIControls();
 		void ReadConfig();
+		void Google_translate(wxCommandEvent& event);
 };
  

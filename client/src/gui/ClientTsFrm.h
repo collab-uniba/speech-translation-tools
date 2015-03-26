@@ -62,7 +62,6 @@ class ClientTsFrm : public wxFrame
 {
 private:
 	DECLARE_EVENT_TABLE();
-	double conta;
 	void askForSaving();
 	void WxButton1Click(wxCommandEvent& event);
 	void btnsendClick(wxCommandEvent& event);
@@ -95,7 +94,6 @@ public:
 
 private:
 	unsigned int curRow;			//Initialize Row index
-	unsigned int curCol;			//Initialize Column index
 	Session* session;
 	ConfigPTR config;
 	NationList *nations;
@@ -112,15 +110,13 @@ private:
 	wxRichTextCtrl *txtchat;
 	wxButton *btnsend;
 	wxTextCtrl *txtmsg;
-	wxGrid *gridchat;
-	wxGrid *gridclient;
 	wxBoxSizer *sizer;
 	wxGridSizer *gridsizer;
 	wxMenuBar *WxMenuBar1;
 	wxMenu *ID_MNU_FILE_1001_Mnu_Obj;
 	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
 	wxBitmapButton *WxBitmapButton1;
-	ClientTS clientts;   
+	std::unique_ptr<ClientTS> clientts;
 	wxListCtrl* chatbox;
     COLORE *colors;
 	enum
@@ -155,27 +151,7 @@ private:
 	};
 };
 
-class MyGridCellRenderer : public wxGridCellStringRenderer
-{
-private:
-	wxBitmap* bitmap;
-public:
-	virtual void Draw(wxGrid& grid,
-		wxGridCellAttr& attr,
-		wxDC& dc,
-		const wxRect& rect,
-		int row, int col,
-		bool isSelected);
-	void setPicture(wxString);
 
-	MyGridCellRenderer(wxString name)
-	{
-		if (name == "") bitmap = new wxBitmap(NULL);
-		else bitmap = new wxBitmap(name, wxBITMAP_TYPE_BMP);
-	}
-};
-
-void notifyMSG(ClientTsFrm *fn);
 /*
 class MyWorkerThread : public wxThread
 {

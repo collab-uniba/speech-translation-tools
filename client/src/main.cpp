@@ -102,10 +102,14 @@ bool APTT::OnInit()
     // few common command-line options but it could be do more in the future
     if ( !wxApp::OnInit() )
         return false;
-	/*MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "strMessage", "Italian", "strMessageLang");
+
+/*	MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "Ciao, come stai?", "Italian", "English(Uk)");
 	BingTranslate bng;
 	bng.translateThis(msg_text);
-	SplashScreen::GetSplashScreen(wxBitmap(Splash), 3000);*/
+	MessagePTR  msg_text2 = std::make_shared<Message>(MSGDirection::out, "strNick", "mi chiamo daniel", "Italian", "English(Uk)");
+
+	bng.translateThis(msg_text2);*/
+	SplashScreen::GetSplashScreen(wxBitmap(Splash), 3000);
 	Login * dialog = new Login(NULL);
 	SetTopWindow(dialog);
 	dialog->Show();

@@ -14,6 +14,7 @@
 #include "../data/Session.h"
 #include "../data/Message.h"
 #include "../data/Config.h"
+#include "../translatecontroller/translate.h"
 
 #include "EventType.h" 
 
@@ -44,7 +45,7 @@
 #define MENU_SPEECH 1802
 
 
-typedef std::function<void()> cbClientTsFrm;
+using namespace Translation;
 
 //class ClientTsFrm;
 class ClientTS  {
@@ -55,19 +56,20 @@ public:
 	static bool flagSave;
 	static  long text_to_speech;
 	static  wxSemaphore thread_semaphore;
-	static  cbClientTsFrm notifyMSGcb;
 	//static ISoundEngine* engine;				//Audio Engine to record sound
 	static IAudioRecorder* recorder;			//Flow of audio daa
 	//static uint64 scHandlerID;
 	struct ClientUIFunctions funcs;
 	static  char identity[IDENTITY_BUFSIZE];
 	static ClientTS *m_instance;
+	TranslateMSGThread thread;
 
 
 public:
-	ClientTS(){
+	ClientTS(wxFrame * frame){
 		if (!m_instance)
 			m_instance = this;
+		observer = frame;
 		session = Session::Instance();
 		config = session->getConfig();
 	}
@@ -143,3 +145,17 @@ void emptyInputBuffer();
 
 
 
+
+class TranslateMSGThread : public wxThread
+{
+public:
+	TranslateMSGThread(wxFrame *dlg) : wxThread(wxTHREAD_JOINABLE)
+	{
+		m_dlg = dlg;
+	}
+
+	virtual ExitCode Entry();
+
+private:
+	wxFrame *m_dlg;
+};

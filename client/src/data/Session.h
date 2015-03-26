@@ -31,8 +31,8 @@ typedef std::shared_ptr<UserList> UserListPTR;
 /* 
  * Set and get functions
  */
-class ClientTsFrm;
-class Session : public Subject<EventTS, ClientTsFrm> {
+
+class Session{
 public:
 	static Session* Instance();
 	bool sound_flag;			//Flag to start/stop 
@@ -47,7 +47,6 @@ public:
 	Session(Session const&){};             // copy constructor is private
 	Session& operator=(Session const&){};  // assignment operator is private
 	static Session* m_pInstance;
-
  
 public:
 	/*static Session* Instance();*/
@@ -78,10 +77,7 @@ public:
 	UserListPTR getListUser(){ return m_luser; }
 	void setListUser(UserListPTR luser){ this->m_luser = luser; }
 
-	MessagePTR getMessage(){ 
-		m_queue->push_back(m_pending);
-		return m_pending;
-	}
+
 
 	MessageQueuePTR getMessageQueue(){ return m_queue; }
 
@@ -93,7 +89,7 @@ public:
 	bool checkUser(UserPTR u);	
 	bool checkUser(const char* u);
 
-	void addMSG(MessagePTR msg);
+	void addMsgToLog(MessagePTR msg);
 
 
 /*	static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
@@ -106,7 +102,6 @@ private:
 	ConfigPTR m_config;
 	UserListPTR m_luser;
 	char* m_translationEngine;
-	MessagePTR m_pending;
 	MessageQueuePTR m_queue;
 };
 

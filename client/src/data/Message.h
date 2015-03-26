@@ -36,7 +36,7 @@ public:
 	wxString getFrom(){ return m_from; };
 
 	void setMSG(wxString dir){
-		m_from = dir;
+		m_message = dir;
 	};
 	wxString getMSG(){ return m_message; }
 	wxString getTranslated(){ return m_translated; }

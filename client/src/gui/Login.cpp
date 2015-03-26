@@ -20,6 +20,7 @@ BEGIN_EVENT_TABLE(Login, wxDialog)
 	EVT_CLOSE(Login::OnClose)
 	EVT_BUTTON(ID_WXBUTTON1, Login::btnloginClick)
 	EVT_COMBOBOX(ID_WXCOMBOBOX1, Login::cmblingua_SelectionChange)
+	EVT_RADIOBUTTON(ID_GTRANSLATE, Login::Google_translate)
 END_EVENT_TABLE()
 
 
@@ -142,7 +143,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	wxBoxSizer* bSizer7;
 	bSizer7 = new wxBoxSizer(wxVERTICAL);
 
-	radGoogle = new wxRadioButton(this, wxID_ANY, wxT("Google Translate"), wxDefaultPosition, wxDefaultSize, 0);
+	radGoogle = new wxRadioButton(this, ID_GTRANSLATE, wxT("Google Translate"), wxDefaultPosition, wxDefaultSize, 0);
 	bSizer7->Add(radGoogle, 0, wxALL, 5);
 
 	radBing = new wxRadioButton(this, wxID_ANY, wxT("Bing Translate"), wxDefaultPosition, wxDefaultSize, 0);
@@ -269,3 +270,11 @@ void Login::btnloginClick(wxCommandEvent& event)
 }
 
 
+void Login::Google_translate(wxCommandEvent& event){
+	
+	wxMessageDialog *d = new wxMessageDialog(NULL, wxT("Google Translate is a paid service and for that reason is not available"), wxT("Info"), wxOK);
+	d->ShowModal();
+		radGoogle->SetValue(false);
+		radBing->SetValue(true);
+
+}

@@ -790,13 +790,13 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	{
 		StringTranslate = strMessage;
 		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
-		//session->addMSG(msg_text);
+		
+		session->addMsgToLog(msg_text);
 		wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
-
 		evt.SetPayload<MessagePTR>(msg_text);
 		wxQueueEvent(m_instance->observer,evt.Clone());
-		setFlagSave(false); 
-		
+
+		setFlagSave(false);
 		return;
 	}
 
@@ -810,7 +810,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 			TranslateController::parseGoogle(TranslateController::richiestaGoogle(&strMessage, &strMessageLang));
 			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
 			msg_text->setSrtTranslate(strMessage);
-			session->addMSG(msg_text);
+			session->addMsgToLog(msg_text);
 			setFlagSave(false);
 		}
 	}
@@ -818,19 +818,23 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	if (strcmp(config->getTranslationEngine(), "bing") == 0)
 	{
 		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
-		auto p = [](wxString strMessage, wxString strMessageLang, MessagePTR msg_text) {
-			StringTranslate = TranslateController::richiestaBing(&strMessage, &strMessageLang);
-
+		//auto p = [](wxString strMessage, wxString strMessageLang, MessagePTR msg_text) {
+		BingTranslate.translateThis(msg_text);
+			//StringTranslate = TranslateController::richiestaBing(&strMessage, &strMessageLang);
 			//	TranslateController::parseBing(TranslateController::richiestaBing(&strMessage, &strMessageLang));
-			msg_text->setMSG(StringTranslate);
+		//	msg_text->setMSG(StringTranslate);
 
-		
-			//session->addMSG(msg_text);
+			session->addMsgToLog(msg_text);
+			wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
+			evt.SetPayload<MessagePTR>(msg_text);
+			wxQueueEvent(m_instance->observer, evt.Clone());
+
+			//session->addMsgToLog(msg_text);
 			setFlagSave(false); 
-		};
+	/*	};
 		std::thread t1(p, strMessage, strMessageLang, msg_text);
 
-		t1.join();
+		t1.join();*/
 		
 		
 	}

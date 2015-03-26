@@ -9,7 +9,16 @@
 #include <wx/wx.h>
 #include "../data/Message.h"
 
+
+#include "rapidjson/document.h"		
+#include "rapidjson/prettywriter.h"	
+#include "rapidjson/filestream.h"
+
+#include "../gui/NationList.h"
 #include <curl/curl.h>
+
+
+using namespace rapidjson;
 
 const UINT MAX_INPUT_TEXT = 10000;
 const float AUTH_TIME_MARGIN = 20.0f;
@@ -34,15 +43,28 @@ namespace Translation{
 	class BingTranslate : public TranslateX {
 	public:
 		BingTranslate(){
-			init_string(&token);
+			getToken();
 		}
+		~BingTranslate(){}
 		void translateThis(MessagePTR msg);
 	private:
 		float GetRemainingTime();
 		void init_string(struct Translation::MemoryStruct *s);
 		void getToken();
 	private:
-		UINT64	m_ExpirationTime;
-		struct MemoryStruct token;
+		time_t	m_expirationTime;
+		std::string	m_access_token;
+	};
+
+	/* not implemented -> API not public*/
+	class GoogleTranslate : public TranslateX {
+	public:
+		GoogleTranslate(){}
+		~GoogleTranslate(){}
+		void translateThis(MessagePTR msg);
+	private:
+	private:
+		time_t	m_expirationTime;
+		std::string	m_access_token;
 	};
 }

@@ -1,19 +1,5 @@
 #include "Translate.h"
 
-static UINT64 GetTimeStamp64()
-{
-	FILETIME FileTime;
-	GetSystemTimeAsFileTime(&FileTime);
-	return(*((PUINT64)&FileTime) / 10000);
-}
-
-
-float Translation::BingTranslate::GetRemainingTime()
-{
-	float d = (float)((double)(m_ExpirationTime - GetTimeStamp64()) * (double)(1.0 / 1000.0));
-	return((d >= 0) ? d : 0);
-}
-
 /*
 Save data from http request into string
 */
@@ -44,22 +30,83 @@ void Translation::BingTranslate::init_string(struct Translation::MemoryStruct *s
 
 void Translation::BingTranslate::translateThis(MessagePTR msg)
 {
+	time_t					timer;
+	double					seconds;
+	std::string				header;
+	NationList				*nations;
+	char					languagesrc[30]		= { NULL },
+							languagedst[30]		= { NULL };
+	CURL					*curl;
+	struct MemoryStruct		response;
+	std::string				url;
+	struct curl_slist		*chunk				= NULL;
+	CURLcode				res2;
 
-	getToken();
+	if ( msg->getLanguageOrig() != msg->getLanguageDest())
+	{
+		init_string(&response);
+		time(&timer);
+		seconds = difftime(m_expirationTime, timer);
+		nations = new NationList();
+
+		if (seconds < 10 ) getToken();
+	
+		header = "Authorization: Bearer " + m_access_token;
+	
+		nations->ReadFromFile("..\\conf\\locales_code.txt");
+
+		strcpy(languagesrc, nations->Search(&msg->getLanguageOrig(), APICODE));
+		strcpy(languagedst, nations->Search(&msg->getLanguageDest(), APICODE));
+
+		curl = curl_easy_init();
+		char *trueheader = curl_easy_unescape(curl, header.c_str(), 0, NULL);
+		const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
+	
+		url = "http://api.microsofttranslator.com/V2/Http.svc/Translate?text=";
+		url += BufferSource + std::string("&from=") + languagesrc + "&to=" + languagedst;
+
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+		chunk = curl_slist_append(chunk, header.c_str());
+		res2 = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+		res2 = curl_easy_perform(curl);
+		if (res2 == CURLE_OK)
+		{
+			msg->setSrtTranslate(response.memory);
+		}
+		//else manage error?
+
+		curl_global_cleanup();
+
+	}
+	else{
+		msg->setSrtTranslate(msg->getMSG());
+	}
+
 }
 
 void Translation::BingTranslate::getToken(){
 
-	CURL		*curl2;
-	CURLcode	res2;
-	char		url2[1024];
-	char*		encode_key;
+	CURL					*curl2;
+	CURLcode				res2;
+	char					url2[1024];
+	char*					encode_key;
+	struct MemoryStruct		token;
+	time_t					timer;
+	Document				document;
+
+	time(&timer);
+	init_string(&token);
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	if (curl2 = curl_easy_init())
 	{
-		curl_easy_setopt(curl2, CURLOPT_URL, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13"); //Set the url of http request
+		curl_easy_setopt(curl2, CURLOPT_URL, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13"); 
+		//Set the url of http request
 		curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYHOST, 0L);	//Use SSL Protocol
 		curl_easy_setopt(curl2, CURLOPT_SSL_VERIFYPEER, 0L);	//Use SSL protocol
 		curl_easy_setopt(curl2, CURLOPT_WRITEFUNCTION, writefunc);	//Function to handle http request
@@ -68,7 +115,7 @@ void Translation::BingTranslate::getToken(){
 		curl_easy_setopt(curl2, CURLOPT_USERAGENT, "libcurl-agent/1.0");	//Fill user-agent to not decline our request
 		curl_easy_setopt(curl2, CURLOPT_VERBOSE, 1L);
 
-		encode_key = curl_easy_escape(curl2, MY_KEY, strlen(MY_KEY));
+		encode_key = curl_easy_escape(curl2, MY_KEY, strlen( MY_KEY ));
 
 		sprintf(url2,
 			"client_id=%s&client_secret=%s&scope=http://api.microsofttranslator.com&grant_type=client_credentials",
@@ -77,6 +124,9 @@ void Translation::BingTranslate::getToken(){
 
 		curl_easy_setopt(curl2, CURLOPT_POSTFIELDS, url2);
 		res2 = curl_easy_perform(curl2);
-	}
 
+		document.ParseInsitu<0>(token.memory);
+		m_access_token = document["access_token"].GetString();
+		m_expirationTime = std::stoi(document["expires_in"].GetString()) + timer;
+	}
 }

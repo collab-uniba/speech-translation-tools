@@ -29,9 +29,8 @@ char* Session::getApiGoogle(){
 }
 
 
-void Session::addMSG(MessagePTR msg){
-	m_pending = msg;
-	notify(EventTS::MSG_RCV);
+void Session::addMsgToLog(MessagePTR msg){
+	m_queue->push_back(msg);
 }
 
 char* Session::getGoogleURLTranslation(){

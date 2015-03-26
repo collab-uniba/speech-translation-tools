@@ -20,8 +20,6 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_THREAD(wxID_ANY, ClientTsFrm::updatePanelMsg)
 
 	END_EVENT_TABLE()
-	//EVT_GRID_CELL_LEFT_CLICK(ClientTsFrm::gridchatCellLeftClick)
-
 
 
 
@@ -33,22 +31,21 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
 	config = session->getConfig();
+	clientts = make_unique<ClientTS>(this);
 
 	colors = (COLORE*)malloc(10 * sizeof(COLORE));
 
 //	session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
 
-//	MyWorkerThread *thread = new MyWorkerThread(this);
-
 	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
 	 curRow = 0;			//Initialize Row index
-	 clientts.observer = this;
+	 //clientts->observer = this;
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
 	if (warnings->IsNicknameEmpty())
 		ts3client_logMessage("Nickname field is empty", LogLevel_WARNING, "Gui", _sclogID);
 	//TODO Completare la traduzione di ClientTsFrm usando le variabile statica labels
-	clientts.setFlagSave(true);
+	clientts->setFlagSave(true);
 
 	FILE * record;
 	FILE * translate;
@@ -149,43 +146,29 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	txtnick->AppendText(config->getNick());
 	txtlingua->AppendText(config->getLanguage());
-	HANDLE myHandle = CreateThread(0, 0, clientts.ClientStart, NULL, 0, &myThreadID);
-	HANDLE myHandle2 = CreateThread(0, 0, clientts.TTS_THREAD, NULL, 0, &myThreadID2);
-	HANDLE myHandle3 = CreateThread(0, 0, clientts.STT_THREAD, NULL, 0, &myThreadID4);
-	HANDLE myHandle4 = CreateThread(0, 0, clientts.CTRL_STT, NULL, 0, &myThreadID4);
-	clientts.SetupColor(colors);
-	/*char *str = this->nations->Search(CURRENT_LANG, APICODE);
-	wchar_t* wString = new wchar_t[4096];
-	MultiByteToWideChar(CP_ACP, 0, str, -1, wString, 4096);
-	MessageBox(NULL, wString, L"Test print handler", MB_OK);*/
+	HANDLE myHandle = CreateThread(0, 0, ClientTS::ClientStart, NULL, 0, &myThreadID);
+	HANDLE myHandle2 = CreateThread(0, 0, ClientTS::TTS_THREAD, NULL, 0, &myThreadID2);
+	HANDLE myHandle3 = CreateThread(0, 0, ClientTS::STT_THREAD, NULL, 0, &myThreadID4);
+	HANDLE myHandle4 = CreateThread(0, 0, ClientTS::CTRL_STT, NULL, 0, &myThreadID4);
+	clientts->SetupColor(colors);
+
+
 
 	updateClientListTimer(wxTimerEvent());
 }
 
  
 
-void MyGridCellRenderer::Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rect, int row, int col, bool isSelected)
-{
-	wxGridCellStringRenderer::Draw(grid, attr, dc, rect, row, col, isSelected);
-	dc.DrawBitmap(*bitmap, 0, 0, 0);
-	dc.DrawBitmap(*bitmap, rect.x + 6, rect.y + 4);
-}
-
-void MyGridCellRenderer::setPicture(wxString name)
-{
-	return;
-}
-
 void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 {
-	clientts.text_to_speech = event.GetIndex();
-	clientts.thread_semaphore.Post();
+	clientts->text_to_speech = event.GetIndex();
+	clientts->thread_semaphore.Post();
 }
 
 void ClientTsFrm::OnClose(wxCloseEvent& event)
 {
 	askForSaving();
-	clientts.disconnect();
+	clientts->disconnect();
 	Sleep(300);
 	Destroy();
 }
@@ -203,7 +186,7 @@ void ClientTsFrm::WxButton1Click(wxCommandEvent& event)
 void ClientTsFrm::btnsendClick(wxCommandEvent& event)
 {
 	txtmsg->DiscardEdits();		//Clear buffer of textbox
-	clientts.sendMessage(&txtmsg->GetValue());
+	clientts->sendMessage(&txtmsg->GetValue());
 	txtmsg->Clear();
 }
 
@@ -221,7 +204,7 @@ void ClientTsFrm::updateClientListTimer(wxTimerEvent& event)
 
 	tstruct = *localtime(&now);
 	strftime(buf, sizeof(buf), "%X", &tstruct);
-	clientts.showClients(DEFAULT_VIRTUAL_SERVER);
+	clientts->showClients(DEFAULT_VIRTUAL_SERVER);
 
 	txtclient->Clear();	//Clear client window
 
@@ -295,7 +278,7 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	UserListPTR luser = Session::Instance()->getListUser();
-	clientts.setVadLevel(DEFAULT_VIRTUAL_SERVER);
+	clientts->setVadLevel(DEFAULT_VIRTUAL_SERVER);
 	if (txtmsg->IsModified()) 	session->setwrite_flag(true);
 	int i;
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
@@ -314,7 +297,7 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 void ClientTsFrm::Debug(wxCommandEvent& event)
 {
 	askForSaving();
-	clientts.disconnect();
+	clientts->disconnect();
 	Sleep(300);
 	Destroy();
 }
@@ -337,7 +320,7 @@ void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
 	else
 	{
 		session->setsound_flag(true);
-		clientts.getIAudioRecorder()->startRecordingBufferedAudio();
+		clientts->getIAudioRecorder()->startRecordingBufferedAudio();
 		WxBitmapButton1->SetBitmap(microphone_xpm);
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, false);
 	}
@@ -360,7 +343,7 @@ void ClientTsFrm::Save(wxCommandEvent& event)
 }
 
 void ClientTsFrm::askForSaving(){
-	if (!clientts.getFlagSave()){
+	if (!clientts->getFlagSave()){
 		wxMessageDialog *dial = new wxMessageDialog(NULL, labels.saveMessage, labels.saveMenu, wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
 		dial->SetYesNoLabels(_(labels.yes), _(labels.no));
 
@@ -371,13 +354,13 @@ void ClientTsFrm::askForSaving(){
 			result = frame->ShowModal();
 			if (result == wxID_YES)
 			{
-				clientts.setFlagSave(true); // chat saved
+				clientts->setFlagSave(true); // chat saved
 				wxMessageBox(labels.saveSuccess);
 			}
 		}
 		else
 			// first the user has decided to save the chat session, then he has changed his decision
-			clientts.setFlagSave(false); // chat not saved
+			clientts->setFlagSave(false); // chat not saved
 	}
 	else
 		wxMessageBox(labels.noSave);
@@ -392,7 +375,7 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	MessagePTR		msgptr			= event.GetPayload<MessagePTR>();
 	long			itemIndexChat;
 
-	if (!(msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>'))
+//	if (!(msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>'))
 	{
 		itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
 
