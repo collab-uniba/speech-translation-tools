@@ -1,5 +1,5 @@
-#ifndef _TRANSLATEVARIABLES_H_
-#define _TRANSLATEVARIABLES_H_
+#pragma once
+
 
 #include <string>
 
@@ -70,6 +70,4 @@ typedef struct Labels{
 extern Labels labels;
 
 extern char CURRENT_LANG[20];
-
-#endif
 

@@ -24,7 +24,9 @@ This procedure allows the use of TextToSpeech offered by Microsoft
 it has two parameters: the language of message and body of message
 */
 
+
 std::list<MESSAGE> diary;
+
 
 wxSemaphore ClientTS::thread_semaphore = 0;
 long ClientTS::text_to_speech = 0L;
@@ -819,18 +821,13 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	{
 		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
 		//auto p = [](wxString strMessage, wxString strMessageLang, MessagePTR msg_text) {
-		BingTranslate.translateThis(msg_text);
-			//StringTranslate = TranslateController::richiestaBing(&strMessage, &strMessageLang);
-			//	TranslateController::parseBing(TranslateController::richiestaBing(&strMessage, &strMessageLang));
-		//	msg_text->setMSG(StringTranslate);
-
-			session->addMsgToLog(msg_text);
-			wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
-			evt.SetPayload<MessagePTR>(msg_text);
-			wxQueueEvent(m_instance->observer, evt.Clone());
+		//BingTranslate.translateThis(msg_text);
+		//msg_text->setSrtTranslate("");
+		m_instance->m_pQueue->AddJob(msg_text);
+		session->addMsgToLog(msg_text);
 
 			//session->addMsgToLog(msg_text);
-			setFlagSave(false); 
+		setFlagSave(false); 
 	/*	};
 		std::thread t1(p, strMessage, strMessageLang, msg_text);
 
@@ -1468,3 +1465,15 @@ DWORD WINAPI ClientTS::CTRL_STT(LPVOID lpParameter)
 	}
 	return 1;
 }
+
+/*
+wxThread::ExitCode TranslateMSGThread::Entry()
+{
+	while (1){
+		thread_semaphore.Wait();
+	}
+	return (ExitCode)0;
+
+}*/
+
+

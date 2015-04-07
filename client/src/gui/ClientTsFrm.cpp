@@ -19,7 +19,7 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_LIST_ITEM_SELECTED(ID_GRIDCHAT, ClientTsFrm::gridchatCellLeftClick)
 	EVT_THREAD(wxID_ANY, ClientTsFrm::updatePanelMsg)
 
-	END_EVENT_TABLE()
+END_EVENT_TABLE()
 
 
 

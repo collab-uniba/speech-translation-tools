@@ -18,7 +18,7 @@
 
 #include "EventType.h" 
 
-#include <thread>
+#include <vector>
 #include <wx/event.h>
 #include <wx/sizer.h>
 #include <wx/wx.h>
@@ -47,7 +47,123 @@
 
 using namespace Translation;
 
-//class ClientTsFrm;
+enum
+{
+	MSGTRANSLATE_THREAD_EVENT
+};
+/*
+class TranslateMSGThread : public wxThread
+{
+public:
+	TranslateMSGThread(wxFrame *dlg) : wxThread(wxTHREAD_JOINABLE)
+	{
+		m_dlg = dlg;
+		//Sleep(5000);
+	}
+
+	virtual ExitCode Entry();
+
+private:
+	wxFrame *m_dlg;
+	wxSemaphore m_thread_semaphore;
+	BingTranslate m_bingtranslator;
+};*/
+
+class WorkerThread : public wxThread
+{
+public:
+	WorkerThread(QueueMSG* pQueue, int id = 0) : m_pQueue(pQueue), m_ID(id) { assert(pQueue); wxThread::Create(); }
+
+private:
+	QueueMSG* m_pQueue;
+	int m_ID;
+	BingTranslate bng;
+	virtual wxThread::ExitCode Entry()
+	{
+		Message::tCOMMANDS iErr;
+		m_pQueue->Report(Message::eID_THREAD_STARTED, NULL, m_ID); // tell main thread that worker thread has successfully started
+		try { 
+			while (true) OnJob(); 
+		} // this is the main loop: process jobs until a job handler throws
+		catch (Message::tCOMMANDS& i) { 
+			m_pQueue->Report(iErr = i, NULL, m_ID);
+		} // catch return value from error condition
+		return (wxThread::ExitCode)iErr; // and return exit code
+	} // virtual wxThread::ExitCode Entry()
+
+	virtual void OnJob()
+	{
+		MessagePTR job = m_pQueue->Pop(); // pop a job from the queue. this will block the worker thread if queue is empty
+		bng.translateThis(job);
+		switch (job->m_cmd)
+		{
+		case Message::eID_THREAD_EXIT: // thread should exit
+			//Sleep(1000); // wait a while
+			throw Message::eID_THREAD_EXIT; // confirm exit command
+		case Message::eID_THREAD_JOB: // process a standard job
+			//Sleep(2000);
+			m_pQueue->Report(Message::eID_THREAD_JOB, job, m_ID); // report successful completion
+			break;
+		case Message::eID_THREAD_JOBERR: // process a job that terminates with an error
+			m_pQueue->Report(Message::eID_THREAD_JOB, job, m_ID);
+			//Sleep(1000);
+			throw Message::eID_THREAD_EXIT; // report exit of worker thread
+			break;
+		case Message::eID_THREAD_NULL: // dummy command
+		default: break; // default
+		} // switch(job.m_cmd)
+	} // virtual void OnJob()
+}; // class WorkerThread : public wxThread
+
+
+
+
+class QueueMSG
+{
+public:
+	QueueMSG(wxEvtHandler* pParent) : m_pParent(pParent) {}
+	void AddJob(MessagePTR job) // push a job with given priority class onto the FIFO
+	{
+		wxMutexLocker lock(m_MutexQueue); // lock the queue
+		m_Jobs.push_back(job); // insert the prioritized entry into the multimap
+		m_QueueCount.Post(); // new job has arrived: increment semaphore counter
+	} // void AddJob(const tJOB& job, const tPRIORITY& priority=eNORMAL)
+	MessagePTR Pop()
+	{
+		std::vector<MessagePTR>::iterator element;
+		m_QueueCount.Wait(); // wait for semaphore (=queue count to become positive)
+		m_MutexQueue.Lock(); // lock queue
+		element = m_Jobs.begin(); // get the first entry from queue (higher priority classes come first)
+		m_Jobs.erase(m_Jobs.begin()); // erase it
+		m_MutexQueue.Unlock();// unlock queue
+		return *element; // return job entry
+	} // tJOB Pop()
+	void Report(const Message::tCOMMANDS& cmd, MessagePTR arg, int iArg = 0) // report back to parent
+	{
+		wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);// cmd); // create command event object
+		evt.SetPayload<MessagePTR>(arg); // associate string with it
+		
+		 
+		wxQueueEvent(m_pParent, evt.Clone());
+
+
+		//m_pParent->AddPendingEvent(evt); // and add it to parent's event queue
+	} // void Report(const tJOB::tCOMMANDS& cmd, const wxString& arg=wxEmptyString)
+	size_t Stacksize() // helper function to return no of pending jobs
+	{
+		wxMutexLocker lock(m_MutexQueue); // lock queue until the size has been read
+		return m_Jobs.size();
+	}
+
+private:
+	wxEvtHandler* m_pParent;
+	std::vector<MessagePTR> m_Jobs; // multimap to reflect prioritization: values with lower keys come first, newer values with same key are appended
+	wxMutex m_MutexQueue; // protects queue access
+	wxSemaphore m_QueueCount; // semaphore count reflects number of queued jobs
+};
+
+
+
 class ClientTS  {
 public:
 	wxFrame* observer;
@@ -62,19 +178,41 @@ public:
 	struct ClientUIFunctions funcs;
 	static  char identity[IDENTITY_BUFSIZE];
 	static ClientTS *m_instance;
-	TranslateMSGThread thread;
+	TranslateMSGThread msg_thread;
+	QueueMSG* m_pQueue;
+	std::list<int> m_Threads;
 
 
 public:
-	ClientTS(wxFrame * frame){
+	ClientTS(wxFrame * frame) : msg_thread(frame){
 		if (!m_instance)
 			m_instance = this;
 		observer = frame;
+		m_pQueue = new QueueMSG(frame);
 		session = Session::Instance();
 		config = session->getConfig();
+		// draw the bitmap from a secondary thread
+		/*if (msg_thread.Create() != wxTHREAD_NO_ERROR ||
+			msg_thread.Run() != wxTHREAD_NO_ERROR)
+		{
+			wxLogError(wxT("Can't create/run thread!"));
+			return;
+		}*/
+		m_pQueue = new QueueMSG(frame);
+		OnStart();
 	}
 
-	virtual ~ClientTS(){}
+	void OnStart() // start one worker thread
+	{
+		int id = m_Threads.empty() ? 1 : m_Threads.back() + 1;
+		m_Threads.push_back(id);
+		WorkerThread* pThread = new WorkerThread(m_pQueue, id); // create a new worker thread, increment thread counter (this implies, thread will start OK)
+		pThread->Run();
+	}
+
+	virtual ~ClientTS(){
+		//m_thread.Delete();
+	}
 
 	static void sendMessage(wxString *msgToSend);
 	static void onTextMessageEventss(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message);
@@ -146,16 +284,3 @@ void emptyInputBuffer();
 
 
 
-class TranslateMSGThread : public wxThread
-{
-public:
-	TranslateMSGThread(wxFrame *dlg) : wxThread(wxTHREAD_JOINABLE)
-	{
-		m_dlg = dlg;
-	}
-
-	virtual ExitCode Entry();
-
-private:
-	wxFrame *m_dlg;
-};
