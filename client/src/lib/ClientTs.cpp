@@ -1,8 +1,5 @@
 #include "ClientTs.h"
 
-#include <functional> // for std::function and std::bind
-
-
 
 //struct user* person = (struct user*) malloc(sizeof(struct user));			//Array of user to record client's information
 
@@ -396,7 +393,8 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 
 			if (strcmp(config->getLanguage(), "Italian") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-			if (strcmp(config->getLanguage(), "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+			if (strcmp(config->getLanguage(), "English") == 0)
+				WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
 			if (strcmp(config->getLanguage(), "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
 
 		}
@@ -780,7 +778,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	if (strMessage == "</html>") return;
 	if (strMessage == ">") return;
 
-	StringTranslate = "";
+
 
 	// to get timestamp
 
@@ -790,19 +788,18 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 
 	if (strcmp(strMessageLang.mb_str(), config->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
 	{
-		StringTranslate = strMessage;
 		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
 		
 		session->addMsgToLog(msg_text);
 		wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
 		evt.SetPayload<MessagePTR>(msg_text);
-		wxQueueEvent(m_instance->observer,evt.Clone());
+		wxQueueEvent(m_instance->msg_thread, evt.Clone());
 
 		setFlagSave(false);
 		return;
 	}
 
-	/*** end log */
+	/*** end log 
 	if (strcmp(config->getTranslationEngine(), "google") == 0)
 	{
 		if (strcmp(strMessageLang.mb_str(), TranslateController::richiestaGoogle(&strMessage, &strMessageLang)) == 0)
@@ -815,11 +812,11 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 			session->addMsgToLog(msg_text);
 			setFlagSave(false);
 		}
-	}
+	}*/
 
 	if (strcmp(config->getTranslationEngine(), "bing") == 0)
 	{
-		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, config->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
+		msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, config->getLanguage()); // it's the same that Message* Message = new Message ();
 		//auto p = [](wxString strMessage, wxString strMessageLang, MessagePTR msg_text) {
 		//BingTranslate.translateThis(msg_text);
 		//msg_text->setSrtTranslate("");
@@ -1330,6 +1327,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		wxMessageBox("Error opening playback device");
 	}
 
+
 	/* Try reading identity from file, otherwise create new identity */
 	if (ClientTS::readIdentity(identity) != 0) {
 		char* id;
@@ -1360,12 +1358,15 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		return 1;
 	}
 
+//	
+
 	/* Query and print client lib version */
 	if ((error = ts3client_getClientLibVersion(&version)) != ERROR_ok) {
 		wxMessageBox("Failed to get clientlib version");
 		return 1;
 	}
 
+	ts3client_setChannelVariableAsInt(Session::Instance()->scHandlerID, 1, CHANNEL_CODEC_QUALITY, 7);
 	ts3client_freeMemory(version);  /* Release dynamically allocated memory */
 	version = NULL;
 
@@ -1477,3 +1478,54 @@ wxThread::ExitCode TranslateMSGThread::Entry()
 }*/
 
 
+
+
+void QueueMSG::AddJob(MessagePTR job) // push a job with given priority class onto the FIFO
+{
+	wxMutexLocker lock(m_MutexQueue); // lock the queue
+	m_Jobs.push_back(job); // insert the prioritized entry into the multimap
+	m_QueueCount.Post(); // new job has arrived: increment semaphore counter
+} // void AddJob(const tJOB& job, const tPRIORITY& priority=eNORMAL)
+
+MessagePTR QueueMSG::Pop()
+{
+	MessagePTR msg;
+	m_QueueCount.Wait(); // wait for semaphore (=queue count to become positive)
+	{
+		m_MutexQueue.Lock();// lock queue
+		auto element = m_Jobs.begin();// get the first entry from queue (higher priority classes come first)
+		msg = *element;
+		m_Jobs.erase(element);
+		m_MutexQueue.Unlock(); // unlock queue
+	}
+	return msg; 
+} // tJOB Pop()
+
+void QueueMSG::Report(MessagePTR arg) // report back to parent
+{
+	wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);// cmd); // create command event object
+	evt.SetPayload<MessagePTR>(arg); // associate string with it
+	wxQueueEvent(m_pParent, evt.Clone());
+	//m_pParent->AddPendingEvent(evt); // and add it to parent's event queue
+} // void Report(const tJOB::tCOMMANDS& cmd, const wxString& arg=wxEmptyString)
+
+
+
+void WorkerThread::OnJob()
+{
+	MessagePTR job = m_pQueue->Pop(); // pop a job from the queue. this will block the worker thread if queue is empty
+	bng->translateThis(job);
+	m_pQueue->Report(job); // report successful completion
+} // virtual void OnJob()
+
+
+
+wxThread::ExitCode WorkerThread::Entry()
+{
+
+	//m_pQueue->Report(Message::eID_THREAD_STARTED, NULL); // tell main thread that worker thread has successfully started
+	bng = std::make_unique<Translation::BingTranslate>();
+	while (true)
+			OnJob();
+ 
+} // virtual wxThread::ExitCode Entry()

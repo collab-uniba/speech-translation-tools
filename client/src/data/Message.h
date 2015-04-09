@@ -24,7 +24,7 @@ public:
 		eID_THREAD_JOB, // process normal job
 		eID_THREAD_JOBERR // process errorneous job after which thread likes to exit
 	}; // enum tCOMMANDS
-	Message(MSGDirection dir, wxString from, wxString message, wxString language_org, wxString language_dest) : m_message(message), m_dir(dir), m_from(from), m_language_orig(language_org), m_language_dest(language_dest) , m_cmd(eID_THREAD_NULL){
+	Message(MSGDirection dir, wxString from, wxString message, wxString language_org, wxString language_system) : m_message(message), m_dir(dir), m_from(from), m_language_orig(language_org), m_language_system(language_system), m_cmd(eID_THREAD_EXIT){
 	
 		time_t			rawtime;
 		struct tm*		timeinfo;
@@ -35,6 +35,7 @@ public:
 		strftime(timestamp, 100, "%c", timeinfo);
 		m_timestamp = timestamp;
 	}
+	Message() : m_cmd(eID_THREAD_NULL) {}
 
 	~Message(){ }
 
@@ -51,7 +52,7 @@ public:
 	wxString getTimeStamp(){ return m_timestamp; }
 	wxString getLanguageOrig(){ return m_language_orig; }
 
-	wxString getLanguageDest(){ return m_language_dest; }
+	wxString getLanguageSystem(){ return m_language_system; }
 	void  setSrtTranslate(wxString str){ m_translated = str; }
 	tCOMMANDS m_cmd;
 private:
@@ -60,7 +61,7 @@ private:
 	wxString m_from;
 	wxString m_message;
 	wxString m_timestamp;
-	wxString m_language_dest;
+	wxString m_language_system;
 	wxString m_translated;
 	
 };

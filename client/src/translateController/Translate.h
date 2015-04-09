@@ -17,7 +17,6 @@
 #include "../gui/NationList.h"
 #include <curl/curl.h>
 
-
 using namespace rapidjson;
 
 const UINT MAX_INPUT_TEXT = 10000;
@@ -51,6 +50,7 @@ namespace Translation{
 		float GetRemainingTime();
 		void init_string(struct Translation::MemoryStruct *s);
 		void getToken();
+		wxString clean(char *word);
 	private:
 		time_t	m_expirationTime;
 		std::string	m_access_token;

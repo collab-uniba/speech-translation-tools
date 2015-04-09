@@ -9,7 +9,6 @@
 #endif
 
 #include "translateVariable.h"
-#include "../connectionController/connectionController.h"
 #include "../GlobalVariables.h"
 
 #include <sstream>
@@ -22,6 +21,8 @@
 #include "../gui/NationList.h"
 #include "../gui/NationInfo.h"
 
+#include "../data/session.h"
+
 using namespace tinyxml2;
 using namespace std;
 
@@ -31,10 +32,10 @@ class TranslateController
 		static void InitLanguageVariable(char* lang);
 		static wxString translateLabels(char* language);
 		static void readXmlLangDoc(char* filename);
-		static void parseBing(char *word);
+	/*	static void parseBing(char *word);
 		static void parseGoogle(char *str);
 		static char *richiestaGoogle(wxString* StringSource, wxString* lang);
-		static char *richiestaBing(const wxString* StringSource, const wxString* lang);
+		static char *richiestaBing(const wxString* StringSource, const wxString* lang);*/
 };
 
 #endif

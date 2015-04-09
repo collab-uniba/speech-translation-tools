@@ -152,8 +152,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	HANDLE myHandle4 = CreateThread(0, 0, ClientTS::CTRL_STT, NULL, 0, &myThreadID4);
 	clientts->SetupColor(colors);
 
-
-
 	updateClientListTimer(wxTimerEvent());
 }
 
@@ -375,54 +373,18 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	MessagePTR		msgptr			= event.GetPayload<MessagePTR>();
 	long			itemIndexChat;
 
-//	if (!(msgptr->getMSG() == ">" || msgptr->getMSG() == "</html>" || msgptr->getMSG()[0] == '<' || msgptr->getMSG()[0] == '>'))
-	{
-		itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
+	itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
+	chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
 
-		chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
-
-		il = new wxImageList(16, 16, false, 0);
-		il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
-		chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
+	il = new wxImageList(16, 16, false, 0);
+	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
+	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
+	if (msgptr->getLanguageOrig() == msgptr->getLanguageSystem())
 		chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
-		chatbox->ScrollList(0, curRow);
-		curRow++;
-	}
-
-
-	/*
-
-		oldStringTranslate = StringTranslate;
-		oldstrGlobale = strGlobale;
-		strGlobale = "";
-	}
-	/*else
-	{
-		if (count_client == 0 && REFRESHTIMER > 50)   //ho sostituito empty_room e messo il timer
-		{
-			ts3client_logMessage("No such clients found", LogLevel_ERROR, "Channel", _sclogID);
-			REFRESHTIMER = 0;
-		}
-	}*/
-}
-/*
-MyWorkerThread::MyWorkerThread(ClientTsFrm *frame)
-: wxThread()
-{
-	m_frame = frame;
-	m_count = 0;
-	//session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
-}
-
-MyWorkerThread::Entry()
-{
-
-
+	else
+		chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() + " ### "+ msgptr->getMSG()); //col. 3
 	
-	wxThreadEvent event(wxEVT_THREAD, WORKER_EVENT);
-	event.SetInt(-1); // that's all
-	wxQueueEvent(m_frame, event.Clone());
+	chatbox->ScrollList(0, curRow);
+	curRow++;
+}
 
-
-	return NULL;
-}*/

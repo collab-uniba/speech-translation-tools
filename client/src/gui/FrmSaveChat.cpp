@@ -172,7 +172,7 @@ void FrmSaveChat::saveChatCSV(const char* filename){
 		{
 			fprintf(configr, "\" ---> " + (*iter)->getMSG() + "\"\n");
 		}else{
-			fprintf(configr, "\" <--- " + (*iter)->getLanguageOrig() + ";\"" + (*iter)->getMSG() + ";\"#orig#\";\"" + (*iter)->getLanguageDest() + ";\"" + (*iter)->getTranslated() + "\"\n");
+			fprintf(configr, "\" <--- " + (*iter)->getLanguageOrig() + ";\"" + (*iter)->getMSG() + ";\"#orig#\";\"" + (*iter)->getLanguageSystem() + ";\"" + (*iter)->getTranslated() + "\"\n");
 		}  
 	}
 
@@ -196,7 +196,7 @@ void FrmSaveChat::saveChatTXT(const char* filename){
 			fprintf(configr, " ---> " + (*iter)->getMSG() + "\n");
 		}
 		else{
-			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter)->getLanguageDest(), (*iter)->getMSG(), (*iter)->getLanguageOrig(), (*iter)->getTranslated());
+			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter)->getLanguageSystem(), (*iter)->getMSG(), (*iter)->getLanguageOrig(), (*iter)->getTranslated());
 		}			
 	}
 

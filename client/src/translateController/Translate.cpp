@@ -41,8 +41,11 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 	std::string				url;
 	struct curl_slist		*chunk				= NULL;
 	CURLcode				res2;
+	Document				document;
 
-	if ( msg->getLanguageOrig() != msg->getLanguageDest())
+	if (m_expirationTime == NULL)  getToken();
+
+	if (msg->getLanguageOrig() != msg->getLanguageSystem())
 	{
 		init_string(&response);
 		time(&timer);
@@ -56,7 +59,7 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 		nations->ReadFromFile("..\\conf\\locales_code.txt");
 
 		strcpy(languagesrc, nations->Search(&msg->getLanguageOrig(), APICODE));
-		strcpy(languagedst, nations->Search(&msg->getLanguageDest(), APICODE));
+		strcpy(languagedst, nations->Search(&msg->getLanguageSystem(), APICODE));
 
 		curl = curl_easy_init();
 		char *trueheader = curl_easy_unescape(curl, header.c_str(), 0, NULL);
@@ -73,9 +76,10 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 		res2 = curl_easy_perform(curl);
+	
 		if (res2 == CURLE_OK)
 		{
-			msg->setSrtTranslate(response.memory);
+			msg->setSrtTranslate(clean(response.memory));
 		}
 		//else manage error?
 
@@ -87,6 +91,20 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 	}
 
 }
+
+wxString Translation::BingTranslate::clean(char *word)
+{
+	char *buffer;
+	unsigned int i;
+	int result;
+	buffer = strstr(word, ">");
+	result = (int)(buffer - word + 1);  
+	for (i = 1; i < strlen(buffer); i++)
+		buffer[i - 1] = buffer[i];
+	buffer[strlen(buffer) - 10] = '\0';
+	return wxString::FromAscii(buffer);  
+}
+
 
 void Translation::BingTranslate::getToken(){
 

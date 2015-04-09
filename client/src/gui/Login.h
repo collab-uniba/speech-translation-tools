@@ -25,11 +25,16 @@
 #include <windows.h>
 #include <stdio.h>
 
-#include "..\GlobalVariables.h"
-#include "..\translateController\translateController.h"
-#include "..\translateController\translateVariable.h"
-#include "..\utility.h"
-#include "..\res\connect.xpm"
+#include "../translateController/translateController.h"
+#include "../GlobalVariables.h"
+#include "../translateController/translateVariable.h"
+#include "../utility.h"
+#include "../res/connect.xpm"
+#include "ClientTsFrm.h"
+#include "AudioWizard.h"
+#include "NationList.h"
+
+#include "../data/Session.h"
 #include "ClientTsFrm.h"
 #include "AudioWizard.h"
 #include "NationList.h"

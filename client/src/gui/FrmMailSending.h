@@ -20,11 +20,13 @@
 #include <wx/dialog.h>
 #include <stdio.h>
 
-#include <ck\CkMailMan.h>
-#include <ck\CkEmail.h>
-#include "..\tinyxml2.h"
-#include "..\translateController\translateVariable.h"
-#include "..\..\res\sendemail.xpm"
+
+#include <ck/CkMailMan.h>
+#include <ck/CkEmail.h>
+#include "../tinyxml2.h"
+#include "../../res/sendemail.xpm"
+
+#include "../translateController/translateVariable.h"
 
 using namespace std;
 

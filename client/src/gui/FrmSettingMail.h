@@ -27,7 +27,7 @@
 #include <wx/radiobut.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
-#include "..\translateController\translateVariable.h"
+#include "../translateController/translateVariable.h"
 
 ///////////////////////////////////////////////////////////////////////////
 

@@ -1,5 +1,4 @@
 #include "translateController.h"
-#include "../data/session.h"
 
 
 ConfigPTR configc = Session::Instance()->getConfig();
@@ -97,7 +96,7 @@ void TranslateController::readXmlLangDoc(char* filename){
 	} while (pFratello != NULL);
 
 }
-
+/*
 void TranslateController::parseBing(char *word)
 {
 	char *buffer;
@@ -209,7 +208,7 @@ char *TranslateController::richiestaBing(const wxString* StringSource, const wxS
 		res2 = curl_easy_perform(curl2);
 		/*
 		Save into pagina.htm the json answer of access_token
-		*/
+		* /
 		FILE *html;
 		if (html = fopen("..\\conf\\pagina.htm", "w"))
 		{
@@ -322,7 +321,7 @@ char *TranslateController::richiestaGoogle(wxString* StringSource, wxString* lan
 		/*strcpy(url, "https://www.googleapis.com/language/translate/v2?key=");
 		FILE * google = fopen("..\\conf\\GOOGLE.txt", "r");
 		fscanf(google,"%s",GOOGLE_API_KEY);
-		strcat(url, GOOGLE_API_KEY);*/
+		strcat(url, GOOGLE_API_KEY);* /
 
 		strcat(url, "&q=");
 		const char *BufferSource = curl_easy_escape(curl, (char*)StringSource->mb_str().data(), strlen((char*)StringSource->mb_str().data()));
@@ -339,7 +338,7 @@ char *TranslateController::richiestaGoogle(wxString* StringSource, wxString* lan
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 		res = curl_easy_perform(curl);
 
-		/* Check for errors */
+		/* Check for errors * /
 		if (res != CURLE_OK)
 		{
 			char errormessage[60];
@@ -348,7 +347,7 @@ char *TranslateController::richiestaGoogle(wxString* StringSource, wxString* lan
 			ts3client_logMessage(errormessage, LogLevel_ERROR, "Google translate", Session::Instance()->scHandlerID);
 		}
 
-		/* always cleanup */
+		/* always cleanup * /
 		curl_easy_cleanup(curl);
 		FILE *html;
 		if (html = fopen("..\\conf\\tradg.htm", "w"))
@@ -361,4 +360,4 @@ char *TranslateController::richiestaGoogle(wxString* StringSource, wxString* lan
 	}
 
 	curl_global_cleanup();
-}
+}*/

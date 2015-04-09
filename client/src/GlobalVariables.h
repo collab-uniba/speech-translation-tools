@@ -1,5 +1,4 @@
-#ifndef _GLOBALVARIABLES_H_
-#define _GLOBALVARIABLES_H_
+#pragma once
 
 #include "utility.h"
 #include <windows.h>
@@ -195,8 +194,4 @@ static uint64 _sclogID;*/
 
 // DIARY LO FACCIO DIVENTARE LIST DI MESSAGE
 // RISOLVI FLAGSAVE
-extern list<MESSAGE> diary;
-
-
-extern wxString StringTranslate ;
-#endif /* _GLOBALVARIABLES_H_ */
+//extern list<MESSAGE> diary;
