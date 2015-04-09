@@ -18,6 +18,9 @@
 #include "gui/AudioWizard.h"
 #include "gui/SplashScreen.h"
 
+
+#include <wx/regex.h>
+
 #include "translatecontroller/translate.h"
 #include "../res/Splash.xpm"
 
@@ -103,12 +106,17 @@ bool APTT::OnInit()
     if ( !wxApp::OnInit() )
         return false;
 
-/*	MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "Ciao, come stai?", "Italian", "English(Uk)");
-	BingTranslate bng;
-	bng.translateThis(msg_text);
-	MessagePTR  msg_text2 = std::make_shared<Message>(MSGDirection::out, "strNick", "mi chiamo daniel", "Italian", "English(Uk)");
+	//MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "Ciao, come stai?", "Italian", "English(Uk)");
+	//TranslateX* bng = new GoogleTranslate;
+	/*
+	wxRegEx				responseText = "\"translatedText\": \"(.*)\"";
+	wxString text = responseText.GetMatch("{\n \"data\": {\n  \"translations\": [\n   {\n    \"translatedText\": \"Hello how are you?\"\n   }\n  ]\n }\n}\n");*/
 
-	bng.translateThis(msg_text2);*/
+	//bng->translateThis(msg_text);
+	//MessagePTR  msg_text2 = std::make_shared<Message>(MSGDirection::out, "strNick", "mi chiamo daniel", "Italian", "English(Uk)");
+
+	//bng.translateThis(msg_text2);*/
+	Sleep(1);
 	SplashScreen::GetSplashScreen(wxBitmap(Splash), 3000);
 	Login * dialog = new Login(NULL);
 	SetTopWindow(dialog);

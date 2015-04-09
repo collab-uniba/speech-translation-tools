@@ -18,7 +18,7 @@ static size_t writefunc(void *ptr, size_t size, size_t nmemb, struct Translation
 	return size*nmemb;
 }
 
-void Translation::BingTranslate::init_string(struct Translation::MemoryStruct *s) {
+void Translation::TranslateX::init_string(struct Translation::MemoryStruct *s) {
 	s->size = 0;
 	s->memory = (char*)malloc(s->size + 1);
 	if (s->memory == NULL) {
@@ -146,5 +146,64 @@ void Translation::BingTranslate::getToken(){
 		document.ParseInsitu<0>(token.memory);
 		m_access_token = document["access_token"].GetString();
 		m_expirationTime = std::stoi(document["expires_in"].GetString()) + timer;
+	}
+}
+
+
+void Translation::GoogleTranslate::translateThis(MessagePTR msg)
+{
+	CURL				*curl;
+	CURLcode			res;
+	char				languagesrc[30],
+						languagedst[30];
+	struct MemoryStruct	response;
+	std::string				url;
+	wxRegEx				responseText	= "\"translatedText\": \"(.*)\"";
+
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+
+	if (msg->getLanguageOrig() != msg->getLanguageSystem())
+	{
+		curl = curl_easy_init();
+		init_string(&response);
+		NationList *nations = new NationList;
+		nations->ReadFromFile("..\\conf\\locales_code.txt");
+		strcpy(languagesrc, nations->Search(&msg->getLanguageOrig(), APICODE));
+		strcpy(languagedst, nations->Search(&msg->getLanguageSystem(), APICODE));
+
+		if (curl)
+		{
+			const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
+			url = "https://www.googleapis.com/language/translate/v2?key=";
+			url += std::string(GOOGLE_API_KEY) + "&q=" + BufferSource + "&source="
+				+ languagesrc + "&target=" +  languagedst;
+
+			curl_easy_setopt(curl, CURLOPT_URL, url);
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+			res = curl_easy_perform(curl);
+
+			/* Check for errors 
+			if (res != CURLE_OK)
+			{
+			char errormessage[60];
+			strcpy(errormessage, "curl_easy_perform() failed");
+			strcat(errormessage, curl_easy_strerror(res));
+			ts3client_logMessage(errormessage, LogLevel_ERROR, "Google translate", Session::Instance()->scHandlerID);
+			}*/
+
+			/* always cleanup */
+			
+			/*if (responseText.Matches(response.memory))
+			{*/
+			wxString text = responseText.GetMatch(response.memory );
+				
+			
+			curl_easy_cleanup(curl);
+			msg->setSrtTranslate((response.memory));
+			curl_global_cleanup();
+		}			
 	}
 }
