@@ -1,7 +1,6 @@
 #pragma once
 
 #include "User.h"
-#include "Config.h"
 
 #include "../data/message.h"
 
@@ -23,6 +22,9 @@
 
 
 #include "../GlobalVariables.h"
+
+#include "../parseini/SimpleIni.h"
+
 
 
 typedef std::list<UserPTR> UserList;
@@ -71,11 +73,32 @@ public:
 	bool getautomatic_stt_flag(){ return automatic_stt_flag; }
 	void setautomatic_stt_flag(bool conf){ this->automatic_stt_flag = conf; }
 
-	ConfigPTR getConfig(){ return m_config; }
-	void setConfig(ConfigPTR conf){ this->m_config = conf; }
-
 	UserListPTR getListUser(){ return m_luser; }
 	void setListUser(UserListPTR luser){ this->m_luser = luser; }
+
+	void setNick(const char* nick);
+	const char* getNick();
+
+	void setLanguage(const char* lang);
+	const char* getLanguage();
+
+	const char* getServerAddress();
+	void setServerAddress(const char *sv);
+
+	void setGoogleAPIKey(const char* code);
+	const char* getGoogleAPIKey();
+
+	void setNumbLanguageSelected(int v);
+	int getNumbLanguageSelected();
+
+	const char* getTranslationEngine();
+	void setTranslationEngine(const char *sv);
+
+	const char* getBingKey();
+	void setBingKey(const char *sv);
+
+	const char* getBingID();
+	void setBingID(const char *sv);
 
 
 
@@ -99,10 +122,10 @@ public:
 
 private:
 	Session* m_instance;
-	ConfigPTR m_config;
 	UserListPTR m_luser;
 	char* m_translationEngine;
 	MessageQueuePTR m_queue;
+	std::unique_ptr<CSimpleIniA> ini;
 };
 
 

@@ -30,7 +30,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	//session->registerObserver<ClientTsFrm>(&ClientTsFrm::notify, *this);
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 	session = Session::Instance();
-	config = session->getConfig();
 	clientts = make_unique<ClientTS>(this);
 
 	colors = (COLORE*)malloc(10 * sizeof(COLORE));
@@ -144,8 +143,8 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 #endif
 	////GUI Items Creation End
 
-	txtnick->AppendText(config->getNick());
-	txtlingua->AppendText(config->getLanguage());
+	txtnick->AppendText(session->getNick());
+	txtlingua->AppendText(session->getLanguage());
 	HANDLE myHandle = CreateThread(0, 0, ClientTS::ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, ClientTS::TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, ClientTS::STT_THREAD, NULL, 0, &myThreadID4);
@@ -213,9 +212,12 @@ void ClientTsFrm::updateClientListTimer(wxTimerEvent& event)
 			
 		wxString naz = this->nations->Search(&uptr->getLang(), COUNTRY);
 		wxBitmap bitmap = wxBitmap();
-		bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
-		txtclient->WriteImage(bitmap);
-
+		if (naz != "false")
+		{
+			bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
+			txtclient->WriteImage(bitmap);
+		}
+			
 		txtclient->WriteText(" " +uptr->getName() + "\t");
 
 		if (uptr->getSpeak() == 1)	//if this client is speaking, show microphone 
@@ -277,15 +279,15 @@ void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	UserListPTR luser = Session::Instance()->getListUser();
 	clientts->setVadLevel(DEFAULT_VIRTUAL_SERVER);
-	if (txtmsg->IsModified()) 	session->setwrite_flag(true);
+	if (txtmsg->IsModified())// 	session->setwrite_flag(true);
 	int i;
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
-		if ((*it)->getName() == config->getNick())
+		if ((*it)->getName() == session->getNick())
 		{
-			if ((*it)->getWrite() == 0 && session->getwrite_flag())
+			if ((*it)->getWrite() == 0)// && session->getwrite_flag())
 			{
-				wxString scrive_msg = "\n" + wxString::FromAscii(config->getLanguage()) + "\n" + "write1";
+				wxString scrive_msg = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + "write1";
 				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg, (uint64)1, NULL);
 			}
 		}

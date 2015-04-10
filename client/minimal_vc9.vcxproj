@@ -516,7 +516,10 @@
   <ItemGroup>
     <ClCompile Include="src\ArchiveLog.cpp" />
     <ClCompile Include="src\connectionController\connectionController.cpp" />
+    <ClCompile Include="src\data\Config.cpp" />
+    <ClCompile Include="src\data\Message.cpp" />
     <ClCompile Include="src\data\Session.cpp" />
+    <ClCompile Include="src\data\User.cpp" />
     <ClCompile Include="src\GUI\AudioWizard.cpp" />
     <ClCompile Include="src\GUI\ClientTsFrm.cpp" />
     <ClCompile Include="src\gui\FrmMailSending.cpp" />
@@ -529,7 +532,9 @@
     <ClCompile Include="src\gui\SplashScreen.cpp" />
     <ClCompile Include="src\lib\ClientTs.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\parseini\ConvertUTF.c" />
     <ClCompile Include="src\tinyxml2.cpp" />
+    <ClCompile Include="src\translateController\Translate.cpp" />
     <ClCompile Include="src\translateController\translateController.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -537,7 +542,10 @@
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="src\ArchiveLog.h" />
     <ClInclude Include="src\connectionController\connectionController.h" />
+    <ClInclude Include="src\data\Config.h" />
+    <ClInclude Include="src\data\Message.h" />
     <ClInclude Include="src\data\Session.h" />
+    <ClInclude Include="src\data\User.h" />
     <ClInclude Include="src\GlobalVariables.h" />
     <ClInclude Include="src\GUI\AudioWizard.h" />
     <ClInclude Include="src\GUI\ClientTsFrm.h" />
@@ -550,7 +558,10 @@
     <ClInclude Include="src\gui\NationList.h" />
     <ClInclude Include="src\gui\SplashScreen.h" />
     <ClInclude Include="src\lib\ClientTs.h" />
+    <ClInclude Include="src\parseini\ConvertUTF.h" />
+    <ClInclude Include="src\parseini\SimpleIni.h" />
     <ClInclude Include="src\tinyxml2.h" />
+    <ClInclude Include="src\translateController\Translate.h" />
     <ClInclude Include="src\translateController\translateController.h" />
     <ClInclude Include="src\translateController\translateVariable.h" />
     <ClInclude Include="src\utility.h" />

@@ -40,7 +40,6 @@ private:
 	char destination[3000];
 
 	Session* session;
-	ConfigPTR settings;
 
 protected:
 	wxStaticText* lblTitle;

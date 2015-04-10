@@ -62,17 +62,11 @@
     <ClCompile Include="src\gui\FrmSaveChat.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="src\tinyxml2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui\FrmSettingMail.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\SplashScreen.cpp">
       <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ArchiveLog.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\LoginWarnings.cpp">
       <Filter>Source Files\gui</Filter>
@@ -86,8 +80,29 @@
     <ClCompile Include="src\lib\ClientTs.cpp">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
-    <ClCompile Include="src\data\Session.cpp">
+    <ClCompile Include="src\parseini\ConvertUTF.c">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ArchiveLog.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml2.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Config.cpp">
       <Filter>Source Files\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Message.cpp">
+      <Filter>Source Files\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\User.cpp">
+      <Filter>Source Files\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\translateController\Translate.cpp">
+      <Filter>Source Files\translateController</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Session.cpp">
+      <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,9 +122,6 @@
     </ClInclude>
     <ClInclude Include="src\translateController\translateVariable.h">
       <Filter>Source Files\translateController</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tinyxml2.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ArchiveLog.h">
       <Filter>Source Files</Filter>
@@ -149,6 +161,27 @@
     </ClInclude>
     <ClInclude Include="src\data\Session.h">
       <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Config.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Message.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\User.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parseini\ConvertUTF.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parseini\SimpleIni.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyxml2.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\translateController\Translate.h">
+      <Filter>Header Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

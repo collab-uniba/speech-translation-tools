@@ -55,9 +55,10 @@ int hostname_to_ip(char * hostname, char* ip)
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
 	session = Session::Instance();
-	config = session->getConfig();
+	const char* pr = session->getServerAddress();
+	
 
-	config->setLanguage("English");
+	//config->setLanguage("English");
 	this->nations = new NationList();
 	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
 
@@ -126,7 +127,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 			bitmap.LoadFile("..\\res\\Default.png", wxBITMAP_TYPE_PNG);
 
 		cmbLingua->Append(language, bitmap);
-		config->setLanguage(language);
+		session->setLanguage(language);
 		
 	}
 	
@@ -193,28 +194,20 @@ void Login::OnClose(wxCloseEvent& /*event*/)
 
 void Login::ReadConfig()
 { 
-	if (config->read()){
-		txtNameHost->SetValue(config->getServerAddress());
-		txtNickName->SetValue(config->getNick());
-		cmbLingua->SetSelection(config->getNumbLanguageSelected());
-		if (!strcmp(config->getTranslationEngine(),"google"))
-		{
-				radGoogle->SetValue(true);
-				radBing->SetValue(false);
-		}else
-		{
-				radGoogle->SetValue(false);
-				radBing->SetValue(true);
-		}
-
-		TranslateController::InitLanguageVariable((char* )config->getLanguage());
-		cmbLingua->SetSelection(config->getNumbLanguageSelected());
+	txtNameHost->SetValue(session->getServerAddress());
+	txtNickName->SetValue(session->getNick());
+	cmbLingua->SetSelection(session->getNumbLanguageSelected());
+	if (!strcmp(session->getTranslationEngine(), "google"))
+	{
+		radGoogle->SetValue(true);
+		radBing->SetValue(false);
+	}else
+	{
+		radGoogle->SetValue(false);
+		radBing->SetValue(true);
 	}
-	else{
-		cmbLingua->SetSelection(0);
-		TranslateController::InitLanguageVariable((char *)cmbLingua->GetString(cmbLingua->GetSelection()).mb_str(wxConvUTF8).data());
-	}
-
+	TranslateController::InitLanguageVariable((char*)session->getLanguage());
+	cmbLingua->SetSelection(session->getNumbLanguageSelected());
 }
 
 void Login::cmblingua_SelectionChange(wxCommandEvent& event)
@@ -243,13 +236,12 @@ void Login::btnloginClick(wxCommandEvent& event)
 	char ip[20];
 	hostname_to_ip(StringLoginServer, ip);
 
-	config->setNumbLanguageSelected(cmbLingua->GetSelection());
-	config->setNick(StringLoginNick);
-	config->setLanguage(StringLoginLingua);
-	config->setServerAddress(ip);
-	if (radGoogle->GetValue()) config->setTranslationEngine("google");  
-	if (radBing->GetValue()) config->setTranslationEngine("bing"); 
-	config->update();
+	session->setNumbLanguageSelected(cmbLingua->GetSelection());
+	session->setNick(StringLoginNick);
+	session->setLanguage(StringLoginLingua);
+	session->setServerAddress(ip);
+	if (radGoogle->GetValue()) session->setTranslationEngine("google");
+	if (radBing->GetValue()) session->setTranslationEngine("bing");
 
 
 	/*if (strncmp(StringLoginLingua, "English", 7) == 0)
@@ -263,7 +255,7 @@ void Login::btnloginClick(wxCommandEvent& event)
 
 	
 
-	TranslateController::InitLanguageVariable((char*) config->getLanguage());
+	TranslateController::InitLanguageVariable((char*)session->getLanguage());
 	ClientTsFrm * frame = new ClientTsFrm(warn, NULL);
 	frame->Show();
 	this->Close();

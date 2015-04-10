@@ -139,7 +139,6 @@ public:
 			ThreadsOnStart();
 		}
 		session = Session::Instance();
-		config = session->getConfig();
 		// draw the bitmap from a secondary thread
 		/*if (msg_thread.Create() != wxTHREAD_NO_ERROR ||
 			msg_thread.Run() != wxTHREAD_NO_ERROR)

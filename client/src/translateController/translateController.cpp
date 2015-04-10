@@ -1,7 +1,6 @@
 #include "translateController.h"
 
 
-ConfigPTR configc = Session::Instance()->getConfig();
 
 void TranslateController::InitLanguageVariable(char* lang)
 {

@@ -6,7 +6,6 @@ FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title,
 {
 	CenterOnScreen();
 	session = Session::Instance();
-	settings = session->getConfig();
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer(wxVERTICAL);
 
