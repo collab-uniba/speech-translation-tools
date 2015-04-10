@@ -22,7 +22,6 @@
 
 
 #include "../GlobalVariables.h"
-
 #include "../parseini/SimpleIni.h"
 
 

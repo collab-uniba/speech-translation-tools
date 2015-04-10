@@ -133,11 +133,11 @@ void Translation::BingTranslate::getToken(){
 		curl_easy_setopt(curl2, CURLOPT_USERAGENT, "libcurl-agent/1.0");	//Fill user-agent to not decline our request
 		curl_easy_setopt(curl2, CURLOPT_VERBOSE, 1L);
 
-		encode_key = curl_easy_escape(curl2, MY_KEY, strlen( MY_KEY ));
+		encode_key = curl_easy_escape(curl2, session->getBingKey(), strlen(session->getBingKey()));
 
 		sprintf(url2,
 			"client_id=%s&client_secret=%s&scope=http://api.microsofttranslator.com&grant_type=client_credentials",
-			MY_ID,
+			session->getBingID(),
 			encode_key);
 
 		curl_easy_setopt(curl2, CURLOPT_POSTFIELDS, url2);
@@ -175,7 +175,7 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 		{
 			const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
 			url = "https://www.googleapis.com/language/translate/v2?key=";
-			url += std::string(GOOGLE_API_KEY) + "&q=" + BufferSource + "&source="
+			url += std::string(session->getApiGoogle()) + "&q=" + BufferSource + "&source="
 				+ languagesrc + "&target=" +  languagedst;
 
 			curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -198,8 +198,11 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 			
 			/*if (responseText.Matches(response.memory))
 			{*/
-			wxString text = responseText.GetMatch(response.memory );
-				
+
+			wxRegEx		responseText = "\"translatedText\": \"(.*)\"";
+			
+			if (responseText.Matches(response.memory))
+				msg->setSrtTranslate(responseText.GetMatch(response.memory, 1));
 			
 			curl_easy_cleanup(curl);
 			msg->setSrtTranslate((response.memory));

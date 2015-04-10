@@ -108,9 +108,8 @@ bool APTT::OnInit()
 
 	//MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "Ciao, come stai?", "Italian", "English(Uk)");
 	//TranslateX* bng = new GoogleTranslate;
-	/*
-	wxRegEx				responseText = "\"translatedText\": \"(.*)\"";
-	wxString text = responseText.GetMatch("{\n \"data\": {\n  \"translations\": [\n   {\n    \"translatedText\": \"Hello how are you?\"\n   }\n  ]\n }\n}\n");*/
+	
+
 
 	//bng->translateThis(msg_text);
 	//MessagePTR  msg_text2 = std::make_shared<Message>(MSGDirection::out, "strNick", "mi chiamo daniel", "Italian", "English(Uk)");

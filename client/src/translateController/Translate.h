@@ -8,6 +8,7 @@
 #endif
 #include <wx/wx.h>
 #include "../data/Message.h"
+#include "../data/Session.h"
 
 
 #include "rapidjson/document.h"		
@@ -23,10 +24,6 @@ using namespace rapidjson;
 const UINT MAX_INPUT_TEXT = 10000;
 const float AUTH_TIME_MARGIN = 20.0f;
 
-#define MY_ID  "daniteamspeak"
-#define MY_KEY "4HqBNNb/0aVQB7Mj4VULgLLFIZnGx+yQfOUROsSwqrI"
-#define GOOGLE_API_KEY "AIzaSyDMoCPi857TLhqcINY8WUydTlVTLooxO4E"
-
 namespace Translation{
 
 	struct MemoryStruct
@@ -36,7 +33,12 @@ namespace Translation{
 	};
 
 	class TranslateX {
+	protected:
+		Session* session;
 	public:
+		TranslateX(){
+			session = Session::Instance();
+		}
 		virtual void translateThis(MessagePTR msg) = 0;   // Pure virtual function.
 		void init_string(struct Translation::MemoryStruct *s);
 	};
