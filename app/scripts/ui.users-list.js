@@ -39,17 +39,24 @@ function removePartecipant(args){
 
 
 usersList.onclick = function() {
-    if (usersList.className.indexOf('selected') != -1) {
+    var messageBoard = getElement('#messageboard');
+    var partecipantsDIV = getElement('#partecipants');
+    var partecipantsList = getElement('#partecipantsList');
+    if (usersContainer.style.display === 'flex') {
         usersList.className = usersList.className.replace( / selected/g , '');
         usersContainer.style.display = 'none';
         document.getElementById('openList').innerHTML = _('openList');
-        getElement('#messageboard').style.height = '500px';
-        getElement('#partecipantsList').style.height = '453px';
+        messageBoard.style.height = 'calc(100vh - 232px)';
+        partecipantsDIV.style.height = 'calc(100vh - 232px)';
+        partecipantsList.style.height = 'calc(100vh - 273px)';
     } else {
         usersList.className += ' selected';
-        usersContainer.style.display = 'block';
+        usersContainer.style.display = 'flex';
         document.getElementById('openList').innerHTML = _('closeList');
-        getElement('#messageboard').style.height = '200px';
-        getElement('#partecipantsList').style.height = '153px';
+        messageBoard.style.height = '28vh';
+        partecipantsDIV.style.height = '28vh';
+        partecipantsList.style.height = 'calc(28vh - 41px)';
     }
+    messageBoard.scrollTop = messageBoard.scrollHeight;
+    partecipantsList.scrollTop = 0;
 };

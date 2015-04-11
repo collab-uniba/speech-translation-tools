@@ -54,7 +54,7 @@ function Translator() {
         textToSpeak = textToSpeak.substr(1, textToSpeak.length - 1);
       }
 
-      var audio_url =  'http://api.microsofttranslator.com/v2/http.svc/speak?appId=T4a9FDWxEAXKa9qCpKWra4gxYdvhWqATP3yCVqXdgXqU*&language=' + targetLanguage + '&format=audio/mp3&options=MinSize&text=' + textToSpeak;
+      var audio_url =  'http://api.microsofttranslator.com/v2/http.svc/speak?appId=TVv9r-5X2XQrOcf5z1Sd3GXuNhLHARvxj7PHNBslWHZk*&language=' + targetLanguage + '&format=audio/mp3&options=MinSize&text=' + textToSpeak;
 
       if (args.callback) args.callback(audio_url);
       else {
@@ -91,39 +91,49 @@ function Translator() {
     };
 
     var recognition;
+    var stop = false;
 
     function initTranscript(callback, language) {
-        if (recognition) recognition.stop();
-
         window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        recognition = new SpeechRecognition();
+        if(window.SpeechRecognition){
 
-        recognition.lang = language || 'en-US';
+          if (recognition) recognition.stop();
 
-        console.log('SpeechRecognition Language', recognition.lang);
+          recognition = new SpeechRecognition();
 
-        recognition.continuous = true;
-        recognition.interimResults = false;
+          recognition.lang = language || 'en-US';
 
-        recognition.onresult = function(event) {
+          console.log('SpeechRecognition Language', recognition.lang);
+
+          recognition.continuous = true;
+          recognition.interimResults = false;
+
+          recognition.onresult = function(event) {
             for (var i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    callback(event.results[i][0].transcript);
-                }
+              if (event.results[i].isFinal) {
+                callback(event.results[i][0].transcript);
+              }
             }
-        };
+          };
 
-        recognition.onend = function() {
-            initTranscript(callback, language);
-        };
+          recognition.onend = function() {
+            if(!stop)
+              initTranscript(callback, language);
+          };
 
-        recognition.onerror = function(e) {
+          recognition.onerror = function(e) {
             console.error(e);
-        };
+          };
 
-        recognition.start();
+          recognition.start();
+        }
     }
+
+    this.stopTranscript = function() {
+        recognition.stop();
+        stop = true;
+    };
 
     var self = this;
     self.processInWebWorker = function(args) {
@@ -208,5 +218,5 @@ function Translator() {
         }
     };
 
-    var Google_Translate_API_KEY = 'AIzaSyCgB5hmFY74WYB-EoWkhr9cAGr6TiTHrEE';
+    var Google_Translate_API_KEY = 'AIzaSyBADiOrgX7ov4A5r6q23o6DE782QNnbrN4';
 }

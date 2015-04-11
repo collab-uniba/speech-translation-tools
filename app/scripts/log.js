@@ -1,24 +1,15 @@
-// window.onbeforeunload = function(e){
-// 	if(confirm('Are you nuts? Do you really want to leave me?')){
-// 		return 'OK, Good Bye then';
-// 	}
-// 	else {
-// 		e = e || event;
-// 		if(e.preventDefault){e.preventDefault();}
-// 		e.returnValue = false;
-// 		return 'I said, "Are you nuts? Do you really want to leave me?"';
-// 	}
-// }
-
 window.addEventListener("beforeunload", function (e) {
-  var confirmationMessage = "\o/";
+  var confirmationMessage = _('closeMessage');
 
   (e || window.event).returnValue = confirmationMessage;     // Gecko and Trident
   return confirmationMessage;                                // Gecko and WebKit
 });
 
+getElement('#saveLog').onclick = function(){
+  saveLog();
+};
+
 function saveLog(){
-  // var content = [['1st title', '2nd title', '3rd title', '4th title'], ['a a a', 'bb\nb', 'cc,c', 'dd"d'], ['www', 'xxx', 'yyy', 'zzz']];
   var content = getMessages();
   var result = generateCSV(content);
   exportCSV(result);
@@ -35,20 +26,25 @@ function getMessages(){
     var message=[];
     var currentNode = messageboard.children[i];
     message.push(currentNode.firstChild.innerHTML); //timestamp
-    if(currentNode.className==='user-activity'){
+    if(currentNode.className!=='new-message'){
       //user message
-      var message = currentNode.children[0];
-      message.push(message.firstChild.innerHTML); //sender
+      var userMessage = currentNode.children[1];
+      message.push(userMessage.firstChild.innerHTML); //sender
 
-      if(currentNode.children.length>1) //a translated message has 2 children
-        message.push(message.children[2].innerHTML); //translated message
-
-      var originalMessage = currentNode.children[1];
-      message.push(originalMessage.children[1].innerHTML); //original message
+      if(currentNode.children.length>2){ //a translated message has 3 children
+        var originalMessage = currentNode.children[2];
+        message.push(originalMessage.children[1].innerHTML); //original message
+        message.push(userMessage.children[2].innerHTML); //translated message
+      }else{
+        var originalMessage = currentNode.children[1];
+        message.push(originalMessage.children[1].innerHTML); //original message
+        message.push(''); //empty message
+      }
     }else{
       //system message
       message.push('system'); //the sender is the system
-      message.push(currentNode.firstChild.firstChild.innerHTML); //system message
+      message.push(currentNode.children[1].firstChild.innerHTML); //system message
+      message.push(''); //empty value
     }
 
     content.push(message)
