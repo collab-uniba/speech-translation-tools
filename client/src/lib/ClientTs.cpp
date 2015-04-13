@@ -1072,22 +1072,10 @@ void toggleVAD(uint64 serverConnectionHandlerID) {
 void ClientTS::setVadLevel(uint64 serverConnectionHandlerID) {
 	int vad;
 	unsigned int error;
-	char s[100];
-
 	/*
 	Load vad value from file
 	*/
-	FILE *mic;
-	if (mic = fopen("..\\conf\\mic.txt", "r"))
-	{
-		fscanf(mic, "%d", &vad);
-		fflush(mic);
-		fclose(mic);
-	}
-	else vad = 1;	//if the file isnt exist set vad to 1
-	/* Adjust "voiceactivation_level" preprocessor value */
-	snprintf(s, 100, "%d", vad);
-	if ((error = ts3client_setPreProcessorConfigValue(serverConnectionHandlerID, "voiceactivation_level", s)) != ERROR_ok) {
+	if ((error = ts3client_setPreProcessorConfigValue(serverConnectionHandlerID, "voiceactivation_level", session->getMicLevel())) != ERROR_ok) {
 		printf("Error setting VAD level: %d\n", error);
 		return;
 	}
@@ -1311,14 +1299,12 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		wxMessageBox("Error getting default playback mode");
 		return 1;
 	}
-	printf("Default playback mode: %s\n", mode);
 
 	/* Get default playback device */
 	if ((error = ts3client_getDefaultPlaybackDevice(mode, &device)) != ERROR_ok) {
 		wxMessageBox("Error getting default playback device");
 		return 1;
 	}
-	printf("Default playback device: %s %s\n", device[0], device[1]);
 
 	/* Open default playback device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
@@ -1342,7 +1328,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		ts3client_freeMemory(id);
 		ClientTS::writeIdentity(identity);
 	}
-	printf("Using identity: %s\n", identity);
+
 
 	char final_nick[50];
 	strcpy(final_nick, Session::Instance()->getLanguage());
@@ -1356,8 +1342,6 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		ts3client_logMessage("Error connecting to server", LogLevel_ERROR, "Channel", 10);
 		return 1;
 	}
-
-//	
 
 	/* Query and print client lib version */
 	if ((error = ts3client_getClientLibVersion(&version)) != ERROR_ok) {
@@ -1412,7 +1396,7 @@ DWORD WINAPI ClientTS::STT_THREAD(LPVOID lpParameter)
 	FILE *trad;
 	while (1)
 	{
-		Sleep(100);
+		Sleep(500);
 		if (trad = fopen("translate.txt", "r")) //if file exist read the string from nuance dragon service
 		{
 			fgets(translate_jar, 256, trad);
@@ -1476,9 +1460,6 @@ wxThread::ExitCode TranslateMSGThread::Entry()
 
 }*/
 
-
-
-
 void QueueMSG::AddJob(MessagePTR job) // push a job with given priority class onto the FIFO
 {
 	wxMutexLocker lock(m_MutexQueue); // lock the queue
@@ -1508,8 +1489,6 @@ void QueueMSG::Report(MessagePTR arg) // report back to parent
 	//m_pParent->AddPendingEvent(evt); // and add it to parent's event queue
 } // void Report(const tJOB::tCOMMANDS& cmd, const wxString& arg=wxEmptyString)
 
-
-
 void WorkerThread::OnJob()
 {
 	MessagePTR job = m_pQueue->Pop(); // pop a job from the queue. this will block the worker thread if queue is empty
@@ -1517,13 +1496,13 @@ void WorkerThread::OnJob()
 	m_pQueue->Report(job); // report successful completion
 } // virtual void OnJob()
 
-
-
 wxThread::ExitCode WorkerThread::Entry()
 {
-
 	//m_pQueue->Report(Message::eID_THREAD_STARTED, NULL); // tell main thread that worker thread has successfully started
-	bng = std::make_unique<Translation::BingTranslate>();
+	if (strcmp(Session::Instance()->getTranslationEngine(), "google") == 0)
+		bng = std::make_unique<Translation::GoogleTranslate>();
+	else bng = std::make_unique<Translation::BingTranslate>();
+
 	while (true)
 			OnJob();
  

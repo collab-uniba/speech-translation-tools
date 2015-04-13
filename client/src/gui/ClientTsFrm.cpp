@@ -27,18 +27,15 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 : wxFrame(parent, id, title, position, size, style)
 {
 	this->nations = new NationList();
-	//session->registerObserver<ClientTsFrm>(&ClientTsFrm::notify, *this);
-	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
+
+	this->nations->ReadFromFile("conf\\locales_code.txt");
 	session = Session::Instance();
 	clientts = make_unique<ClientTS>(this);
 
 	colors = (COLORE*)malloc(10 * sizeof(COLORE));
 
-//	session->registerObserver(EventTS::MSG_RCV, [](ClientTsFrm *fn) { fn->updatePanelMsg(); }, this);
+	curRow = 0;			//Initialize Row index
 
-	//registercb(*this); // register itself into clientTs "class" in order to be notified about any change
-	 curRow = 0;			//Initialize Row index
-	 //clientts->observer = this;
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
 	if (warnings->IsNicknameEmpty())
@@ -145,6 +142,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	txtnick->AppendText(session->getNick());
 	txtlingua->AppendText(session->getLanguage());
+
 	HANDLE myHandle = CreateThread(0, 0, ClientTS::ClientStart, NULL, 0, &myThreadID);
 	HANDLE myHandle2 = CreateThread(0, 0, ClientTS::TTS_THREAD, NULL, 0, &myThreadID2);
 	HANDLE myHandle3 = CreateThread(0, 0, ClientTS::STT_THREAD, NULL, 0, &myThreadID4);

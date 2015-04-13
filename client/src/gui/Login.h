@@ -61,7 +61,6 @@ class Login : public wxDialog
 	
 	private:
 		Session* session;
-		ConfigPTR config;
 		NationList *nations;
 		wxStaticBitmap* m_bitmap1;
 		wxStaticText* lblNameHost;

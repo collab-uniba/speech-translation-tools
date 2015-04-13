@@ -26,6 +26,7 @@
 #include <wx/slider.h>
 #include <wx/statbmp.h>
 
+#include "../data/Session.h"
 #include "../res/ledrosso.xpm"
 #include "../res/ledverde.xpm"
 #include "../translateController/translateVariable.h"

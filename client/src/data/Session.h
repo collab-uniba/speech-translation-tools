@@ -29,6 +29,21 @@
 typedef std::list<UserPTR> UserList;
 typedef std::shared_ptr<UserList> UserListPTR;
 
+class ErrorSession: public exception{
+public:
+	ErrorSession(const char* s) {
+		reason = strdup(s);
+	}
+	virtual const char* what() const throw()
+	{
+		return reason;
+	}
+	
+private:
+	const char*  reason;
+};
+
+
 /* 
  * Set and get functions
  */
@@ -49,11 +64,7 @@ public:
 	Session& operator=(Session const&){};  // assignment operator is private
 	static Session* m_pInstance;
  
-public:
-	/*static Session* Instance();*/
-
-	char* Session::getGoogleURLTranslation();
-
+public:	
 	bool getsound_flag(){ return sound_flag; }
 	void setsound_flag(bool conf){ this->sound_flag = conf; }
 	
@@ -96,10 +107,11 @@ public:
 	const char* getBingKey();
 	void setBingKey(const char *sv);
 
+	const char* getMicLevel();
+	void setMicLevel(const char* sv);
+
 	const char* getBingID();
 	void setBingID(const char *sv);
-
-
 
 	MessageQueuePTR getMessageQueue(){ return m_queue; }
 

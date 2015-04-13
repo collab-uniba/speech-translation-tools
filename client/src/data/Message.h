@@ -16,15 +16,8 @@ enum MSGDirection{
 class Message {
 
 public:
-	enum tCOMMANDS // list of commands that are currently implemented
-	{
-		eID_THREAD_EXIT = wxID_EXIT, // thread should exit or wants to exit
-		eID_THREAD_NULL = wxID_HIGHEST + 1, // dummy command
-		eID_THREAD_STARTED, // worker thread has started OK
-		eID_THREAD_JOB, // process normal job
-		eID_THREAD_JOBERR // process errorneous job after which thread likes to exit
-	}; // enum tCOMMANDS
-	Message(MSGDirection dir, wxString from, wxString message, wxString language_org, wxString language_system) : m_message(message), m_dir(dir), m_from(from), m_language_orig(language_org), m_language_system(language_system), m_cmd(eID_THREAD_EXIT){
+
+	Message(MSGDirection dir, wxString from, wxString message, wxString language_org, wxString language_system) : m_message(message), m_dir(dir), m_from(from), m_language_orig(language_org), m_language_system(language_system){
 	
 		time_t			rawtime;
 		struct tm*		timeinfo;
@@ -35,7 +28,6 @@ public:
 		strftime(timestamp, 100, "%c", timeinfo);
 		m_timestamp = timestamp;
 	}
-	Message() : m_cmd(eID_THREAD_NULL) {}
 
 	~Message(){ }
 
@@ -54,7 +46,6 @@ public:
 
 	wxString getLanguageSystem(){ return m_language_system; }
 	void  setSrtTranslate(wxString str){ m_translated = str; }
-	tCOMMANDS m_cmd;
 private:
 	MSGDirection m_dir;
 	wxString m_language_orig;

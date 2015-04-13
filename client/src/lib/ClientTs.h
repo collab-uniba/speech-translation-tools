@@ -14,7 +14,6 @@
 
 #include "../data/Session.h"
 #include "../data/Message.h"
-#include "../data/Config.h"
 #include "../translatecontroller/translate.h"
 
 #include "EventType.h" 
@@ -58,25 +57,6 @@
 using namespace Translation;
 using namespace std;
 
- 
-/*
-class TranslateMSGThread : public wxThread
-{
-public:
-	TranslateMSGThread(wxFrame *dlg) : wxThread(wxTHREAD_JOINABLE)
-	{
-		m_dlg = dlg;
-		//Sleep(5000);
-	}
-
-	virtual ExitCode Entry();
-
-private:
-	wxFrame *m_dlg;
-	wxSemaphore m_thread_semaphore;
-	BingTranslate m_bingtranslator;
-};*/
-
 
 class QueueMSG
 {
@@ -106,7 +86,7 @@ public:
 
 private:
 	QueueMSG* m_pQueue;
-	std::unique_ptr<Translation::BingTranslate> bng;
+	std::unique_ptr<Translation::TranslateX> bng;
 	virtual wxThread::ExitCode Entry();
 	virtual void OnJob();
 }; // class WorkerThread : public wxThread
@@ -117,7 +97,6 @@ private:
 class ClientTS  {
 public:
 	static  Session* session;
-	static  ConfigPTR config;
 	static bool flagSave;
 	static  long text_to_speech;
 	static  wxSemaphore thread_semaphore;
@@ -130,7 +109,6 @@ public:
 	wxFrame* msg_thread;
 	QueueMSG* m_pQueue;
 	std::list<int> m_Threads;
-
 
 public:
 	ClientTS(wxFrame * frame) : msg_thread(frame){
@@ -161,6 +139,7 @@ public:
 	virtual ~ClientTS(){
 		//m_thread.Delete();
 	}
+
 
 	static void sendMessage(wxString *msgToSend);
 	static void onTextMessageEventss(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message);

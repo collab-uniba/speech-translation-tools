@@ -132,7 +132,8 @@ void Translation::BingTranslate::getToken(){
 		curl_easy_setopt(curl2, CURLOPT_POST, 1L);					//Inform the server to a post request
 		curl_easy_setopt(curl2, CURLOPT_USERAGENT, "libcurl-agent/1.0");	//Fill user-agent to not decline our request
 		curl_easy_setopt(curl2, CURLOPT_VERBOSE, 1L);
-
+		session->getBingKey();
+			session->getBingKey();
 		encode_key = curl_easy_escape(curl2, session->getBingKey(), strlen(session->getBingKey()));
 
 		sprintf(url2,
@@ -175,7 +176,7 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 		{
 			const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
 			url = "https://www.googleapis.com/language/translate/v2?key=";
-			url += std::string(session->getApiGoogle()) + "&q=" + BufferSource + "&source="
+			url += std::string(session->getGoogleAPIKey()) + "&q=" + BufferSource + "&source="
 				+ languagesrc + "&target=" +  languagedst;
 
 			curl_easy_setopt(curl, CURLOPT_URL, url);

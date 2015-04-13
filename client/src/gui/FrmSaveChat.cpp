@@ -121,7 +121,7 @@ void FrmSaveChat::checkBoxSelection(wxCommandEvent& event){
 void FrmSaveChat::btnConfirmClick(wxCommandEvent& event)
 {
 	// to get timestamp
-	FILE *configr = fopen("..\\bin\\conf\\directory.txt", "w");
+	FILE *configr = fopen("conf\\directory.txt", "w");
 	char timestamp[100];
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -166,7 +166,7 @@ void FrmSaveChat::saveChatCSV(const char* filename){
 	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
 		fprintf(configr, "\"" + (*iter)->getFrom() + "\";");
-		fprintf(configr, "\"" + (*iter)->getTimeStamp() + "\";");
+		fprintf(configr, "\"" + (*iter)->getTimeStamp()+ "\";");
 		if (MSGDirection::out == (*iter)->getIO())
 		{
 			fprintf(configr, "\" ---> " + (*iter)->getMSG() + "\"\n");

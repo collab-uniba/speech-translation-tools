@@ -21,7 +21,6 @@
 #include <wx/wxprec.h>
 #endif
 
-#include "../Data/config.h"
 #include "../lib/ClientTS.h"
 #include "../data/Session.h"
 #include "../data/Message.h"  
@@ -95,7 +94,6 @@ public:
 private:
 	unsigned int curRow;			//Initialize Row index
 	Session* session;
-	ConfigPTR config;
 	NationList *nations;
 	int REFRESHTIMER = 0;
 	uint64 _sclogID;
