@@ -48,6 +48,7 @@
 #include "../translateController/translateController.h"
 #include "../translateController/translateVariable.h"
 
+#include <wx/tipwin.h>
 #include <list>
 //#include "../lib/Observer.h"
 
@@ -55,6 +56,37 @@
 #define MENU_OPZIONI 1801
 #define MENU_SPEECH 1802
 
+/* ttListCtrl.h */
+/* Ryan Day, http://www.ryanday.net/ */
+
+#include <wx/listctrl.h>
+
+class ttListCtrl : public wxListCtrl
+{
+private:
+	wxString *grid;
+	int cols, rows;
+
+public:
+	ttListCtrl() { };
+	ttListCtrl(wxWindow *parent,
+		wxWindowID winid = wxID_ANY,
+		const wxPoint& pos = wxDefaultPosition,
+		const wxSize& size = wxDefaultSize,
+		long style = wxLC_REPORT,
+		const wxValidator& validator = wxDefaultValidator,
+		const wxString &name = wxListCtrlNameStr)
+	{
+		//  Start with a 3x3 grid, and we can expand beyond that if necessary
+		cols = rows = 3;
+		grid = new wxString[3 * 3];
+		Create(parent, winid, pos, size, style, validator, name);
+	}
+	void OnMouseMotion(wxMouseEvent& event);
+	void destroyTip(wxTimerEvent& event);
+	void SetTooltip(int row, int col, wxString& tip);
+	void GetTooltip(int row, int col, wxString& tip);
+};
 
 
 class ClientTsFrm : public wxFrame
@@ -92,6 +124,7 @@ public:
 	void updatePanelMsg(wxThreadEvent& event);
 
 private:
+	ttListCtrl* ListCtrlObject;
 	unsigned int curRow;			//Initialize Row index
 	Session* session;
 	NationList *nations;
@@ -115,7 +148,7 @@ private:
 	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
 	wxBitmapButton *WxBitmapButton1;
 	std::unique_ptr<ClientTS> clientts;
-	wxListCtrl* chatbox;
+	ttListCtrl* chatbox;//wxListCtrl* chatbox;
     COLORE *colors;
 	enum
 	{

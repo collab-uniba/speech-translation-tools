@@ -54,7 +54,6 @@ namespace Translation{
 	private:
 		float GetRemainingTime();
 		void getToken();
-		wxString clean(char *word);
 	private:
 		time_t	m_expirationTime;
 		std::string	m_access_token;

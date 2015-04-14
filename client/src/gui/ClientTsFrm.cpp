@@ -55,12 +55,20 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		remove("");
 		fclose(translate);
 	}
+	//ListCtrlObject = new ttListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(350, 250), wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
 
-	chatbox = new wxListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350), wxLC_REPORT, wxDefaultValidator, wxT("moviesTable"));
+
+	// cut
+
+	//chatbox = new wxListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350), wxLC_REPORT, wxDefaultValidator, wxT("moviesTable"));
+	chatbox = new ttListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350),
+		wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
+	chatbox->Connect(wxEVT_MOTION, wxMouseEventHandler(ttListCtrl::OnMouseMotion));
 
 	chatbox->InsertColumn(1, wxT("Data"), wxLIST_FORMAT_LEFT, 70);
 	chatbox->InsertColumn(2, wxT("Nick"), wxLIST_FORMAT_LEFT, 80);
 	chatbox->InsertColumn(3, wxT("Message"), wxLIST_FORMAT_LEFT, 520);
+
 
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
@@ -377,14 +385,113 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
 
 	il = new wxImageList(16, 16, false, 0);
+
 	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
 	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
-	if (msgptr->getLanguageOrig() == msgptr->getLanguageSystem())
+	
+
+	if (msgptr->getLanguageOrig() == msgptr->getLanguageSystem()){
 		chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
-	else
-		chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() + " ### "+ msgptr->getMSG()); //col. 3
+	}
+	else{
+		chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() ); //col. 3
+		chatbox->SetTooltip(curRow, 2, msgptr->getMSG());
+	}
 	
 	chatbox->ScrollList(0, curRow);
 	curRow++;
 }
 
+
+
+/* ttListCtrl.cpp */
+/* Ryan Day, http://www.ryanday.net/ */
+
+
+void ttListCtrl::SetTooltip(int row, int col, wxString& tip)
+{
+	int i, j;
+
+	// If we are placing a tooltip beyond our predefined matrix, 
+	// create a bigger matrix and copy the old matrix over. This
+	// lets us have a dynamic sized tooltip grid.
+	if ((row >= rows) || (col >= cols))
+	{
+		wxString* tmp = grid;
+		grid = new wxString[(row + 5) * (col + 5)];
+
+		for (i = 0; i<rows; i++)
+		for (j = 0; j<cols; j++)
+			grid[(i*cols) + j].Printf(wxT("%s"), tmp[(i*cols) + j]);
+		delete[] tmp;
+		rows = row + 5;
+		cols = col + 5;
+	}
+	// We don't want to store a pointer to the user supplied tooltip,
+	// we keep our own copy in the grid.
+	grid[(row*cols) + col].Printf(wxT("%s"), tip);
+}
+
+void ttListCtrl::GetTooltip(int row, int col, wxString& tip)
+{
+	if (&grid[(row*cols) + col] != NULL)
+		tip.Printf(wxT("%s"), grid[(row*cols) + col]);
+}
+
+
+void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
+{
+	ttListCtrl* o = (ttListCtrl*)event.GetEventObject();
+	if (o == NULL) return;
+	int id = event.GetEventType();
+	int count = o->GetColumnCount();
+	long row = -1, col = -1;
+	int flags = 0, i = 0, totalWidth = 0, tmpWidth = 0;
+	wxPoint pt;
+	wxTipWindow* tipWin;
+	wxTimer* killTip;
+	wxString toolTip;
+
+	if (id != wxEVT_MOTION)
+		return;
+
+	// We can get the row easily(HitTest) but the columns are more tricky.
+	// We get all the column widths, and once our total width is beyoind where the
+	// mouse is, we know which column the mouse is over.  This lets us resize the
+	// columns during runtime and still get correct tooltips.
+	pt = event.GetPosition();
+	row = o->HitTest(pt, flags);
+	for (i = 0; i<count; i++)
+	{
+		tmpWidth = o->GetColumnWidth(i);
+		totalWidth += tmpWidth;
+		if (pt.x < totalWidth)
+		{
+			col = i;
+			break;
+		}
+	}
+
+	// If things look valid, get the tooltip
+	if (row > -1 && col > -1)
+		o->GetTooltip(row, col, toolTip);
+
+	// If we have a tooltip, we want to show is for 1 second, and then disappear. 
+	// We use a timer for this.
+	if (toolTip.Length() > 0)
+	{
+		tipWin = new wxTipWindow(o, toolTip);
+		// Bind() is only avail for 2.9.0 and later
+		//Bind(wxTimerEvent, Monitor::destroyTip, wxID_ANY, wxID_ANY, q);
+		SetClientData(tipWin);
+		Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
+		killTip = new wxTimer(this, wxID_ANY);
+		killTip->Start(1000, true);
+	}
+}
+
+void ttListCtrl::destroyTip(wxTimerEvent& event)
+{
+	wxTipWindow *obj = (wxTipWindow*)GetClientData();
+	if (obj) obj->Destroy();
+}

@@ -58,12 +58,13 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 	
 		nations->ReadFromFile(LOCALES_CODE_FILE);
 
-		strcpy(languagesrc, nations->Search(&msg->getLanguageOrig(), APICODE));
-		strcpy(languagedst, nations->Search(&msg->getLanguageSystem(), APICODE));
+		strcpy(languagesrc, nations->Search(&msg->getLanguageSystem(), APICODE));
+		strcpy(languagedst, nations->Search(&msg->getLanguageOrig(), APICODE));
 
 		curl = curl_easy_init();
 		char *trueheader = curl_easy_unescape(curl, header.c_str(), 0, NULL);
-		const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
+		const char *BufferSource = curl_easy_escape(curl, msg->getMSG().ToUTF8(), strlen(msg->getMSG().ToUTF8()));
+		//const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
 	
 		url = "http://api.microsofttranslator.com/V2/Http.svc/Translate?text=";
 		url += BufferSource + std::string("&from=") + languagesrc + "&to=" + languagedst;
@@ -77,10 +78,16 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 		res2 = curl_easy_perform(curl);
 	
-		if (res2 == CURLE_OK)
-		{
-			msg->setSrtTranslate(clean(response.memory));
-		}
+		wxString text_convUTF8 = wxString::FromUTF8(response.memory);
+		
+		wxRegEx		responseText = "\">(.*)</string>";
+
+		if (responseText.Matches(text_convUTF8))
+			msg->setSrtTranslate(responseText.GetMatch(text_convUTF8, 1));
+		else
+			msg->setSrtTranslate(text_convUTF8);
+		const char * mv = text_convUTF8.mb_str();
+		
 		//else manage error?
 
 		curl_global_cleanup();
@@ -91,20 +98,6 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 	}
 
 }
-
-wxString Translation::BingTranslate::clean(char *word)
-{
-	char *buffer;
-	unsigned int i;
-	int result;
-	buffer = strstr(word, ">");
-	result = (int)(buffer - word + 1);  
-	for (i = 1; i < strlen(buffer); i++)
-		buffer[i - 1] = buffer[i];
-	buffer[strlen(buffer) - 10] = '\0';
-	return wxString::FromAscii(buffer);  
-}
-
 
 void Translation::BingTranslate::getToken(){
 
@@ -160,6 +153,7 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 	struct MemoryStruct	response;
 	std::string				url;
 	wxRegEx				responseText	= "\"translatedText\": \"(.*)\"";
+	wxString			text_convUTF8;
 
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 
@@ -174,7 +168,8 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 
 		if (curl)
 		{
-			const char *BufferSource = curl_easy_escape(curl, msg->getMSG().mb_str().data(), msg->getMSG().Len());
+			const char *BufferSource = curl_easy_escape(curl, msg->getMSG().ToUTF8(), strlen(msg->getMSG().ToUTF8()));
+			int m = msg->getMSG().Len();
 			url = "https://www.googleapis.com/language/translate/v2?key=";
 			url += std::string(session->getGoogleAPIKey()) + "&q=" + BufferSource + "&source="
 				+ languagesrc + "&target=" +  languagedst;
@@ -199,13 +194,14 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 			
 			/*if (responseText.Matches(response.memory))
 			{*/
-
+			text_convUTF8 = wxString::FromUTF8(response.memory);
+		
 			wxRegEx		responseText = "\"translatedText\": \"(.*)\"";
 			
-			if (responseText.Matches(response.memory))
-				msg->setSrtTranslate(responseText.GetMatch(response.memory, 1));
+			if (responseText.Matches(text_convUTF8))
+				msg->setSrtTranslate(responseText.GetMatch(text_convUTF8, 1));
 			else
-				msg->setSrtTranslate((response.memory));
+				msg->setSrtTranslate(text_convUTF8);
 			
 			curl_easy_cleanup(curl);
 			curl_global_cleanup();
