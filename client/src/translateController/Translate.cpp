@@ -56,7 +56,7 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 	
 		header = "Authorization: Bearer " + m_access_token;
 	
-		nations->ReadFromFile("..\\conf\\locales_code.txt");
+		nations->ReadFromFile(LOCALES_CODE_FILE);
 
 		strcpy(languagesrc, nations->Search(&msg->getLanguageOrig(), APICODE));
 		strcpy(languagedst, nations->Search(&msg->getLanguageSystem(), APICODE));
@@ -168,9 +168,9 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 		curl = curl_easy_init();
 		init_string(&response);
 		NationList *nations = new NationList;
-		nations->ReadFromFile("..\\conf\\locales_code.txt");
-		strcpy(languagesrc, nations->Search(&msg->getLanguageOrig(), APICODE));
-		strcpy(languagedst, nations->Search(&msg->getLanguageSystem(), APICODE));
+		nations->ReadFromFile(LOCALES_CODE_FILE);
+		strcpy(languagesrc, nations->Search(&msg->getLanguageSystem(), APICODE));
+		strcpy(languagedst, nations->Search(&msg->getLanguageOrig(), APICODE));
 
 		if (curl)
 		{
@@ -204,10 +204,14 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 			
 			if (responseText.Matches(response.memory))
 				msg->setSrtTranslate(responseText.GetMatch(response.memory, 1));
+			else
+				msg->setSrtTranslate((response.memory));
 			
 			curl_easy_cleanup(curl);
-			msg->setSrtTranslate((response.memory));
 			curl_global_cleanup();
 		}			
+	}
+	else{
+		msg->setSrtTranslate(msg->getMSG());
 	}
 }

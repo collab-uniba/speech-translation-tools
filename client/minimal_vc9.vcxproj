@@ -515,8 +515,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ArchiveLog.cpp" />
-    <ClCompile Include="src\connectionController\connectionController.cpp" />
-    <ClCompile Include="src\data\Config.cpp" />
     <ClCompile Include="src\data\Message.cpp" />
     <ClCompile Include="src\data\Session.cpp" />
     <ClCompile Include="src\data\User.cpp" />
@@ -541,8 +539,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="src\ArchiveLog.h" />
-    <ClInclude Include="src\connectionController\connectionController.h" />
-    <ClInclude Include="src\data\Config.h" />
     <ClInclude Include="src\data\Message.h" />
     <ClInclude Include="src\data\Session.h" />
     <ClInclude Include="src\data\User.h" />

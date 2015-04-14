@@ -37,7 +37,7 @@ void ClientTS::sendMessage(wxString *msgToSend){
 	if (*msgToSend == "") return;	//if the message is empty exit
  	//session->write_flag = false;
 
-	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + *msgToSend, (uint64)1, NULL);
+	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + msgToSend->ToUTF8(), (uint64)1, NULL);
 
 	wxString scrive_msg = "\n" + wxString::FromAscii(session->getLanguage()) + "\n" + "write0";	//Inform other clients that we have finish to write
 	ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, scrive_msg.mb_str(), (uint64)1, NULL);
@@ -745,9 +745,9 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	}
 
 	strtok((char*)name, "$");	//Extract from entire message the name value example: $Adam -> Adam
-	strNick = wxString::FromAscii(strtok(NULL, "$"));
-	strMessageLang = wxString::FromAscii(strtok((char*)message, "\n"));	//Extract from entire message the language field
-	strMessage = wxString::FromAscii(strtok(NULL, "\n"));				//Extract the body of message
+	strNick = wxString::FromUTF8(strtok(NULL, "$"));
+	strMessageLang = wxString::FromUTF8(strtok((char*)message, "\n"));	//Extract from entire message the language 
+	strMessage = wxString::FromUTF8(strtok(NULL, "\n")); //Extract the body of message
 
 	/* Example $Adam$English$How are you?
 	strNick= Adam;
@@ -777,61 +777,13 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	if (strMessage == "</html>") return;
 	if (strMessage == ">") return;
 
-
-
-	// to get timestamp
-
-	// end timestamp
-
 	/******* begin adding new entry to the log variable  ******/
 
-	if (strcmp(strMessageLang.mb_str(), session->getLanguage()) == 0)	//if the message's language is equal with my language then display without translation
-	{
-		msg_text = make_shared<Message>(strNick == session->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, session->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
+	msg_text = make_shared<Message>(strNick == session->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, session->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
 		
-		session->addMsgToLog(msg_text);
-		wxThreadEvent evt(wxEVT_THREAD, wxID_ANY);
-		evt.SetPayload<MessagePTR>(msg_text);
-		wxQueueEvent(m_instance->msg_thread, evt.Clone());
-
-		setFlagSave(false);
-		return;
-	}
-
-	/*** end log 
-	if (strcmp(session->getTranslationEngine(), "google") == 0)
-	{
-		if (strcmp(strMessageLang.mb_str(), TranslateController::richiestaGoogle(&strMessage, &strMessageLang)) == 0)
-			StringTranslate = strMessage;
-		else
-		{
-			TranslateController::parseGoogle(TranslateController::richiestaGoogle(&strMessage, &strMessageLang));
-			msg_text = make_shared<Message>(strNick == session->getConfig()->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, session->getLanguage(), strMessageLang); // it's the same that Message* Message = new Message ();
-			msg_text->setSrtTranslate(strMessage);
-			session->addMsgToLog(msg_text);
-			setFlagSave(false);
-		}
-	}*/
-
-	if (strcmp(session->getTranslationEngine(), "bing") == 0)
-	{
-		msg_text = make_shared<Message>(strNick == session->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, strMessageLang, session->getLanguage()); // it's the same that Message* Message = new Message ();
-		//auto p = [](wxString strMessage, wxString strMessageLang, MessagePTR msg_text) {
-		//BingTranslate.translateThis(msg_text);
-		//msg_text->setSrtTranslate("");
-		m_instance->m_pQueue->AddJob(msg_text);
-		session->addMsgToLog(msg_text);
-
-			//session->addMsgToLog(msg_text);
-		setFlagSave(false); 
-	/*	};
-		std::thread t1(p, strMessage, strMessageLang, msg_text);
-
-		t1.join();*/
-		
-		
-	}
-	return;
+	session->addMsgToLog(msg_text);
+	m_instance->m_pQueue->AddJob(msg_text);
+	
 }
 
 unsigned int  ts3client_requestSendChannelTextMsg(uint64 serverConnectionHandlerID, const char *message, anyID targetChannelID, const char *returnCode)
