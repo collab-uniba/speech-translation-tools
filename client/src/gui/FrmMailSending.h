@@ -26,6 +26,7 @@
 #include "../tinyxml2.h"
 #include "../../res/sendemail.xpm"
 
+#include "../data/Session.h"
 #include "../translateController/translateVariable.h"
 
 using namespace std;
@@ -34,6 +35,7 @@ class FrmMailSending : public wxDialog
 {
 
 private:
+	Session *session;
 	void btnSendMailClick(wxCommandEvent& event);
 	void btnCancelMailClick(wxCommandEvent& event);
 	bool sendMail(char* subject, char* body, char* to, char*attachment, char* attachment2);

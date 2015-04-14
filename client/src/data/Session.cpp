@@ -15,8 +15,9 @@ Session::Session(){
 	finish_ctrl_flag = false;		//Flag to recognize CTRL press button
 	automatic_stt_flag = false;
 
-	ini = make_unique<CSimpleIniA>(true, true, false); //a_bIsUtf8, a_bUseMultiKey, a_bUseMultiLine
-	SI_Error rc = ini->LoadFile("conf/config.ini");
+	ini = make_unique<CSimpleIniA>(); //a_bIsUtf8, a_bUseMultiKey, a_bUseMultiLine
+	ini->SetUnicode();
+	SI_Error rc = ini->LoadFile(SETTING_FILE);
 	if (rc < 0 || ini->IsEmpty()) throw (ErrorSession("It is not possible to open the configuration file (config.ini) or is empty"));
 }
 
@@ -49,11 +50,14 @@ const char* Session::getMicLevel()
 void Session::setMicLevel(const char* sv)
 {
 	ini->SetValue("profile", "mic_level", sv);
+	ini->SaveFile(SETTING_FILE);
 }
 
 void Session::setGoogleAPIKey(const char* code){
 	ini->SetValue("API_KEYS",
 		"google_key", code);
+
+	ini->SaveFile(SETTING_FILE);
 }
 
 const char* Session::getGoogleAPIKey(){
@@ -67,6 +71,7 @@ const char* Session::getGoogleAPIKey(){
 void Session::setLanguage(const char* lang){
 	ini->SetValue("profile",
 		"language_system", lang);
+	ini->SaveFile(SETTING_FILE);
 }
 
 const char* Session::getLanguage(){
@@ -76,6 +81,7 @@ const char* Session::getLanguage(){
 
 void Session::setNick(const char* nick){
 	ini->SetValue("profile", "name", nick);
+	ini->SaveFile(SETTING_FILE);
 }
 
 const char* Session::getNick(){
@@ -88,12 +94,13 @@ const char* Session::getServerAddress(){
 
 void Session::setServerAddress(const char *sv){
 	ini->SetValue("profile", "server", sv);
+	ini->SaveFile(SETTING_FILE);
 }
 
 void Session::setNumbLanguageSelected(int v){
-	char temp[100];
-	itoa(v, temp, 50);
-	ini->SetValue("profile", "no_language_selected", temp);
+
+	ini->SetValue("profile", "no_language_selected", std::to_string(v).c_str());
+	ini->SaveFile(SETTING_FILE);
 }
 int Session::getNumbLanguageSelected(){
 	const char* tmp_srt = ini->GetValue("profile", "no_language_selected", NULL);
@@ -106,6 +113,7 @@ const char* Session::getTranslationEngine(){
 
 void  Session::setTranslationEngine(const char* sv){
 	ini->SetValue("profile", "translator_engine", sv);
+	ini->SaveFile(SETTING_FILE);
 }
 
 const char* Session::getBingKey(){
@@ -124,8 +132,63 @@ const char* Session::getBingID(){
 
 void Session::setBingKey(const char *sv){
 	ini->SetValue("API_KEYS", "bing_key", sv);
+	ini->SaveFile(SETTING_FILE);
 }
 
 void Session::setBingID(const char *sv){
 	ini->SetValue("API_KEYS", "bing_id", sv);
+	ini->SaveFile(SETTING_FILE);
+}
+
+
+const char* Session::getsmtpservertxt()
+{
+	return ini->GetValue("email", "smtpservertxt", NULL);
+}
+void Session::setsmtpservertxt(const char *sv)
+{
+	ini->SetValue("email", "smtpservertxt", sv);
+	ini->SaveFile(SETTING_FILE);
+}
+
+const char* Session::getserverporttxt()
+{
+	return ini->GetValue("email", "serverporttxt", NULL);
+}
+void Session::setserverporttxt(const char *sv)
+{
+	ini->SetValue("email", "serverporttxt", sv);
+	ini->SaveFile(SETTING_FILE);
+}
+
+const char* Session::getusername()
+{
+	return ini->GetValue("email", "username", NULL);
+}
+
+void Session::setusername(const char *sv)
+{
+	ini->SetValue("email", "username", sv);
+	ini->SaveFile(SETTING_FILE);
+}
+
+const char* Session::getpassword()
+{
+	return ini->GetValue("email", "password", NULL);
+}
+
+void Session::setpassword(const char *sv)
+{
+	ini->SetValue("email", "password", sv);
+	ini->SaveFile(SETTING_FILE);
+}
+
+bool Session::getprotocol()
+{
+	return ini->GetBoolValue("email", "protocol", NULL);
+}
+void Session::setprotocol(bool sv)
+{
+	ini->SetBoolValue("email", "protocol", sv);
+	ini->SaveFile(SETTING_FILE);
 }

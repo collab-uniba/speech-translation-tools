@@ -28,7 +28,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 {
 	this->nations = new NationList();
 
-	this->nations->ReadFromFile("conf\\locales_code.txt");
+	this->nations->ReadFromFile(LOCALES_CODE_FILE);
 	session = Session::Instance();
 	clientts = make_unique<ClientTS>(this);
 

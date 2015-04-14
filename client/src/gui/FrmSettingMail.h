@@ -28,6 +28,7 @@
 #include <wx/button.h>
 #include <wx/dialog.h>
 #include "../translateController/translateVariable.h"
+#include "../data/Session.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,7 @@
 class FrmSettingMail : public wxDialog 
 {
 	private:
-	
+		Session *session;
 	protected:
 		wxStaticBitmap* m_bitmap2;
 		wxStaticText* frmOptionsMail_lblServer;

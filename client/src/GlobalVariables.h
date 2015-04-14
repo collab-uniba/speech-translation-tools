@@ -71,6 +71,9 @@ using namespace ATL;
 using namespace rapidjson;
 using namespace irrklang;
 
+#define LOCALES_CODE_FILE "conf/locales_code.txt"
+#define SETTING_FILE "conf/config.ini"
+
 struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];

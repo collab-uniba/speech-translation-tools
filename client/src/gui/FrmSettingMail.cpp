@@ -16,6 +16,7 @@
 FrmSettingMail::FrmSettingMail(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
 	CenterOnScreen();
+	session = Session::Instance();
 	wxBoxSizer* bSizer8;
 	bSizer8 = new wxBoxSizer( wxVERTICAL );
 	
@@ -90,20 +91,12 @@ FrmSettingMail::FrmSettingMail(wxWindow* parent, wxWindowID id, const wxString& 
 	bSizer181->Add( frmOptionsMail_lblPassword, 0, wxALL, 5 );
 	
 	frmOptionsMail_txtPassword = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 200,-1 ), wxTE_PASSWORD );
-	bSizer181->Add( frmOptionsMail_txtPassword, 0, wxALL, 5 );
-	
-	
+	bSizer181->Add(frmOptionsMail_txtPassword, 0, wxALL, 5);
 	bSizer26->Add( bSizer181, 1, wxEXPAND, 5 );
-	
-	
 	bSizer25->Add( bSizer26, 1, wxEXPAND, 5 );
-	
-	
 	bSizer1011->Add( bSizer25, 1, wxEXPAND, 5 );
-	
-	
 	bSizer8->Add( bSizer1011, 1, wxEXPAND, 5 );
-	
+
 	wxBoxSizer* bSizer27;
 	bSizer27 = new wxBoxSizer( wxVERTICAL );
 	
@@ -154,42 +147,13 @@ FrmSettingMail::FrmSettingMail(wxWindow* parent, wxWindowID id, const wxString& 
 	frmOptionsMail_cmdOK->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdOKClick ), NULL, this );
 	frmOptionsMail_cmdCancel->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdCancelClick ), NULL, this );
 
-	struct serverdata
-	{
-		char smtpservertxt[100];
-		char serverporttxt[6];
-		char username[100];
-		char password[100];
-		char protocol[100];
-	} serversettings;
-
-	FILE *config;
-	if ((config=fopen("..\\bin\\conf\\email.txt", "r")) != NULL){
-		fscanf(config, "%s", &serversettings.smtpservertxt);
-		fscanf(config, "%s", &serversettings.serverporttxt);
-		fscanf(config, "%s", &serversettings.username);
-		fscanf(config, "%s", &serversettings.password);
-		fscanf(config, "%s", &serversettings.protocol);
-		if (strcmp(serversettings.protocol, "true") == 0){ frmOptionsMail_optSSL->SetValue(true); 	frmOptionsMail_optNO->SetValue(false); }
-		else{ frmOptionsMail_optSSL->SetValue(false); 	frmOptionsMail_optNO->SetValue(true); }
-		frmOptionsMail_txtServerName->SetValue(serversettings.smtpservertxt);
-		frmOptionsMail_txtPort->SetValue(serversettings.serverporttxt);
-		frmOptionsMail_txtusername->SetValue(serversettings.username);
-		frmOptionsMail_txtPassword->SetValue(serversettings.password);
-		fclose(config);
-	}
-	else{
-		frmOptionsMail_optSSL->SetValue(false);
-		frmOptionsMail_optNO->SetValue(true);
-		frmOptionsMail_txtServerName->SetValue("");
-		frmOptionsMail_txtPort->SetValue("");
-		frmOptionsMail_txtusername->SetValue("");
-		frmOptionsMail_txtPassword->SetValue("");
-		
-	}
-	
-	
-
+	//getting values from config file
+	frmOptionsMail_optSSL->SetValue(session->getprotocol()); 
+	frmOptionsMail_optNO->SetValue(!session->getprotocol());
+	frmOptionsMail_txtServerName->SetValue(session->getsmtpservertxt());
+	frmOptionsMail_txtPort->SetValue(session->getserverporttxt());
+	frmOptionsMail_txtusername->SetValue(session->getusername());
+	frmOptionsMail_txtPassword->SetValue(session->getpassword());
 }
 
 FrmSettingMail::~FrmSettingMail()
@@ -197,7 +161,6 @@ FrmSettingMail::~FrmSettingMail()
 	// Disconnect Events
 	frmOptionsMail_cmdOK->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdOKClick ), NULL, this );
 	frmOptionsMail_cmdCancel->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FrmSettingMail::cmdCancelClick ), NULL, this );
-	
 }
 
 void FrmSettingMail::chkUserPsw_Check(wxCommandEvent& event){
@@ -205,37 +168,17 @@ void FrmSettingMail::chkUserPsw_Check(wxCommandEvent& event){
 }
 
 void FrmSettingMail::cmdOKClick(wxCommandEvent& event){
-	struct serverdata
-	{
-		char smtpservertxt[100];
-		char serverporttxt[6];
-		char username[100];
-		char password[100];
-		char protocol[100];
-	} serversettings;
-	if (frmOptionsMail_optSSL->GetValue() == true) strcpy(serversettings.protocol, "true");
-	else strcpy(serversettings.protocol, "false");
-	
-	strcpy(serversettings.smtpservertxt, (const char*)frmOptionsMail_txtServerName->GetValue().mb_str(wxConvUTF8));
-	strcpy(serversettings.serverporttxt, (const char*)frmOptionsMail_txtPort->GetValue().mb_str(wxConvUTF8));
-	strcpy(serversettings.username, (const char*)frmOptionsMail_txtusername->GetValue().mb_str(wxConvUTF8));
-	strcpy(serversettings.password, (const char*)frmOptionsMail_txtPassword->GetValue().mb_str(wxConvUTF8));
-	strcat(serversettings.smtpservertxt,"\0");
-	strcat(serversettings.serverporttxt, "\0");
-	strcat(serversettings.username, "\0");
-	strcat(serversettings.password, "\0");
-	strcat(serversettings.protocol, "\0");
-	FILE *config = fopen("..\\bin\\conf\\email.txt", "w");
-	fprintf(config, "%s\n", serversettings.smtpservertxt);
-	fprintf(config, "%s\n", serversettings.serverporttxt);
-	fprintf(config, "%s\n", serversettings.username);
-	fprintf(config, "%s\n", serversettings.password);
-	fprintf(config, "%s", serversettings.protocol);
-	fclose(config);
-	this->Close();
+
+	//saving config
+	session->setprotocol((const char*)frmOptionsMail_optSSL->GetValue());
+	session->setsmtpservertxt((const char*)frmOptionsMail_txtServerName->GetValue().mb_str(wxConvUTF8));
+	session->setserverporttxt((const char*)frmOptionsMail_txtPort->GetValue().mb_str(wxConvUTF8));
+	session->setusername((const char*)frmOptionsMail_txtusername->GetValue().mb_str(wxConvUTF8));
+	session->setpassword((const char*)frmOptionsMail_txtPassword->GetValue().mb_str(wxConvUTF8));
+
 	wxMessageBox(labels.messageEmailSetting);
 
-
+	this->Close();
 }
 void FrmSettingMail::cmdCancelClick(wxCommandEvent& event){
 	this->Close();

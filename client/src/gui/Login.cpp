@@ -57,7 +57,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 
 	//config->setLanguage("English");
 	this->nations = new NationList();
-	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
+	this->nations->ReadFromFile(LOCALES_CODE_FILE);
 
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	this->Centre(wxBOTH);
@@ -124,7 +124,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 			bitmap.LoadFile("..\\res\\Default.png", wxBITMAP_TYPE_PNG);
 
 		cmbLingua->Append(language, bitmap);
-		session->setLanguage(language);
+		//session->setLanguage(language);
 		
 	}
 	
@@ -212,13 +212,13 @@ void Login::cmblingua_SelectionChange(wxCommandEvent& event)
 {
 	char lang[20] = { "" };
 	strcpy(lang, (char*)cmbLingua->GetStringSelection().mb_str().data());
-
-
-	try{
+	try
+	{
 		TranslateController::InitLanguageVariable(lang);
 	}
-	catch (ErrorLabels &e){
-		session->setLanguage("English(Uk");
+	catch (ErrorLabels &e)
+	{
+		session->setLanguage("English(Uk)");
 		session->setNumbLanguageSelected(20);
 		TranslateController::InitLanguageVariable((char*)session->getLanguage());
 		cmbLingua->SetSelection(session->getNumbLanguageSelected());
@@ -239,7 +239,7 @@ void Login::SetLabel(){
 
 void Login::btnloginClick(wxCommandEvent& event)
 {
-	if (!txtNickName->GetValue().IsEmpty() || !txtNickName->GetValue().IsEmpty()){
+	if (!(txtNickName->GetValue().IsEmpty() || txtNickName->GetValue().IsEmpty())){
 		LoginWarnings *warn = new LoginWarnings();
 		strncpy(StringLoginServer, (const char*)txtNameHost->GetValue().mb_str(wxConvUTF8), 20);
 		strncpy(StringLoginNick, (const char*)txtNickName->GetValue().mb_str(wxConvUTF8), 50);

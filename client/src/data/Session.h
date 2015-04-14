@@ -104,11 +104,28 @@ public:
 	const char* getTranslationEngine();
 	void setTranslationEngine(const char *sv);
 
-	const char* getBingKey();
-	void setBingKey(const char *sv);
+
+	const char* getsmtpservertxt();
+	void setsmtpservertxt(const char *sv);
+
+	const char* getserverporttxt();
+	void setserverporttxt(const char *sv);
+
+	const char* getusername();
+	void setusername(const char *sv);
+
+	const char* getpassword();
+	void setpassword(const char *sv);
+
+	bool getprotocol();
+	void setprotocol(bool sv);
+
 
 	const char* getMicLevel();
 	void setMicLevel(const char* sv);
+
+	const char* getBingKey();
+	void setBingKey(const char *sv);
 
 	const char* getBingID();
 	void setBingID(const char *sv);
