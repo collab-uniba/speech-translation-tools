@@ -22,9 +22,6 @@ it has two parameters: the language of message and body of message
 */
 
 
-std::list<MESSAGE> diary;
-
-
 wxSemaphore ClientTS::thread_semaphore = 0;
 long ClientTS::text_to_speech = 0L;
 bool ClientTS::flagSave = false;
@@ -391,10 +388,10 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
 
-			if (strcmp(session->getLanguage(), "Italian") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-			if (strcmp(session->getLanguage(), "English") == 0)
-				WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
-			if (strcmp(session->getLanguage(), "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			//if (strcmp(session->getLanguage(), "Italian") == 0) 
+			//	WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
+		//	if (strcmp(session->getLanguage(), "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
+		//	if (strcmp(session->getLanguage(), "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
 
 		}
 		/*else if (finish_ctrl_flag == true)
@@ -1356,8 +1353,8 @@ DWORD WINAPI ClientTS::STT_THREAD(LPVOID lpParameter)
 			fclose(trad);
 			if (strcmp(translate_jar, "") != 0)	//if translate_jar isn't empty
 			{
-				wxString final = "\n" + wxString::FromAscii(Session::Instance()->getLanguage()) + "\n" + wxString::FromUTF8(translate_jar);
-				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final, (uint64)1, NULL); //Send other clients the speechtotext message from dragon transaction
+				wxString final = "\n" + wxString::FromAscii(Session::Instance()->getLanguage()) + "\n" + (translate_jar);
+				ts3client_requestSendChannelTextMsg(DEFAULT_VIRTUAL_SERVER, final.ToUTF8(), (uint64)1, NULL); //Send other clients the speechtotext message from dragon transaction
 				strcpy(translate_jar, "");
 				WinExec("Taskkill /IM java.exe /F", SW_HIDE);	//Kill java
 				Sleep(50);

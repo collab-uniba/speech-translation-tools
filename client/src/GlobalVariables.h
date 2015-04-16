@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utility.h"
 #include <windows.h>
 #include <atlbase.h>
 #include <sphelper.h>
@@ -37,9 +36,6 @@
 #include <wx/richtext/richtextstyledlg.h>
 #include <wx/richtext/richtextprint.h>
 #include <wx/richtext/richtextimagedlg.h>
-#include "rapidjson/document.h"		
-#include "rapidjson/prettywriter.h"	
-#include "rapidjson/filestream.h"
 #include <list>
 #include "../res/keyboard.xpm"
 #include "../res/microphone.xpm"
@@ -68,7 +64,6 @@
 using namespace audiere;
 using namespace std;
 using namespace ATL;
-using namespace rapidjson;
 using namespace irrklang;
 
 #define LOCALES_CODE_FILE "conf/locales_code.txt"
@@ -101,7 +96,7 @@ typedef struct color
 	unsigned short green;
 	unsigned short blue;
 } COLORE;
-
+/*
 struct user
 {
 	wxString name;
@@ -126,7 +121,7 @@ typedef struct message
 	wxString timestamp;
 	wxString msgDir;
 } MESSAGE;
-
+*/
 typedef struct header_file
 {
 	char chunk_id[4];

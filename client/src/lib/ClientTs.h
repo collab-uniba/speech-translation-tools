@@ -33,7 +33,6 @@
 #include "../ArchiveLog.h"
 #include <wx/thread.h>
 
-#include "../GlobalVariables.h"
 #include "../translateController/translateController.h"
 #include "../translateController/translateVariable.h"
  

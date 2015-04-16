@@ -64,12 +64,26 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	chatbox = new ttListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350),
 		wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
 	chatbox->Connect(wxEVT_MOTION, wxMouseEventHandler(ttListCtrl::OnMouseMotion));
+	il = new wxImageList(16, 16, false, 0);
 
-	chatbox->InsertColumn(1, wxT("Data"), wxLIST_FORMAT_LEFT, 70);
-	chatbox->InsertColumn(2, wxT("Nick"), wxLIST_FORMAT_LEFT, 80);
-	chatbox->InsertColumn(3, wxT("Message"), wxLIST_FORMAT_LEFT, 520);
+	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
+	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
 
+	wxListItem itemCol;
+	itemCol.SetText(wxT("Data"));
+	itemCol.SetImage(-1);
+	itemCol.SetWidth(70);
+	itemCol.SetAlign(wxLIST_FORMAT_LEFT);
+	chatbox->InsertColumn(0, itemCol);
 
+	itemCol.SetText(wxT("Nick"));
+	itemCol.SetWidth(80);
+	chatbox->InsertColumn(1, itemCol);
+	
+	itemCol.SetText(wxT("Message"));
+	itemCol.SetWidth(520);
+	chatbox->InsertColumn(2, itemCol);
+	
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
 	WxTimer2->Start(200);
@@ -377,26 +391,41 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	* add new message to chat grid
 	****/
 
-	wxImageList		*il;
 	MessagePTR		msgptr			= event.GetPayload<MessagePTR>();
 	long			itemIndexChat;
 
-	itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
-	chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
+	//itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
+	//chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
 
-	il = new wxImageList(16, 16, false, 0);
+	long tmp = chatbox->InsertItem(curRow, msgptr->getTimeStamp(), 0);
+	chatbox->SetItemData(tmp, curRow);
+	
+	wxListItem info;
+	info.SetImage(-1);
+	info.SetId(curRow);
+	info.SetColumn(0);
+	chatbox->SetItem(info);
 
-	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
-	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
+	
+	info.SetColumn(1);
+	info.SetText(msgptr->getFrom());
+	chatbox->SetItem(info);
+
+	info.SetColumn(2);
+	info.SetImage(0);
 	
 
 	if (msgptr->getLanguageOrig() == msgptr->getLanguageSystem()){
-		chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
+		//chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
+		info.SetText(msgptr->getMSG());
 	}
 	else{
-		chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() ); //col. 3
-		chatbox->SetTooltip(curRow, 2, msgptr->getMSG());
+		//chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() ); //col. 3
+		//chatbox->SetTooltip(curRow, 2, msgptr->getMSG());
+		info.SetText(msgptr->getTranslated());
 	}
+
+	chatbox->SetItem(info);
 	
 	chatbox->ScrollList(0, curRow);
 	curRow++;
@@ -482,7 +511,7 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 	{
 		tipWin = new wxTipWindow(o, toolTip);
 		// Bind() is only avail for 2.9.0 and later
-		//Bind(wxTimerEvent, Monitor::destroyTip, wxID_ANY, wxID_ANY, q);
+		//Bind(wxTimerEvent, ttListCtrl::destroyTip, wxID_ANY, wxID_ANY, this);
 		SetClientData(tipWin);
 		Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
 		killTip = new wxTimer(this, wxID_ANY);

@@ -24,7 +24,6 @@
 #include "translatecontroller/translate.h"
 #include "../res/Splash.xpm"
 
-using namespace Translation;
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
@@ -106,16 +105,6 @@ bool APTT::OnInit()
     if ( !wxApp::OnInit() )
         return false;
 
-	//MessagePTR  msg_text = std::make_shared<Message>(MSGDirection::out, "strNick", "Ciao, come stai?", "Italian", "English(Uk)");
-	//TranslateX* bng = new GoogleTranslate;
-	
-
-
-	//bng->translateThis(msg_text);
-	//MessagePTR  msg_text2 = std::make_shared<Message>(MSGDirection::out, "strNick", "mi chiamo daniel", "Italian", "English(Uk)");
-
-	//bng.translateThis(msg_text2);*/
-	Sleep(1);
 	SplashScreen::GetSplashScreen(wxBitmap(Splash), 3000);
 	Login * dialog = new Login(NULL);
 	SetTopWindow(dialog);

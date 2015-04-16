@@ -28,7 +28,6 @@
 #include "../translateController/translateController.h"
 #include "../GlobalVariables.h"
 #include "../translateController/translateVariable.h"
-#include "../utility.h"
 #include "../res/connect.xpm"
 #include "ClientTsFrm.h"
 #include "AudioWizard.h"

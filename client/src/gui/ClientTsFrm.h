@@ -128,6 +128,7 @@ private:
 	unsigned int curRow;			//Initialize Row index
 	Session* session;
 	NationList *nations;
+	wxImageList		*il;
 	int REFRESHTIMER = 0;
 	uint64 _sclogID;
 	wxTimer *WxTimer2;
