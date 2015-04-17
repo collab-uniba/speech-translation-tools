@@ -41,8 +41,11 @@
 #include <wx/richtext/richtextctrl.h>
 #include <wx/textctrl.h>
 #include <wx/button.h>
+
+#include <wx/spinctrl.h>
+#include <wx/statbox.h>
 #include <wx/listctrl.h>
-#include <wx/grid.h>
+#include <wx/popupwin.h>
 
 #include "../GlobalVariables.h"
 #include "../translateController/translateController.h"
@@ -59,7 +62,7 @@
 /* ttListCtrl.h */
 /* Ryan Day, http://www.ryanday.net/ */
 
-#include <wx/listctrl.h>
+
 
 class ttListCtrl : public wxListCtrl
 {
@@ -68,7 +71,8 @@ private:
 	int cols, rows;
 
 public:
-	ttListCtrl() { };
+	ttListCtrl() { 
+	};
 	ttListCtrl(wxWindow *parent,
 		wxWindowID winid = wxID_ANY,
 		const wxPoint& pos = wxDefaultPosition,
@@ -202,3 +206,35 @@ public:
 	unsigned m_count;
 };
 */
+
+
+class SimpleTransientPopup : public wxPopupTransientWindow
+{
+public:
+	SimpleTransientPopup(wxWindow *parent, MessagePTR msg);
+	virtual ~SimpleTransientPopup();
+
+	// wxPopupTransientWindow virtual methods are all overridden to log them
+	virtual void Popup(wxWindow *focus = NULL);
+	virtual void OnDismiss();
+	virtual bool ProcessLeftDown(wxMouseEvent& event);
+	virtual bool Show(bool show = true);
+
+private:
+	wxScrolledWindow *m_panel;
+	wxButton *m_button;
+	wxSpinCtrl *m_spinCtrl;
+	wxStaticText *m_mouseText;
+
+private:
+	void OnMouse(wxMouseEvent &event);
+	/*void OnSize(wxSizeEvent &event);
+	void OnSetFocus(wxFocusEvent &event);
+	void OnKillFocus(wxFocusEvent &event);
+	void OnButton(wxCommandEvent& event);
+	void OnSpinCtrl(wxSpinEvent& event);*/
+
+private:
+	wxDECLARE_ABSTRACT_CLASS(SimpleTransientPopup);
+	wxDECLARE_EVENT_TABLE();
+};

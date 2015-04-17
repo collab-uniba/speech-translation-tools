@@ -63,9 +63,11 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	//chatbox = new wxListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350), wxLC_REPORT, wxDefaultValidator, wxT("moviesTable"));
 	chatbox = new ttListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350),
 		wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
+
 	chatbox->Connect(wxEVT_MOTION, wxMouseEventHandler(ttListCtrl::OnMouseMotion));
 	il = new wxImageList(16, 16, false, 0);
 
+	il->Add(wxBitmap(L"../res/windows-icon.png", wxBITMAP_TYPE_PNG));
 	il->Add(wxBitmap(L"../res/play.bmp", wxBITMAP_TYPE_BMP));
 	chatbox->SetImageList(il, wxIMAGE_LIST_SMALL);
 
@@ -83,6 +85,10 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	itemCol.SetText(wxT("Message"));
 	itemCol.SetWidth(520);
 	chatbox->InsertColumn(2, itemCol);
+
+	itemCol.SetText(wxT("#"));
+	itemCol.SetWidth(24);
+	chatbox->InsertColumn(3, itemCol);
 	
 	WxTimer2 = new wxTimer();
 	WxTimer2->SetOwner(this, ID_WXTIMER2);
@@ -178,8 +184,25 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 {
+	wxListCtrl *  o = (wxListCtrl*)event.GetEventObject();
 	clientts->text_to_speech = event.GetIndex();
-	clientts->thread_semaphore.Post();
+	wxTipWindow* tipWin;
+	wxTimer *killTip;
+
+	if (event.GetColumn() == 2){
+		tipWin = new wxTipWindow(o, "textazo");
+		// Bind() is only avail for 2.9.0 and later
+		//Bind(wxTimerEvent, ttListCtrl::destroyTip, wxID_ANY, wxID_ANY, this);
+		o->SetClientData(tipWin);
+		o->Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
+		killTip = new wxTimer(o, wxID_ANY);
+		killTip->Start(1000, true);
+	}
+	else{
+		clientts->thread_semaphore.Post();
+	}
+	
+	chatbox->SetItemState(event.GetIndex(), 0, wxLIST_STATE_SELECTED);
 }
 
 void ClientTsFrm::OnClose(wxCloseEvent& event)
@@ -390,7 +413,6 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	/****
 	* add new message to chat grid
 	****/
-
 	MessagePTR		msgptr			= event.GetPayload<MessagePTR>();
 	long			itemIndexChat;
 
@@ -405,27 +427,33 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	info.SetId(curRow);
 	info.SetColumn(0);
 	chatbox->SetItem(info);
-
 	
 	info.SetColumn(1);
 	info.SetText(msgptr->getFrom());
 	chatbox->SetItem(info);
 
 	info.SetColumn(2);
-	info.SetImage(0);
+	info.SetImage(1);
 	
-
 	if (msgptr->getLanguageOrig() == msgptr->getLanguageSystem()){
 		//chatbox->SetItem(itemIndexChat, 2, msgptr->getMSG()); //col. 3
 		info.SetText(msgptr->getMSG());
 	}
 	else{
 		//chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() ); //col. 3
-		//chatbox->SetTooltip(curRow, 2, msgptr->getMSG());
+		chatbox->SetTooltip(curRow, 3, msgptr->getMSG());
 		info.SetText(msgptr->getTranslated());
-	}
+		chatbox->SetItem(info);
 
+		info.SetColumn(3);
+		info.SetImage(0);
+		info.SetText("");
+		
+	}
+	//chatbox->SetTooltip(curRow, 3, msgptr->getMSG());
 	chatbox->SetItem(info);
+
+
 	
 	chatbox->ScrollList(0, curRow);
 	curRow++;
@@ -480,6 +508,7 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 	wxTipWindow* tipWin;
 	wxTimer* killTip;
 	wxString toolTip;
+	SimpleTransientPopup *m_simplePopup;
 
 	if (id != wxEVT_MOTION)
 		return;
@@ -490,6 +519,7 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 	// columns during runtime and still get correct tooltips.
 	pt = event.GetPosition();
 	row = o->HitTest(pt, flags);
+
 	for (i = 0; i<count; i++)
 	{
 		tmpWidth = o->GetColumnWidth(i);
@@ -509,18 +539,146 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 	// We use a timer for this.
 	if (toolTip.Length() > 0)
 	{
-		tipWin = new wxTipWindow(o, toolTip);
+		//tipWin = new wxTipWindow(o, toolTip);
+		m_simplePopup = new SimpleTransientPopup(this, false);
+		wxWindow *btn = (wxWindow*)event.GetEventObject();
+		wxPoint pos = btn->ClientToScreen(wxPoint(0, 0));
+		wxSize sz = btn->GetSize();
+		long x, y;
+		event.GetPosition(&x, &y);
+		m_simplePopup->Position(wxPoint(x, y), wxSize(200,200));
+		m_simplePopup->Popup();
+
+		
 		// Bind() is only avail for 2.9.0 and later
 		//Bind(wxTimerEvent, ttListCtrl::destroyTip, wxID_ANY, wxID_ANY, this);
-		SetClientData(tipWin);
+		/*SetClientData(m_simplePopup);
 		Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
 		killTip = new wxTimer(this, wxID_ANY);
-		killTip->Start(1000, true);
+		killTip->Start(1000, true);*/
 	}
 }
 
 void ttListCtrl::destroyTip(wxTimerEvent& event)
 {
-	wxTipWindow *obj = (wxTipWindow*)GetClientData();
+	wxScrolledWindow *obj = (wxScrolledWindow*)GetClientData();
 	if (obj) obj->Destroy();
+}
+
+enum
+{
+	Minimal_Quit = wxID_EXIT,
+	Minimal_About = wxID_ABOUT,
+	Minimal_TestDialog,
+	Minimal_StartSimplePopup,
+	Minimal_StartScrolledPopup,
+	Minimal_LogWindow,
+	Minimal_PopupButton,
+	Minimal_PopupSpinctrl
+};
+
+IMPLEMENT_CLASS(SimpleTransientPopup, wxPopupTransientWindow)
+
+wxBEGIN_EVENT_TABLE(SimpleTransientPopup, wxPopupTransientWindow)
+	EVT_MOUSE_EVENTS(SimpleTransientPopup::OnMouse)
+wxEND_EVENT_TABLE()
+/*
+EVT_SIZE(SimpleTransientPopup::OnSize)
+EVT_SET_FOCUS(SimpleTransientPopup::OnSetFocus)
+EVT_KILL_FOCUS(SimpleTransientPopup::OnKillFocus)
+EVT_BUTTON(Minimal_PopupButton, SimpleTransientPopup::OnButton)
+EVT_SPINCTRL(Minimal_PopupSpinctrl, SimpleTransientPopup::OnSpinCtrl)
+*/
+
+SimpleTransientPopup::SimpleTransientPopup(wxWindow *parent, MessagePTR msg)
+:wxPopupTransientWindow(parent)
+{
+	m_panel = new wxScrolledWindow(this, wxID_ANY);
+	//m_panel->SetBackgroundColour(*wxLIGHT_GREY);
+
+	// Keep this code to verify if mouse events work, they're required if
+	// you're making a control like a combobox where the items are highlighted
+	// under the cursor, the m_panel is set focus in the Popup() function
+	m_panel->Connect(wxEVT_MOTION,
+		wxMouseEventHandler(SimpleTransientPopup::OnMouse),
+		NULL, this);
+
+	/*wxBoxSizer *statsizer = new wxStaticBoxSizer(
+		new wxStaticBox(m_panel, wxID_ANY, wxT("A wxStaticBoxSizer")), wxVERTICAL);
+	statsizer->Add(
+		new wxStaticText(m_panel, wxID_ANY, wxT("And some TEXT inside it")),
+		wxSizerFlags().Border(wxALL, 30));*/
+
+	wxStaticText *text = new wxStaticText(m_panel, wxID_ANY,
+		msg->getTranslated());
+
+	m_button = new wxButton(m_panel, Minimal_PopupButton, wxT("Press Me"));
+	m_spinCtrl = new wxSpinCtrl(m_panel, Minimal_PopupSpinctrl, wxT("Hello"));
+	m_mouseText = new wxStaticText(m_panel, wxID_ANY,
+		wxT("<- Test Mouse ->"));
+
+	wxBoxSizer *topSizer = new wxStaticBoxSizer(new wxStaticBox(m_panel, wxID_ANY, wxT("Translation")), wxVERTICAL);
+	topSizer->Add(text, 0, wxALL, 5);
+	new wxStaticText(m_panel, wxID_ANY,
+		wxT("From ") +
+		msg->getLanguageOrig()+
+		wxT(" to ")
+		+ (msg->getLanguageSystem()));
+	topSizer->Add(m_button, 0, wxCENTRE | wxALL, 5);
+	topSizer->Add(m_spinCtrl, 0, wxALL, 5);
+	topSizer->Add(m_mouseText, 0, wxCENTRE | wxALL, 5);
+
+	wxSize wxs = topSizer->GetSize();
+	
+	
+	m_panel->SetSizer(topSizer);
+	// Use the fitting size for the panel if we don't need scrollbars.
+	topSizer->Fit(m_panel);
+
+
+	SetClientSize(m_panel->GetSize());
+}
+
+SimpleTransientPopup::~SimpleTransientPopup()
+{
+}
+
+void SimpleTransientPopup::Popup(wxWindow* WXUNUSED(focus))
+{
+	wxPopupTransientWindow::Popup();
+}
+
+void SimpleTransientPopup::OnDismiss()
+{
+	wxPopupTransientWindow::OnDismiss();
+}
+
+bool SimpleTransientPopup::ProcessLeftDown(wxMouseEvent& event)
+{
+	return wxPopupTransientWindow::ProcessLeftDown(event);
+}
+bool SimpleTransientPopup::Show(bool show)
+{
+	return wxPopupTransientWindow::Show(show);
+}
+
+void SimpleTransientPopup::OnMouse(wxMouseEvent &event)
+{
+	wxRect rect(m_mouseText->GetRect());
+	rect.SetX(0);
+	//rect.SetWidth(1000000); //1000000
+	wxColour colour(*wxLIGHT_GREY);
+	if (rect.Contains(event.GetPosition()))
+	{
+		colour = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+		wxLogMessage("%p SimpleTransientPopup::OnMouse pos(%d, %d)",
+			event.GetEventObject(), event.GetX(), event.GetY());
+	}
+
+	if (colour != m_mouseText->GetBackgroundColour())
+	{
+		m_mouseText->SetBackgroundColour(colour);
+		m_mouseText->Refresh();
+	}
+	event.Skip();
 }
