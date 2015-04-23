@@ -1206,7 +1206,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
-
+	wxLogError(wxT("Initializing clientlib"));
 	if ((error = ts3client_initClientLib(&cn->funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
@@ -1216,6 +1216,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		return 1;
 	}
 
+	wxLogError(wxT("Spawning a new server connection handler"));
 	/* Spawn a new server connection handler using the default port and store the server ID */
 	if ((error = ts3client_spawnNewServerConnectionHandler(0, &Session::Instance()->scHandlerID)) != ERROR_ok) {
 		wxMessageBox("Error spawning server connection handler");
@@ -1228,6 +1229,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 		return 1;
 	}
 	//printf("Default capture mode: %s\n", mode);
+	wxLogError(wxString::Format(wxT("Default capture mode: %s"), mode));
 
 	/* Get default capture device */
 	if ((error = ts3client_getDefaultCaptureDevice(mode, &device)) != ERROR_ok) {

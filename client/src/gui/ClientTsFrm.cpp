@@ -24,17 +24,163 @@ END_EVENT_TABLE()
 
 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
-: wxFrame(parent, id, title, position, size, style)
+: wxFrame(parent, id, title, position, wxSize(924, 600), style)
 {
-	this->nations = new NationList();
 
-	this->nations->ReadFromFile(LOCALES_CODE_FILE);
+	this->nations = new NationList();
+	try{
+		this->nations->ReadFromFile(LOCALES_CODE_FILE);
+	}
+	catch (std::string &e)
+	{
+		wxMessageBox(e);
+		wxMessageBox("This program will be closed.");
+		this->Close(true);
+	}
 	session = Session::Instance();
 	clientts = make_unique<ClientTS>(this);
-
 	colors = (COLORE*)malloc(10 * sizeof(COLORE));
-
 	curRow = 0;			//Initialize Row index
+
+
+	m_oldLogger = wxLog::GetActiveTarget();
+	m_mgr.SetManagedWindow(this);
+
+	wxPanel *panel = new wxPanel(this, wxID_ANY);
+
+	wxFlexGridSizer* boxSizerpanelChat = new wxFlexGridSizer(0, 1, 0, 0);
+	boxSizerpanelChat->SetFlexibleDirection(wxBOTH);
+	boxSizerpanelChat->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
+	boxSizerpanelChat->AddGrowableCol(0);
+	boxSizerpanelChat->AddGrowableRow(0);
+	panel->SetSizer(boxSizerpanelChat);
+
+	boxSizerpanelChat->Add(CreateChatBox(panel), 1, wxALL | wxEXPAND, 5);
+
+	wxFlexGridSizer* inputtextchat = new wxFlexGridSizer(0, 3, 0, 0);
+	inputtextchat->SetFlexibleDirection(wxBOTH);
+	inputtextchat->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
+	inputtextchat->AddGrowableCol(0);
+	inputtextchat->AddGrowableRow(0);
+
+	boxSizerpanelChat->Add(inputtextchat, 1, wxALL | wxEXPAND, 5);
+	
+	wxBitmap WxBitmapButton1_BITMAP(NULL);
+	WxBitmapButton1 = new wxBitmapButton(panel, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxDefaultPosition, wxSize(50, 45), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
+	wxString enableSTTService;
+	enableSTTService.Printf("%s %s", labels.enable, " SpeechToText Service");
+	WxBitmapButton1->SetToolTip(_(enableSTTService));
+
+	/* btnsend: botton which sends the message typed */
+	btnsend = new wxButton(panel, ID_WXBUTTON2, _(wxString::FromUTF8(labels.send.c_str())), wxDefaultPosition, wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
+	btnsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+
+	/* Txtmsg: box where you can type a message*/
+	txtmsg = new wxTextCtrl(panel, ID_WXEDIT3, _(""), wxDefaultPosition, wxSize(-1, -1), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
+	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+	txtmsg->SetMinSize(wxSize(540, 45));
+	txtmsg->SetFocus();
+
+	inputtextchat->Add(txtmsg, 1, wxALL | wxEXPAND, 5);
+	inputtextchat->Add(WxBitmapButton1, 1, wxALL | wxEXPAND, 5);
+	inputtextchat->Add(btnsend, 1, wxALL | wxEXPAND, 5);
+
+
+
+	wxAuiToolBar* tb3 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_TEXT | wxAUI_TB_HORZ_TEXT);
+	tb3->SetToolBitmapSize(wxSize(16, 16));
+	wxBitmap bitmap = wxBitmap();
+	wxString naz = this->nations->Search(&wxString(session->getLanguage()), COUNTRY);	
+	if (naz != "false")
+	{
+		bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
+		tb3->AddTool(ID_SampleItem + 1, session->getNick(), bitmap);
+	}
+	tb3->Realize();
+
+	wxAuiToolBar* tb4 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
+
+	tb4->SetToolBitmapSize(wxSize(16, 16));
+	tb4->AddTool(ID_SampleItem+3, wxT("Item 1"), wxBitmap("../res/save.png", wxBITMAP_TYPE_PNG));
+	tb4->AddTool(ID_SampleItem + 23, wxT("Item 2"), wxBitmap("../res/email.png", wxBITMAP_TYPE_PNG));
+
+	tb4->Realize();
+
+	wxAuiToolBar* tb5 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
+
+	tb5->SetToolBitmapSize(wxSize(16, 16));
+	tb5->AddTool(ID_SampleItem+25, wxT("Item 1"), wxBitmap("../res/mail-settings-icon.png", wxBITMAP_TYPE_PNG));
+	tb5->AddTool(ID_SampleItem + 24, wxT("Item 2"), wxBitmap("../res/microphone-icon.png", wxBITMAP_TYPE_PNG));
+
+	tb5->Realize();
+
+	m_mgr.AddPane(tb4, wxAuiPaneInfo().
+		Name(wxT("tb4")).Caption(wxT("Sample Bookmark Toolbar")).
+		ToolbarPane().Top().Row(0));
+
+	m_mgr.AddPane(tb5, wxAuiPaneInfo().
+		Name(wxT("tb4")).Caption(wxT("Sample Bookmark Toolbar")).
+		ToolbarPane().Top().Row(0));
+
+	m_mgr.AddPane(tb3, wxAuiPaneInfo().
+		Name(wxT("tb3")).Caption(wxT("Nickname")).
+		ToolbarPane().Top().Row(0));
+
+	/*
+	wxPanel *panel2 = new wxPanel(this, wxID_ANY);
+	panel2->SetMinSize(wxSize(500, 300));
+	panel2->SetSizeHints(500, 300);
+*/
+/*	wxFlexGridSizer* flexGridSizer75 = new wxFlexGridSizer(0, 1, 0, 0);
+	flexGridSizer75->SetFlexibleDirection(wxBOTH);
+	flexGridSizer75->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
+	flexGridSizer75->AddGrowableCol(0);
+	flexGridSizer75->AddGrowableRow(0);
+	
+	panel2->SetSizer(flexGridSizer75);*/
+	
+	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
+	/*
+
+	wxButton *m_button88;
+	wxGridSizer* gridSizer86 = new wxGridSizer(0, 1, 0, 0);
+	panel2->SetSizer(gridSizer86);
+
+	m_button88 = new wxButton(panel2, wxID_ANY, _("My Button"), wxDefaultPosition, wxSize(-1, -1), 0);
+
+	gridSizer86->Add(m_button88, 1, wxALL | wxEXPAND, 5);*/
+
+	//txtclient->SetMaxLength(0);
+	//txtclient->SetMinSize(wxSize(400, 400));
+	//txtclient->SetInsertionPointEnd();
+	//txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
+//	flexGridSizer75->Add(txtclient, 1, wxALL | wxEXPAND, 5);
+
+	/*wxTextCtrl* text2 = new wxTextCtrl(this, -1, _("Log panel"),
+		wxDefaultPosition, wxSize(100, 40),
+		wxNO_BORDER | wxTE_MULTILINE);*/
+
+
+	/*log*/
+	/*wxTextCtrl *header = new wxTextCtrl(this, wxID_ANY, "",	wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+	DoLogLine(header, "  Time", " Thread", "Message");*/
+	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+	wxLog::SetActiveTarget(this);
+	
+	m_mgr.AddPane(panel,
+		wxAuiPaneInfo().
+		Name(wxT("Online")).
+		Center().Layer(1).Position(1).CloseButton(false));
+	m_mgr.AddPane(m_txtctrl,
+		wxAuiPaneInfo().
+			Name(wxT("Log Panel")).
+			Caption(wxT("Log Panel")).
+			Bottom().Layer(1).Position(1).MaximizeButton(true));
+	m_mgr.AddPane(txtclient,
+		wxAuiPaneInfo().Left().Layer(1).Position(1).MaximizeButton(false));// .BestSize(1100, 100));
+	m_mgr.Update();
+	
+	/***********************************/
 
 	if (warnings->IsHostnameEmpty())
 		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
@@ -55,14 +201,71 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		remove("");
 		fclose(translate);
 	}
-	//ListCtrlObject = new ttListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(350, 250), wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
+
+	/*****MENU******/
+
+	WxMenuBar1 = new wxMenuBar();
+	ID_MNU_FILE_1001_Mnu_Obj = new wxMenu();
+	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_SAVE_1002, labels.saveMenu, _(""), wxITEM_NORMAL);
+	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_MAIL_1004, labels.mailMenu, _(""), wxITEM_NORMAL);
+	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_ESCI_1003, labels.exitMenu, _(""), wxITEM_NORMAL);
+	WxMenuBar1->Append(ID_MNU_FILE_1001_Mnu_Obj, _("File"));
+
+	ID_MNU_OPZIONI_1004_Mnu_Obj = new wxMenu();
+	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_SETTINGMAIL_1007, labels.emailSetting, _(""), wxITEM_NORMAL);
+	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_AUDIO_1005, labels.audioMenu, _(""), wxITEM_NORMAL);
+
+	ID_MNU_OPZIONI_1004_Mnu_Obj->AppendCheckItem(ID_MNU_SPEECH_1006, _(enableSTTService), _(""));
+	WxMenuBar1->Append(ID_MNU_OPZIONI_1004_Mnu_Obj, labels.options);
+	SetMenuBar(WxMenuBar1);
+
+	/****MENU__END****/
 
 
-	// cut
+	SetTitle(_("TeamTranslate"));
+	SetIcon(wxNullIcon);
+	//SetMinSize(wxSize(1024, 600));
+	//Center();
 
-	//chatbox = new wxListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350), wxLC_REPORT, wxDefaultValidator, wxT("moviesTable"));
-	chatbox = new ttListCtrl(this, ID_GRIDCHAT, wxPoint(211, 72), wxSize(722, 350),
+
+#if wxUSE_LIBPNG
+	wxImage::AddHandler(new wxPNGHandler);
+#endif
+
+#if wxUSE_LIBJPEG
+	wxImage::AddHandler(new wxJPEGHandler);
+#endif
+
+#if wxUSE_GIF
+	wxImage::AddHandler(new wxGIFHandler);
+#endif
+
+	/** checking if another user is typing**/
+	WxTimer2 = new wxTimer();
+	WxTimer2->SetOwner(this, ID_WXTIMER2);
+	WxTimer2->Start(1000);
+
+	 /**checking user online**/
+	WxTimer1 = new wxTimer();
+	WxTimer1->SetOwner(this, ID_WXTIMER1);
+	WxTimer1->Start(2000);
+
+	/* TeamSpeak threads: start a client */
+	HANDLE myHandle = CreateThread(0, 0, ClientTS::ClientStart, NULL, 0, &myThreadID);
+	HANDLE myHandle2 = CreateThread(0, 0, ClientTS::TTS_THREAD, NULL, 0, &myThreadID2);
+	HANDLE myHandle3 = CreateThread(0, 0, ClientTS::STT_THREAD, NULL, 0, &myThreadID4);
+	HANDLE myHandle4 = CreateThread(0, 0, ClientTS::CTRL_STT, NULL, 0, &myThreadID4);
+	clientts->SetupColor(colors);
+
+
+}
+
+ttListCtrl* ClientTsFrm::CreateChatBox(wxPanel *panel)
+{
+	chatbox = new ttListCtrl(panel, ID_GRIDCHAT, wxPoint(0, 0), wxSize(-1, -1),
 		wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
+	chatbox->SetMinSize(wxSize(570, 300));
+
 
 	chatbox->Connect(wxEVT_MOTION, wxMouseEventHandler(ttListCtrl::OnMouseMotion));
 	il = new wxImageList(16, 16, false, 0);
@@ -81,7 +284,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	itemCol.SetText(wxT("Nick"));
 	itemCol.SetWidth(80);
 	chatbox->InsertColumn(1, itemCol);
-	
+
 	itemCol.SetText(wxT("Message"));
 	itemCol.SetWidth(520);
 	chatbox->InsertColumn(2, itemCol);
@@ -89,97 +292,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	itemCol.SetText(wxT("#"));
 	itemCol.SetWidth(24);
 	chatbox->InsertColumn(3, itemCol);
-	
-	WxTimer2 = new wxTimer();
-	WxTimer2->SetOwner(this, ID_WXTIMER2);
-	WxTimer2->Start(200);
 
-	WxTimer1 = new wxTimer();
-	WxTimer1->SetOwner(this, ID_WXTIMER1);
-	WxTimer1->Start(2000);
-
-
-	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _(""), wxPoint(10, 75), wxSize(184, 155), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
-	txtclient->SetMaxLength(0);
-	txtclient->SetFocus();
-	txtclient->SetInsertionPointEnd();
-	txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-	txtclient->WriteText(wxString("Loading...."));
-
-	/*txtlingua shows the language chosen*/
-	txtlingua = new wxTextCtrl(this, ID_WXEDIT2, _(""), wxPoint(367, 20), wxSize(103, 20), wxTE_READONLY, wxDefaultValidator, _("txtlingua"));
-	txtlingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	lbllingua = new wxStaticText(this, ID_WXSTATICTEXT2, _(wxString::FromUTF8(labels.language.append(":").c_str())), wxPoint(299, 20), wxDefaultSize, 0, _("lbllingua"));
-	lbllingua->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	lblnick = new wxStaticText(this, ID_WXSTATICTEXT1, _("Nickname:"), wxPoint(14, 20), wxDefaultSize, 0, _("lblnick"));
-	lblnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	/*txtnick shows the name chosen*/
-	txtnick = new wxTextCtrl(this, ID_WXEDIT1, _(""), wxPoint(91, 20), wxSize(102, 20), wxTE_READONLY, wxDefaultValidator, _("txtnick"));
-	txtnick->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	/* btnsend: botton which sends the message typed */
-	btnsend = new wxButton(this, ID_WXBUTTON2, _(wxString::FromUTF8(labels.send.c_str())), wxPoint(830, 450), wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
-	btnsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-
-	/* Txtmsg: box where you can type a message*/
-	txtmsg = new wxTextCtrl(this, ID_WXEDIT3, _(""), wxPoint(211, 450), wxSize(570, 45), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
-	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-	txtmsg->SetFocus();
-
-	wxBitmap WxBitmapButton1_BITMAP(NULL);
-	WxBitmapButton1 = new wxBitmapButton(this, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxPoint(211 + 570, 450), wxSize(50, 45), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
-	string enableSTTService = "";
-	enableSTTService.append(labels.enable);
-	enableSTTService.append(" SpeechToText Service");
-	WxBitmapButton1->SetToolTip(_(enableSTTService));
-
-	WxMenuBar1 = new wxMenuBar();
-	ID_MNU_FILE_1001_Mnu_Obj = new wxMenu();
-	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_SAVE_1002, labels.saveMenu, _(""), wxITEM_NORMAL);
-	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_MAIL_1004,labels.mailMenu, _(""), wxITEM_NORMAL);
-	ID_MNU_FILE_1001_Mnu_Obj->Append(ID_MNU_ESCI_1003,labels.exitMenu, _(""), wxITEM_NORMAL);
-	WxMenuBar1->Append(ID_MNU_FILE_1001_Mnu_Obj, _("File"));
-
-	ID_MNU_OPZIONI_1004_Mnu_Obj = new wxMenu();
-	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_SETTINGMAIL_1007, labels.emailSetting, _(""), wxITEM_NORMAL);
-	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_AUDIO_1005, labels.audioMenu, _(""), wxITEM_NORMAL);
-
-	ID_MNU_OPZIONI_1004_Mnu_Obj->AppendCheckItem(ID_MNU_SPEECH_1006, _(enableSTTService), _(""));
-	WxMenuBar1->Append(ID_MNU_OPZIONI_1004_Mnu_Obj, labels.options);
-	SetMenuBar(WxMenuBar1);
-
-	SetTitle(_("TeamTranslate"));
-	SetIcon(wxNullIcon);
-	SetSize(8, 8, 1024, 600);
-	Center();
-#if wxUSE_LIBPNG
-	wxImage::AddHandler(new wxPNGHandler);
-#endif
-
-#if wxUSE_LIBJPEG
-	wxImage::AddHandler(new wxJPEGHandler);
-#endif
-
-#if wxUSE_GIF
-	wxImage::AddHandler(new wxGIFHandler);
-#endif
-	////GUI Items Creation End
-
-	txtnick->AppendText(session->getNick());
-	txtlingua->AppendText(session->getLanguage());
-
-	HANDLE myHandle = CreateThread(0, 0, ClientTS::ClientStart, NULL, 0, &myThreadID);
-	HANDLE myHandle2 = CreateThread(0, 0, ClientTS::TTS_THREAD, NULL, 0, &myThreadID2);
-	HANDLE myHandle3 = CreateThread(0, 0, ClientTS::STT_THREAD, NULL, 0, &myThreadID4);
-	HANDLE myHandle4 = CreateThread(0, 0, ClientTS::CTRL_STT, NULL, 0, &myThreadID4);
-	clientts->SetupColor(colors);
-
-	updateClientListTimer(wxTimerEvent());
+	return chatbox;
 }
-
  
 
 void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
@@ -385,6 +500,37 @@ void ClientTsFrm::Save(wxCommandEvent& event)
 	askForSaving();
 }
 
+void ClientTsFrm::DoLogRecord(wxLogLevel level, const wxString& msg, const wxLogRecordInfo& info)
+{
+	// let the default GUI logger treat warnings and errors as they should be
+	// more noticeable than just another line in the log window and also trace
+	// messages as there may be too many of them
+	if (level <= wxLOG_Warning || level == wxLOG_Trace)
+	{
+		m_oldLogger->LogRecord(level, msg, info);
+		return;
+	}
+
+	DoLogLine
+		(
+		m_txtctrl,
+		wxDateTime(info.timestamp).FormatISOTime(),
+		info.threadId == wxThread::GetMainId()
+		? wxString("main")
+		: wxString::Format("%lx", info.threadId),
+		msg + "\n"
+		);
+}
+
+void
+ClientTsFrm::DoLogLine(wxTextCtrl *text,
+const wxString& timestr,
+const wxString& threadstr,
+const wxString& msg)
+{
+	text->AppendText(wxString::Format("%9s %10s %s", timestr, threadstr, msg));
+}
+
 void ClientTsFrm::askForSaving(){
 	if (!clientts->getFlagSave()){
 		wxMessageDialog *dial = new wxMessageDialog(NULL, labels.saveMessage, labels.saveMenu, wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
@@ -419,7 +565,7 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	//itemIndexChat = chatbox->InsertItem(curRow,  msgptr->getTimeStamp()); //want this for col. 1
 	//chatbox->SetItem(itemIndexChat, 1, msgptr->getFrom()); //want this for col. 2
 
-	long tmp = chatbox->InsertItem(curRow, msgptr->getTimeStamp(), 0);
+	long tmp = chatbox->InsertItem(curRow, msgptr->getHourMSG(), 0);
 	chatbox->SetItemData(tmp, curRow);
 	
 	wxListItem info;
@@ -441,7 +587,7 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	}
 	else{
 		//chatbox->SetItem(itemIndexChat, 2, msgptr->getTranslated() ); //col. 3
-		chatbox->SetTooltip(curRow, 3, msgptr->getMSG());
+		//chatbox->SetTooltip(curRow, 3, msgptr);
 		info.SetText(msgptr->getTranslated());
 		chatbox->SetItem(info);
 
@@ -464,8 +610,8 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 /* ttListCtrl.cpp */
 /* Ryan Day, http://www.ryanday.net/ */
 
-
-void ttListCtrl::SetTooltip(int row, int col, wxString& tip)
+/*
+void ttListCtrl::SetTooltip(int row, int col, MessagePTR tip)
 {
 	int i, j;
 
@@ -488,12 +634,7 @@ void ttListCtrl::SetTooltip(int row, int col, wxString& tip)
 	// we keep our own copy in the grid.
 	grid[(row*cols) + col].Printf(wxT("%s"), tip);
 }
-
-void ttListCtrl::GetTooltip(int row, int col, wxString& tip)
-{
-	if (&grid[(row*cols) + col] != NULL)
-		tip.Printf(wxT("%s"), grid[(row*cols) + col]);
-}
+*/
 
 
 void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
@@ -507,7 +648,7 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 	wxPoint pt;
 	wxTipWindow* tipWin;
 	wxTimer* killTip;
-	wxString toolTip;
+	MessagePTR toolTip;
 	SimpleTransientPopup *m_simplePopup;
 
 	if (id != wxEVT_MOTION)
@@ -532,22 +673,26 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 	}
 
 	// If things look valid, get the tooltip
-	if (row > -1 && col > -1)
-		o->GetTooltip(row, col, toolTip);
-
+	if (row > -1 && col == 3)
+	{
+		toolTip = session->getMessageQueue()->at(row);
+	
+		if (toolTip->getLanguageOrig() != toolTip->getLanguageSystem())
+		{
+			m_simplePopup = new SimpleTransientPopup(this, toolTip);
+			wxWindow *btn = (wxWindow*)event.GetEventObject();
+			wxPoint pos = btn->ClientToScreen(wxPoint(0, 0));
+			wxSize sz = btn->GetSize();
+			long x, y;
+			event.GetPosition(&x, &y);
+			m_simplePopup->Position(wxPoint(x, y), wxSize(200, 200));
+			m_simplePopup->Popup();
+		}
 	// If we have a tooltip, we want to show is for 1 second, and then disappear. 
 	// We use a timer for this.
-	if (toolTip.Length() > 0)
-	{
+	
 		//tipWin = new wxTipWindow(o, toolTip);
-		m_simplePopup = new SimpleTransientPopup(this, false);
-		wxWindow *btn = (wxWindow*)event.GetEventObject();
-		wxPoint pos = btn->ClientToScreen(wxPoint(0, 0));
-		wxSize sz = btn->GetSize();
-		long x, y;
-		event.GetPosition(&x, &y);
-		m_simplePopup->Position(wxPoint(x, y), wxSize(200,200));
-		m_simplePopup->Popup();
+		
 
 		
 		// Bind() is only avail for 2.9.0 and later
@@ -574,14 +719,11 @@ enum
 	Minimal_StartScrolledPopup,
 	Minimal_LogWindow,
 	Minimal_PopupButton,
-	Minimal_PopupSpinctrl
+	Minimal_PopupSpinctrl,
+	PopUP_WXTIMER
 };
 
-IMPLEMENT_CLASS(SimpleTransientPopup, wxPopupTransientWindow)
 
-wxBEGIN_EVENT_TABLE(SimpleTransientPopup, wxPopupTransientWindow)
-	EVT_MOUSE_EVENTS(SimpleTransientPopup::OnMouse)
-wxEND_EVENT_TABLE()
 /*
 EVT_SIZE(SimpleTransientPopup::OnSize)
 EVT_SET_FOCUS(SimpleTransientPopup::OnSetFocus)
@@ -593,49 +735,46 @@ EVT_SPINCTRL(Minimal_PopupSpinctrl, SimpleTransientPopup::OnSpinCtrl)
 SimpleTransientPopup::SimpleTransientPopup(wxWindow *parent, MessagePTR msg)
 :wxPopupTransientWindow(parent)
 {
+
+	wxStaticText *text2;
+	wxStaticText *text;
+	wxTimer* killTip;
+	wxBoxSizer *topSizer;
+
 	m_panel = new wxScrolledWindow(this, wxID_ANY);
-	//m_panel->SetBackgroundColour(*wxLIGHT_GREY);
+	m_panel->SetBackgroundColour(*wxLIGHT_GREY);
 
 	// Keep this code to verify if mouse events work, they're required if
 	// you're making a control like a combobox where the items are highlighted
 	// under the cursor, the m_panel is set focus in the Popup() function
-	m_panel->Connect(wxEVT_MOTION,
-		wxMouseEventHandler(SimpleTransientPopup::OnMouse),
+
+	//EVT_TIMER(PopUP_WXTIMER, SimpleTransientPopup::WxTimerPopUP)
+
+	Connect(wxEVT_TIMER,
+		wxTimerEventHandler(SimpleTransientPopup::WxTimerClose),
 		NULL, this);
 
-	/*wxBoxSizer *statsizer = new wxStaticBoxSizer(
-		new wxStaticBox(m_panel, wxID_ANY, wxT("A wxStaticBoxSizer")), wxVERTICAL);
-	statsizer->Add(
-		new wxStaticText(m_panel, wxID_ANY, wxT("And some TEXT inside it")),
-		wxSizerFlags().Border(wxALL, 30));*/
+	killTip = new wxTimer(this, wxID_ANY);
+	killTip->Start(1000, true); 
 
-	wxStaticText *text = new wxStaticText(m_panel, wxID_ANY,
-		msg->getTranslated());
+	text2 = new wxStaticText(m_panel, wxID_ANY,
+			wxT("From ") +
+			msg->getLanguageOrig() +
+			wxT("\nto ")
+			+ (msg->getLanguageSystem()));
+		
+	text = new wxStaticText(m_panel, wxID_ANY,
+			msg->getMSG());
 
-	m_button = new wxButton(m_panel, Minimal_PopupButton, wxT("Press Me"));
-	m_spinCtrl = new wxSpinCtrl(m_panel, Minimal_PopupSpinctrl, wxT("Hello"));
-	m_mouseText = new wxStaticText(m_panel, wxID_ANY,
-		wxT("<- Test Mouse ->"));
-
-	wxBoxSizer *topSizer = new wxStaticBoxSizer(new wxStaticBox(m_panel, wxID_ANY, wxT("Translation")), wxVERTICAL);
+	topSizer = new wxBoxSizer(wxVERTICAL);
+	topSizer->Add(text2, 0, wxALL, 5);
 	topSizer->Add(text, 0, wxALL, 5);
-	new wxStaticText(m_panel, wxID_ANY,
-		wxT("From ") +
-		msg->getLanguageOrig()+
-		wxT(" to ")
-		+ (msg->getLanguageSystem()));
-	topSizer->Add(m_button, 0, wxCENTRE | wxALL, 5);
-	topSizer->Add(m_spinCtrl, 0, wxALL, 5);
-	topSizer->Add(m_mouseText, 0, wxCENTRE | wxALL, 5);
 
-	wxSize wxs = topSizer->GetSize();
-	
-	
 	m_panel->SetSizer(topSizer);
+
 	// Use the fitting size for the panel if we don't need scrollbars.
 	topSizer->Fit(m_panel);
-
-
+	
 	SetClientSize(m_panel->GetSize());
 }
 
@@ -662,23 +801,7 @@ bool SimpleTransientPopup::Show(bool show)
 	return wxPopupTransientWindow::Show(show);
 }
 
-void SimpleTransientPopup::OnMouse(wxMouseEvent &event)
+void SimpleTransientPopup::WxTimerClose(wxTimerEvent& event)
 {
-	wxRect rect(m_mouseText->GetRect());
-	rect.SetX(0);
-	//rect.SetWidth(1000000); //1000000
-	wxColour colour(*wxLIGHT_GREY);
-	if (rect.Contains(event.GetPosition()))
-	{
-		colour = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-		wxLogMessage("%p SimpleTransientPopup::OnMouse pos(%d, %d)",
-			event.GetEventObject(), event.GetX(), event.GetY());
-	}
-
-	if (colour != m_mouseText->GetBackgroundColour())
-	{
-		m_mouseText->SetBackgroundColour(colour);
-		m_mouseText->Refresh();
-	}
-	event.Skip();
+	this->Dismiss();
 }

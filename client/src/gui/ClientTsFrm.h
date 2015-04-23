@@ -24,6 +24,7 @@
 #include "../lib/ClientTS.h"
 #include "../data/Session.h"
 #include "../data/Message.h"  
+#include "../res/sendemail.xpm"
 
 #include "FrmMailSending.h"
 #include "FrmSettingMail.h"
@@ -52,6 +53,26 @@
 #include "../translateController/translateVariable.h"
 
 #include <wx/tipwin.h>
+#include <wx/aui/aui.h>
+
+
+#include <wx/treectrl.h>
+#include <wx/spinctrl.h>
+#include <wx/artprov.h>
+#include <wx/clipbrd.h>
+#include <wx/image.h>
+#include <wx/colordlg.h>
+#include <wx/wxhtml.h>
+#include <wx/imaglist.h>
+#include <wx/dataobj.h>
+#include <wx/dcclient.h>
+#include <wx/bmpbuttn.h>
+#include <wx/menu.h>
+#include <wx/toolbar.h>
+#include <wx/statusbr.h>
+#include <wx/msgdlg.h>
+#include <wx/textdlg.h>
+#include <wx/aui/framemanager.h>
 #include <list>
 //#include "../lib/Observer.h"
 
@@ -67,7 +88,7 @@
 class ttListCtrl : public wxListCtrl
 {
 private:
-	wxString *grid;
+	Session *session;
 	int cols, rows;
 
 public:
@@ -83,21 +104,27 @@ public:
 	{
 		//  Start with a 3x3 grid, and we can expand beyond that if necessary
 		cols = rows = 3;
-		grid = new wxString[3 * 3];
+		session = Session::Instance();
 		Create(parent, winid, pos, size, style, validator, name);
 	}
 	void OnMouseMotion(wxMouseEvent& event);
 	void destroyTip(wxTimerEvent& event);
-	void SetTooltip(int row, int col, wxString& tip);
-	void GetTooltip(int row, int col, wxString& tip);
+	/*void SetTooltip(int row, int col, MessagePTR tip);
+	MessagePTR GetTooltip(int row, int col);*/
 };
 
 
-class ClientTsFrm : public wxFrame
+class ClientTsFrm : public wxFrame,
+	private wxLog
 {
+protected:
+	virtual void DoLogRecord(wxLogLevel level,
+		const wxString& msg,
+		const wxLogRecordInfo& info);
 private:
 	DECLARE_EVENT_TABLE();
 	void askForSaving();
+	ttListCtrl* CreateChatBox(wxPanel *panel);
 	void WxButton1Click(wxCommandEvent& event);
 	void btnsendClick(wxCommandEvent& event);
 	void txtchatClick(wxRichTextEvent& event);
@@ -117,7 +144,8 @@ private:
 	void SettingMail(wxCommandEvent& event);
 	void Save(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
-
+	// logging helper
+	void DoLogLine(wxTextCtrl *text, const wxString& timestr, const wxString& threadstr, const wxString& msg);
 public:
 
 	ClientTsFrm(LoginWarnings *warn, wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),
@@ -128,6 +156,11 @@ public:
 	void updatePanelMsg(wxThreadEvent& event);
 
 private:
+	wxTextCtrl *m_txtctrl; //message variable for logging
+	// old log target, we replace it with one using m_txtctrl during this
+	// frame life time
+	wxLog *m_oldLogger;
+	wxAuiManager  m_mgr;
 	ttListCtrl* ListCtrlObject;
 	unsigned int curRow;			//Initialize Row index
 	Session* session;
@@ -183,7 +216,8 @@ private:
 		ID_WXBITMAPBUTTON1 = 1024,
 		////GUI Enum Control ID End
 		ID_DUMMY_VALUE_, //don't remove this value unless you have other enum values
-		ID_MESSAGEIO
+		ID_MESSAGEIO,
+		ID_SampleItem
 	};
 };
 
@@ -228,13 +262,16 @@ private:
 
 private:
 	void OnMouse(wxMouseEvent &event);
+	void WxTimerClose(wxTimerEvent& event);
 	/*void OnSize(wxSizeEvent &event);
 	void OnSetFocus(wxFocusEvent &event);
 	void OnKillFocus(wxFocusEvent &event);
 	void OnButton(wxCommandEvent& event);
 	void OnSpinCtrl(wxSpinEvent& event);*/
-
+	/*
 private:
 	wxDECLARE_ABSTRACT_CLASS(SimpleTransientPopup);
-	wxDECLARE_EVENT_TABLE();
-};
+*/
+};	//wxDECLARE_EVENT_TABLE();
+
+

@@ -38,7 +38,9 @@ bool NationList::ReadFromFile(const char* path)
 	}
 	else
 	{
-		cout << "Impossibile aprire il file";
+		std::string tx("Impossibile aprire il file ");
+		tx.append(path);
+		throw tx;
 		flagn = false;
 	}
 	return flagn;

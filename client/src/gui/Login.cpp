@@ -51,13 +51,30 @@ int hostname_to_ip(char * hostname, char* ip)
 
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
-	session = Session::Instance();
+	try{
+		session = Session::Instance();
+	}
+	catch (ErrorSession &e){
+		wxMessageBox(e.what());
+		wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
+		Close(true);
+	}
+
 	const char* pr = session->getServerAddress();
 	
 
 	//config->setLanguage("English");
-	this->nations = new NationList();
-	this->nations->ReadFromFile(LOCALES_CODE_FILE);
+
+	this->nations = new NationList(); 
+	try{
+		this->nations->ReadFromFile(LOCALES_CODE_FILE);
+	}
+	catch (std::string &e)
+	{
+		wxMessageBox(e);
+		wxMessageBox("This program will be closed.");
+		this->Close(true);
+	}
 
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	this->Centre(wxBOTH);
@@ -203,8 +220,17 @@ void Login::ReadConfig()
 		radGoogle->SetValue(false);
 		radBing->SetValue(true);
 	}
-
-	TranslateController::InitLanguageVariable((char*)session->getLanguage());
+	try
+	{
+		TranslateController::InitLanguageVariable((char*)session->getLanguage());
+	}
+	catch (exception& e)
+	{
+		wxMessageBox(e.what());
+		wxMessageBox("This program will be closed.");
+		this->Close(true);
+	}
+	
 	cmbLingua->SetSelection(session->getNumbLanguageSelected());
 }
 
@@ -282,7 +308,7 @@ void Login::btnloginClick(wxCommandEvent& event)
 
 		catch (ErrorSession &e){
 			wxMessageBox(e.what());
-			wxMessageBox("Please, read the \"README\" attached  and add this keys in order to continue");
+			wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
 			Close(true);
 			//wxTheApp->OnExit();
 			//wxTheApp->CleanUp();
