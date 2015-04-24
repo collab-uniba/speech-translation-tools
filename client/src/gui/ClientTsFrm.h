@@ -161,7 +161,7 @@ private:
 	// frame life time
 	wxLog *m_oldLogger;
 	wxAuiManager  m_mgr;
-	ttListCtrl* ListCtrlObject;
+	//ttListCtrl* ListCtrlObject;
 	unsigned int curRow;			//Initialize Row index
 	Session* session;
 	NationList *nations;

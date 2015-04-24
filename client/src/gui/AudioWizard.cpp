@@ -80,9 +80,7 @@ void AudioWizard::OnClose(wxCloseEvent& /*event*/)
 
 void AudioWizard::ConfermaClick(wxCommandEvent& event)
 {
-	char v[50];
-	itoa(slideraudio->GetValue(), v, 50);
-	Session::Instance()->setMicLevel(v);
+	Session::Instance()->setMicLevel(std::to_string(slideraudio->GetValue()).c_str());
 	//wxMessageBox(wxString::FromDouble(slideraudio->GetValue()));
 }
 

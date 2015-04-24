@@ -1303,8 +1303,9 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	ts3client_setChannelVariableAsInt(Session::Instance()->scHandlerID, 1, CHANNEL_CODEC_QUALITY, 7);
 	ts3client_freeMemory(version);  /* Release dynamically allocated memory */
 	version = NULL;
+	
+	setVadLevel((uint64)atoi(session->getMicLevel()));
 
-	/* Disconnect from server */
 	return 0;
 }
 

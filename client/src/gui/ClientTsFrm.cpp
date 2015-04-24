@@ -46,16 +46,16 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	m_oldLogger = wxLog::GetActiveTarget();
 	m_mgr.SetManagedWindow(this);
 
-	wxPanel *panel = new wxPanel(this, wxID_ANY);
+	wxPanel *main_panel_chat = new wxPanel(this, wxID_ANY);
 
 	wxFlexGridSizer* boxSizerpanelChat = new wxFlexGridSizer(0, 1, 0, 0);
 	boxSizerpanelChat->SetFlexibleDirection(wxBOTH);
 	boxSizerpanelChat->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
 	boxSizerpanelChat->AddGrowableCol(0);
 	boxSizerpanelChat->AddGrowableRow(0);
-	panel->SetSizer(boxSizerpanelChat);
+	main_panel_chat->SetSizer(boxSizerpanelChat);
 
-	boxSizerpanelChat->Add(CreateChatBox(panel), 1, wxALL | wxEXPAND, 5);
+	boxSizerpanelChat->Add(CreateChatBox(main_panel_chat), 1, wxALL | wxEXPAND, 5);
 
 	wxFlexGridSizer* inputtextchat = new wxFlexGridSizer(0, 3, 0, 0);
 	inputtextchat->SetFlexibleDirection(wxBOTH);
@@ -66,25 +66,24 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	boxSizerpanelChat->Add(inputtextchat, 1, wxALL | wxEXPAND, 5);
 	
 	wxBitmap WxBitmapButton1_BITMAP(NULL);
-	WxBitmapButton1 = new wxBitmapButton(panel, ID_WXBITMAPBUTTON1, WxBitmapButton1_BITMAP, wxDefaultPosition, wxSize(50, 45), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
+	WxBitmapButton1 = new wxBitmapButton(main_panel_chat, ID_WXBITMAPBUTTON1, wxBitmap("../res/micro_cross.png", wxBITMAP_TYPE_PNG), wxDefaultPosition, wxSize(50, 45), wxBU_AUTODRAW, wxDefaultValidator, _("WxBitmapButton1"));
 	wxString enableSTTService;
 	enableSTTService.Printf("%s %s", labels.enable, " SpeechToText Service");
 	WxBitmapButton1->SetToolTip(_(enableSTTService));
 
 	/* btnsend: botton which sends the message typed */
-	btnsend = new wxButton(panel, ID_WXBUTTON2, _(wxString::FromUTF8(labels.send.c_str())), wxDefaultPosition, wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
+	btnsend = new wxButton(main_panel_chat, ID_WXBUTTON2, _(wxString::FromUTF8(labels.send.c_str())), wxDefaultPosition, wxSize(103, 48), 0, wxDefaultValidator, _("btnsend"));
 	btnsend->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 
 	/* Txtmsg: box where you can type a message*/
-	txtmsg = new wxTextCtrl(panel, ID_WXEDIT3, _(""), wxDefaultPosition, wxSize(-1, -1), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
+	txtmsg = new wxTextCtrl(main_panel_chat, ID_WXEDIT3, _(""), wxDefaultPosition, wxSize(-1, -1), wxTE_PROCESS_ENTER, wxDefaultValidator, _("txtmsg"));
 	txtmsg->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
 	txtmsg->SetMinSize(wxSize(540, 45));
 	txtmsg->SetFocus();
 
 	inputtextchat->Add(txtmsg, 1, wxALL | wxEXPAND, 5);
-	inputtextchat->Add(WxBitmapButton1, 1, wxALL | wxEXPAND, 5);
 	inputtextchat->Add(btnsend, 1, wxALL | wxEXPAND, 5);
-
+	inputtextchat->Add(WxBitmapButton1, 1, wxALL | wxEXPAND, 5);
 
 
 	wxAuiToolBar* tb3 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_TEXT | wxAUI_TB_HORZ_TEXT);
@@ -126,48 +125,13 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		Name(wxT("tb3")).Caption(wxT("Nickname")).
 		ToolbarPane().Top().Row(0));
 
-	/*
-	wxPanel *panel2 = new wxPanel(this, wxID_ANY);
-	panel2->SetMinSize(wxSize(500, 300));
-	panel2->SetSizeHints(500, 300);
-*/
-/*	wxFlexGridSizer* flexGridSizer75 = new wxFlexGridSizer(0, 1, 0, 0);
-	flexGridSizer75->SetFlexibleDirection(wxBOTH);
-	flexGridSizer75->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
-	flexGridSizer75->AddGrowableCol(0);
-	flexGridSizer75->AddGrowableRow(0);
-	
-	panel2->SetSizer(flexGridSizer75);*/
 	
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
-	/*
 
-	wxButton *m_button88;
-	wxGridSizer* gridSizer86 = new wxGridSizer(0, 1, 0, 0);
-	panel2->SetSizer(gridSizer86);
-
-	m_button88 = new wxButton(panel2, wxID_ANY, _("My Button"), wxDefaultPosition, wxSize(-1, -1), 0);
-
-	gridSizer86->Add(m_button88, 1, wxALL | wxEXPAND, 5);*/
-
-	//txtclient->SetMaxLength(0);
-	//txtclient->SetMinSize(wxSize(400, 400));
-	//txtclient->SetInsertionPointEnd();
-	//txtclient->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false));
-//	flexGridSizer75->Add(txtclient, 1, wxALL | wxEXPAND, 5);
-
-	/*wxTextCtrl* text2 = new wxTextCtrl(this, -1, _("Log panel"),
-		wxDefaultPosition, wxSize(100, 40),
-		wxNO_BORDER | wxTE_MULTILINE);*/
-
-
-	/*log*/
-	/*wxTextCtrl *header = new wxTextCtrl(this, wxID_ANY, "",	wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
-	DoLogLine(header, "  Time", " Thread", "Message");*/
 	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
 	wxLog::SetActiveTarget(this);
 	
-	m_mgr.AddPane(panel,
+	m_mgr.AddPane(main_panel_chat,
 		wxAuiPaneInfo().
 		Name(wxT("Online")).
 		Center().Layer(1).Position(1).CloseButton(false));
@@ -309,7 +273,7 @@ void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 		// Bind() is only avail for 2.9.0 and later
 		//Bind(wxTimerEvent, ttListCtrl::destroyTip, wxID_ANY, wxID_ANY, this);
 		o->SetClientData(tipWin);
-		o->Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
+	//	o->Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
 		killTip = new wxTimer(o, wxID_ANY);
 		killTip->Start(1000, true);
 	}
@@ -436,8 +400,8 @@ void ClientTsFrm::btnspeechClick(wxCommandEvent& event)
 void ClientTsFrm::WxTimer2Timer(wxTimerEvent& event)
 {
 	UserListPTR luser = Session::Instance()->getListUser();
-	clientts->setVadLevel(DEFAULT_VIRTUAL_SERVER);
-	if (txtmsg->IsModified())// 	session->setwrite_flag(true);
+//	clientts->setVadLevel(DEFAULT_VIRTUAL_SERVER);
+	if (txtmsg->IsModified()) 	session->setwrite_flag(true);
 	int i;
 	for (auto it = luser->cbegin(); it != luser->cend(); ++it)
 	{
@@ -473,13 +437,13 @@ void ClientTsFrm::WxBitmapButton1Click(wxCommandEvent& event)
 	if (session->gettasto_stt_flag() == false)
 	{
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, true);
-		WxBitmapButton1->SetBitmap(NULL);
+		WxBitmapButton1->SetBitmap(wxBitmap("../res/micro_cross.png", wxBITMAP_TYPE_PNG));
 	}
 	else
 	{
 		session->setsound_flag(true);
 		clientts->getIAudioRecorder()->startRecordingBufferedAudio();
-		WxBitmapButton1->SetBitmap(microphone_xpm);
+		WxBitmapButton1->SetBitmap(wxBitmap("../res/micro.png", wxBITMAP_TYPE_PNG));
 		ID_MNU_OPZIONI_1004_Mnu_Obj->Enable(ID_MNU_SPEECH_1006, false);
 	}
 }
@@ -598,8 +562,6 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 	}
 	//chatbox->SetTooltip(curRow, 3, msgptr->getMSG());
 	chatbox->SetItem(info);
-
-
 	
 	chatbox->ScrollList(0, curRow);
 	curRow++;
@@ -634,8 +596,8 @@ void ttListCtrl::SetTooltip(int row, int col, MessagePTR tip)
 	// we keep our own copy in the grid.
 	grid[(row*cols) + col].Printf(wxT("%s"), tip);
 }
-*/
 
+*/
 
 void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 {
