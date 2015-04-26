@@ -11,6 +11,7 @@
 	#include <wx/wxprec.h>
 #endif
 
+#include <wx/compiler.h>
 #include <wx/radiobut.h>
 #include <wx/combobox.h>
 #include <wx/bmpcbox.h>

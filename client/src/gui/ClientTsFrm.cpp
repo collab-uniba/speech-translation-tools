@@ -86,39 +86,48 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	inputtextchat->Add(WxBitmapButton1, 1, wxALL | wxEXPAND, 5);
 
 
-	wxAuiToolBar* tb3 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_TEXT | wxAUI_TB_HORZ_TEXT);
+
+	tb1 = new wxAuiToolBar(this, ID_tool_bar, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
+
+	tb1->SetToolBitmapSize(wxSize(16, 16));
+	m_toolbar1_save = tb1->AddTool(ID_tool_bar + 1, wxT("Save"), wxBitmap("../res/save.png", wxBITMAP_TYPE_PNG));
+	m_toolbar1_email = tb1->AddTool(ID_tool_bar + 2, wxT("Email"), wxBitmap("../res/email.png", wxBITMAP_TYPE_PNG));
+	tb1->Realize();
+
+
+	tb2 = new wxAuiToolBar(this, ID_tool_bar + 3, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
+	tb2->SetToolBitmapSize(wxSize(16, 16));
+
+	m_toolbar2_sett = tb2->AddTool(ID_tool_bar + 4, wxT("Setting icon"), wxBitmap("../res/mail-settings-icon.png", wxBITMAP_TYPE_PNG));
+	m_toolbar2_mic = tb2->AddTool(ID_tool_bar + 5, wxT("Microphone settings"), wxBitmap("../res/microphone-icon.png", wxBITMAP_TYPE_PNG));
+
+	tb2->Realize();
+
+
+	tb3 = new wxAuiToolBar(this, ID_tool_bar + 6, wxDefaultPosition, wxDefaultSize, wxAUI_TB_TEXT | wxAUI_TB_HORZ_TEXT);
 	tb3->SetToolBitmapSize(wxSize(16, 16));
-	wxBitmap bitmap = wxBitmap();
-	wxString naz = this->nations->Search(&wxString(session->getLanguage()), COUNTRY);	
+
+	wxString naz = this->nations->Search(&wxString(session->getLanguage()), COUNTRY);
+
 	if (naz != "false")
 	{
-		bitmap.LoadFile("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG);
-		tb3->AddTool(ID_SampleItem + 1, session->getNick(), bitmap);
+		tb3->AddTool(ID_tool_bar + 7, session->getNick(), wxBitmap("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG))->SetSticky(true);
+		//tb3->AddTool(ID_SampleItem + 1, , bitmap);
 	}
+	
 	tb3->Realize();
 
-	wxAuiToolBar* tb4 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
+	this->Connect(m_toolbar1_save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( ClientTsFrm::Save));
+	this->Connect(m_toolbar1_email->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::Mail));
+	this->Connect(m_toolbar2_sett->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::SettingMail));
+	this->Connect(m_toolbar2_mic->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::Wizard));
 
-	tb4->SetToolBitmapSize(wxSize(16, 16));
-	tb4->AddTool(ID_SampleItem+3, wxT("Item 1"), wxBitmap("../res/save.png", wxBITMAP_TYPE_PNG));
-	tb4->AddTool(ID_SampleItem + 23, wxT("Item 2"), wxBitmap("../res/email.png", wxBITMAP_TYPE_PNG));
-
-	tb4->Realize();
-
-	wxAuiToolBar* tb5 = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
-
-	tb5->SetToolBitmapSize(wxSize(16, 16));
-	tb5->AddTool(ID_SampleItem+25, wxT("Item 1"), wxBitmap("../res/mail-settings-icon.png", wxBITMAP_TYPE_PNG));
-	tb5->AddTool(ID_SampleItem + 24, wxT("Item 2"), wxBitmap("../res/microphone-icon.png", wxBITMAP_TYPE_PNG));
-
-	tb5->Realize();
-
-	m_mgr.AddPane(tb4, wxAuiPaneInfo().
-		Name(wxT("tb4")).Caption(wxT("Sample Bookmark Toolbar")).
+	m_mgr.AddPane(tb1, wxAuiPaneInfo().
+		Name(wxT("tb1")).Caption(wxT("Sample Bookmark Toolbar")).
 		ToolbarPane().Top().Row(0));
 
-	m_mgr.AddPane(tb5, wxAuiPaneInfo().
-		Name(wxT("tb4")).Caption(wxT("Sample Bookmark Toolbar")).
+	m_mgr.AddPane(tb2, wxAuiPaneInfo().
+		Name(wxT("tb2")).Caption(wxT("Sample Bookmark Toolbar")).
 		ToolbarPane().Top().Row(0));
 
 	m_mgr.AddPane(tb3, wxAuiPaneInfo().
@@ -190,7 +199,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	SetIcon(wxNullIcon);
 	//SetMinSize(wxSize(1024, 600));
 	//Center();
-
+	this->Centre(wxBOTH);
 
 #if wxUSE_LIBPNG
 	wxImage::AddHandler(new wxPNGHandler);
@@ -260,6 +269,12 @@ ttListCtrl* ClientTsFrm::CreateChatBox(wxPanel *panel)
 	return chatbox;
 }
  
+void ClientTsFrm::ToolBarSaveClickevent(wxCloseEvent& event)
+{
+	Sleep(1);
+
+}
+
 
 void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 {

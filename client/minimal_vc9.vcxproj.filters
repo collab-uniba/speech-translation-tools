@@ -9,9 +9,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Source Files\connectionController">
-      <UniqueIdentifier>{3abff4cf-c017-482b-8a36-1955b87892a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\translateController">
       <UniqueIdentifier>{f90e4d02-27c1-4ef8-897d-9075937b8231}</UniqueIdentifier>
     </Filter>
@@ -24,25 +21,22 @@
     <Filter Include="Header Files\GUI">
       <UniqueIdentifier>{ddca5419-5bbd-4811-94e9-1c45bc6f0c28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Data">
-      <UniqueIdentifier>{78190e57-1315-45ee-9f55-64fc7e738d9e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Data">
-      <UniqueIdentifier>{b292fbeb-7f7f-40d9-b85a-e29ce2ee9f09}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\lib">
       <UniqueIdentifier>{daa98457-1ca2-4d64-8a7c-92062f3c5362}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\lib">
       <UniqueIdentifier>{f2616b17-4370-41fb-9fae-cbf98695fdb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{b292fbeb-7f7f-40d9-b85a-e29ce2ee9f09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{78190e57-1315-45ee-9f55-64fc7e738d9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\connectionController\connectionController.cpp">
-      <Filter>Source Files\connectionController</Filter>
     </ClCompile>
     <ClCompile Include="src\translateController\translateController.cpp">
       <Filter>Source Files\translateController</Filter>
@@ -72,10 +66,10 @@
       <Filter>Source Files\gui</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\NationInfo.cpp">
-      <Filter>Source Files\Data</Filter>
+      <Filter>Source Files\Models</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\NationList.cpp">
-      <Filter>Source Files\Data</Filter>
+      <Filter>Source Files\Models</Filter>
     </ClCompile>
     <ClCompile Include="src\lib\ClientTs.cpp">
       <Filter>Source Files\lib</Filter>
@@ -89,14 +83,11 @@
     <ClCompile Include="src\tinyxml2.cpp">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
-    <ClCompile Include="src\data\Config.cpp">
-      <Filter>Source Files\Data</Filter>
-    </ClCompile>
     <ClCompile Include="src\data\Message.cpp">
-      <Filter>Source Files\Data</Filter>
+      <Filter>Source Files\Models</Filter>
     </ClCompile>
     <ClCompile Include="src\data\User.cpp">
-      <Filter>Source Files\Data</Filter>
+      <Filter>Source Files\Models</Filter>
     </ClCompile>
     <ClCompile Include="src\translateController\Translate.cpp">
       <Filter>Source Files\translateController</Filter>
@@ -114,9 +105,6 @@
     </ClInclude>
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\connectionController\connectionController.h">
-      <Filter>Source Files\connectionController</Filter>
-    </ClInclude>
     <ClInclude Include="src\translateController\translateController.h">
       <Filter>Source Files\translateController</Filter>
     </ClInclude>
@@ -136,13 +124,13 @@
       <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\NationList.h">
-      <Filter>Header Files\Data</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\NationInfo.h">
-      <Filter>Header Files\Data</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\SplashScreen.h">
-      <Filter>Header Files\Data</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\GUI\Login.h">
       <Filter>Header Files\GUI</Filter>
@@ -160,16 +148,13 @@
       <Filter>Header Files\lib</Filter>
     </ClInclude>
     <ClInclude Include="src\data\Session.h">
-      <Filter>Header Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="src\data\Config.h">
-      <Filter>Header Files\Data</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\data\Message.h">
-      <Filter>Header Files\Data</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\data\User.h">
-      <Filter>Header Files\Data</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\parseini\ConvertUTF.h">
       <Filter>Header Files\lib</Filter>

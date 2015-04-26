@@ -10,6 +10,7 @@
 
 #include <wx/artprov.h>
 #include <wx/wx.h>
+#include <wx/compiler.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>

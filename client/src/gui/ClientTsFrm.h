@@ -16,6 +16,7 @@
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
+#include <wx/compiler.h>
 #include <wx/frame.h>
 #else
 #include <wx/wxprec.h>
@@ -54,7 +55,7 @@
 
 #include <wx/tipwin.h>
 #include <wx/aui/aui.h>
-
+#include <wx/aui/auibar.h>
 
 #include <wx/treectrl.h>
 #include <wx/spinctrl.h>
@@ -144,6 +145,8 @@ private:
 	void SettingMail(wxCommandEvent& event);
 	void Save(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
+	void ToolBarSaveClickevent(wxCloseEvent &event);
+
 	// logging helper
 	void DoLogLine(wxTextCtrl *text, const wxString& timestr, const wxString& threadstr, const wxString& msg);
 public:
@@ -188,6 +191,13 @@ private:
 	std::unique_ptr<ClientTS> clientts;
 	ttListCtrl* chatbox;//wxListCtrl* chatbox;
     COLORE *colors;
+	wxAuiToolBar* tb1;
+	wxAuiToolBarItem * m_toolbar1_save;
+	wxAuiToolBarItem * m_toolbar1_email;
+	wxAuiToolBar* tb2;
+	wxAuiToolBarItem * m_toolbar2_sett;
+	wxAuiToolBarItem * m_toolbar2_mic;
+	wxAuiToolBar* tb3;
 	enum
 	{
 		////GUI Enum Control ID Start
@@ -217,7 +227,7 @@ private:
 		////GUI Enum Control ID End
 		ID_DUMMY_VALUE_, //don't remove this value unless you have other enum values
 		ID_MESSAGEIO,
-		ID_SampleItem
+		ID_tool_bar
 	};
 };
 

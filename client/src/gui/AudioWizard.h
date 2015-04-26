@@ -21,6 +21,7 @@
 	#include <wx/wxprec.h>
 #endif
 
+#include <wx/compiler.h>
 #include <wx/button.h>
 #include <wx/stattext.h>
 #include <wx/slider.h>

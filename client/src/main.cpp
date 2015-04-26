@@ -12,7 +12,13 @@
 
 // For compilers that support precompilation, includes "wx/wx.h".
 //#include  "wx/wx.h"
+// for all others, include the necessary headers (this file is usually all you
+// need because it includes almost all "standard" wxWidgets headers)
+#ifndef WX_PRECOMP
+#include "wx/wx.h"
+#endif
 #include "wx/wxprec.h"
+#include "wx/app.h"
 #include "gui/Login.h"
 #include "gui/ClientTsFrm.h"
 #include "gui/AudioWizard.h"
@@ -28,11 +34,7 @@
     #pragma hdrstop
 #endif
 
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
+
 
 // ----------------------------------------------------------------------------
 // resources
