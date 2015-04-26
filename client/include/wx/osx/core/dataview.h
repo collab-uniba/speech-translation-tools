@@ -3,7 +3,6 @@
 // Name:        wx/osx/core/dataview.h
 // Purpose:     wxDataViewCtrl native implementation header for OSX
 // Author:
-// Id:          $Id: dataview.h 57374 2009-01-27
 // Copyright:   (c) 2009
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -88,6 +87,8 @@ public:
  //
   virtual wxDataViewItem GetCurrentItem() const = 0;
   virtual void SetCurrentItem(const wxDataViewItem& item) = 0;
+
+  virtual wxDataViewColumn *GetCurrentColumn() const = 0;
 
   virtual int  GetSelectedItemsCount() const = 0;
   virtual int  GetSelections(wxDataViewItemArray& sel)   const = 0; // returns all selected items in the native control

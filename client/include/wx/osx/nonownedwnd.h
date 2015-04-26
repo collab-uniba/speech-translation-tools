@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     2008-03-24
-// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +64,7 @@ public:
     virtual void UnsubclassWin();
 
     virtual wxPoint GetClientAreaOrigin() const;
-
+    
     // implement base class pure virtuals
 
     virtual bool SetTransparent(wxByte alpha);
@@ -105,7 +104,7 @@ public:
 
 #if wxOSX_USE_COCOA_OR_IPHONE
     // override the base class method to return an NSWindow instead of NSView
-    virtual void *OSXGetViewOrWindow() const { return GetWXWindow(); }
+    virtual void *OSXGetViewOrWindow() const;
 #endif // Cocoa
 
     // osx specific event handling common for all osx-ports
@@ -114,6 +113,8 @@ public:
     virtual void HandleResized( double timestampsec );
     virtual void HandleMoved( double timestampsec );
     virtual void HandleResizing( double timestampsec, wxRect* rect );
+    
+    void WindowWasPainted();
 
     virtual bool Destroy();
 
@@ -145,6 +146,8 @@ protected:
     static wxNonOwnedWindow *s_macDeactivateWindow;
 
 private :
+    static clock_t s_lastFlush;
+    
     wxRegion m_shape;
 #if wxUSE_GRAPHICS_CONTEXT
     wxGraphicsPath m_shapePath;

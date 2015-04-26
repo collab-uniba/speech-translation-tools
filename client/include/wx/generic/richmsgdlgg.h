@@ -3,7 +3,6 @@
 // Purpose:     wxGenericRichMessageDialog
 // Author:      Rickard Westerlund
 // Created:     2010-07-04
-// RCS-ID:      $Id$
 // Copyright:   (c) 2010 wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -21,8 +20,8 @@ class WXDLLIMPEXP_CORE wxGenericRichMessageDialog
 public:
     wxGenericRichMessageDialog(wxWindow *parent,
                                const wxString& message,
-                               const wxString& caption,
-                               long style)
+                               const wxString& caption = wxMessageBoxCaptionStr,
+                               long style = wxOK | wxCENTRE)
         : wxRichMessageDialogBase( parent, message, caption, style ),
           m_checkBox(NULL),
           m_detailsPane(NULL)

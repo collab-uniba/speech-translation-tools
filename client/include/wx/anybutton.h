@@ -3,7 +3,6 @@
 // Purpose:     wxAnyButtonBase class
 // Author:      Vadim Zetlin
 // Created:     2000-08-15 (extracted from button.h)
-// RCS-ID:      $Id$
 // Copyright:   (c) Vadim Zetlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -191,8 +190,6 @@ protected:
 //    #include "wx/cocoa/anybutton.h"
 //#elif defined(__WXPM__)
 //    #include "wx/os2/anybutton.h"
-//#elif defined(__WXPALMOS__)
-//    #include "wx/palmos/anybutton.h"
 #else
     typedef wxAnyButtonBase wxAnyButton;
 #endif

@@ -4,7 +4,7 @@
 // Author:       Based on wxTransformMatrix by Chris Breeze, Julian Smart
 // Created:      2011-04-05
 // Copyright:    (c) wxWidgets team
-// Licence:      wxWidgets licence
+// Licence:      wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_AFFINEMATRIX2D_H_
@@ -36,7 +36,7 @@ public:
     virtual bool IsEqual(const wxAffineMatrix2DBase& t) const;
     virtual void Translate(wxDouble dx, wxDouble dy);
     virtual void Scale(wxDouble xScale, wxDouble yScale);
-    virtual void Rotate(wxDouble ccRadians);
+    virtual void Rotate(wxDouble cRadians);
 
 protected:
     virtual wxPoint2DDouble DoTransformPoint(const wxPoint2DDouble& p) const;

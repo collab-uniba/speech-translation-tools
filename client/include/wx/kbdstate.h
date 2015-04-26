@@ -3,7 +3,6 @@
 // Purpose:     Declaration of wxKeyboardState class
 // Author:      Vadim Zeitlin
 // Created:     2008-09-19
-// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,6 +27,9 @@ public:
           m_shiftDown(shiftDown),
           m_altDown(altDown),
           m_metaDown(metaDown)
+#ifdef __WXOSX__
+          ,m_rawControlDown(false)
+#endif
     {
     }
 
@@ -52,7 +54,14 @@ public:
     }
 
     // returns true if any modifiers at all are pressed
-    bool HasModifiers() const { return GetModifiers() != wxMOD_NONE; }
+    bool HasAnyModifiers() const { return GetModifiers() != wxMOD_NONE; }
+
+    // returns true if any modifiers changing the usual key interpretation are
+    // pressed, notably excluding Shift
+    bool HasModifiers() const
+    {
+        return ControlDown() || RawControlDown() || AltDown();
+    }
 
     // accessors for individual modifier keys
     bool ControlDown() const { return m_controlDown; }

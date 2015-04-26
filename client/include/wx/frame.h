@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     15.11.99
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -205,6 +204,10 @@ protected:
     // frame
     virtual void AttachMenuBar(wxMenuBar *menubar);
 
+    // Return true if we should update the menu item state from idle event
+    // handler or false if we should delay it until the menu is opened.
+    static bool ShouldUpdateMenuFromIdle();
+
     wxMenuBar *m_frameMenuBar;
 #endif // wxUSE_MENUS
 
@@ -251,9 +254,7 @@ protected:
 #if defined(__WXUNIVERSAL__) // && !defined(__WXMICROWIN__)
     #include "wx/univ/frame.h"
 #else // !__WXUNIVERSAL__
-    #if defined(__WXPALMOS__)
-        #include "wx/palmos/frame.h"
-    #elif defined(__WXMSW__)
+    #if defined(__WXMSW__)
         #include "wx/msw/frame.h"
     #elif defined(__WXGTK20__)
         #include "wx/gtk/frame.h"

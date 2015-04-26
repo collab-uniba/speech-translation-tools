@@ -3,7 +3,6 @@
 // Purpose:     wxAnyButton class
 // Author:      Vadim Zeitlin
 // Created:     2000-08-15 (extracted from button.h)
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +19,7 @@ class WXDLLIMPEXP_CORE wxAnyButton : public wxAnyButtonBase
 public:
     wxAnyButton() {}
 
-    virtual ~wxAnyButton() {};
+    virtual ~wxAnyButton() {}
 
 protected:
     // choose the default border for this window

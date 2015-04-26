@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -171,6 +170,13 @@ public:
     // EDIT control has one already)
     void OnContextMenu(wxContextMenuEvent& event);
 
+#if wxABI_VERSION >= 30002
+    // Create context menu for RICHEDIT controls. This may be called once during
+    // the control's lifetime or every time the menu is shown, depending on
+    // implementation.
+    wxMenu *MSWCreateContextMenu();
+#endif
+
     // be sure the caret remains invisible if the user
     // called HideNativeCaret() before
     void OnSetFocus(wxFocusEvent& event);
@@ -204,11 +210,11 @@ protected:
     // the limit is due to a previous call to SetMaxLength() and not built in)
     bool HasSpaceLimit(unsigned int *len) const;
 
-    // call this to increase the size limit (will do nothing if the current
-    // limit is big enough)
+    // Used by EN_MAXTEXT handler to increase the size limit (will do nothing
+    // if the current limit is big enough). Should never be called directly.
     //
-    // returns true if we increased the limit to allow entering more text,
-    // false if we hit the limit set by SetMaxLength() and so didn't change it
+    // Returns true if we increased the limit to allow entering more text,
+    // false if we hit the limit set by SetMaxLength() and so didn't change it.
     bool AdjustSpaceLimit();
 
 #if wxUSE_RICHEDIT && (!wxUSE_UNICODE || wxUSE_UNICODE_MSLU)
@@ -236,6 +242,7 @@ protected:
     bool SendUpdateEvent();
 
     virtual wxSize DoGetBestSize() const;
+    virtual wxSize DoGetSizeFromTextSize(int xlen, int ylen = -1) const;
 
 #if wxUSE_RICHEDIT
     // Apply the character-related parts of wxTextAttr to the given selection

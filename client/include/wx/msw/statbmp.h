@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -58,7 +57,7 @@ public:
     virtual bool CanApplyThemeBorder() const { return false; }
 
 protected:
-    virtual wxSize DoGetBestSize() const;
+    virtual wxSize DoGetBestClientSize() const;
 
     // ctor/dtor helpers
     void Init() { m_isIcon = true; m_image = NULL; m_currentHandle = 0; }
@@ -76,6 +75,7 @@ protected:
     void DoPaintManually(wxPaintEvent& event);
 #endif // !__WXWINCE__
 
+    void WXHandleSize(wxSizeEvent& event);
 
     // we can have either an icon or a bitmap
     bool m_isIcon;
@@ -85,7 +85,12 @@ protected:
     WXHANDLE m_currentHandle;
 
 private:
+    // Replace the image at the native control level with the given HBITMAP or
+    // HICON (which can be 0) and destroy the previous image if necessary.
+    void MSWReplaceImageHandle(WXLPARAM handle);
+
     DECLARE_DYNAMIC_CLASS(wxStaticBitmap)
+    wxDECLARE_EVENT_TABLE();
     wxDECLARE_NO_COPY_CLASS(wxStaticBitmap);
 };
 

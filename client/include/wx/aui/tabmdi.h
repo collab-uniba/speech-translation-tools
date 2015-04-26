@@ -4,7 +4,6 @@
 // Author:      Hans Van Leemputten
 // Modified by: Benjamin I. Williams / Kirix Corporation
 // Created:     29/07/2002
-// RCS-ID:      $Id$
 // Copyright:   (c) Hans Van Leemputten
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -85,7 +84,6 @@ public:
 
 protected:
     wxAuiMDIClientWindow*   m_pClientWindow;
-    wxAuiMDIChildFrame*     m_pActiveChild;
     wxEvent*                m_pLastEvt;
 
 #if wxUSE_MENUS
@@ -101,6 +99,7 @@ protected:
     void AddWindowMenu(wxMenuBar *pMenuBar);
 
     void DoHandleMenu(wxCommandEvent &event);
+    void DoHandleUpdateUI(wxUpdateUIEvent &event);
 #endif // wxUSE_MENUS
 
     virtual bool ProcessEvent(wxEvent& event);
@@ -249,6 +248,11 @@ public:
                               long style = wxVSCROLL | wxHSCROLL);
 
     virtual int SetSelection(size_t page);
+    virtual wxAuiMDIChildFrame* GetActiveChild();
+    virtual void SetActiveChild(wxAuiMDIChildFrame* pChildFrame)
+    {
+        SetSelection(GetPageIndex(pChildFrame));
+    }
 
 protected:
 

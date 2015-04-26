@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     07.09.00
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -184,8 +183,6 @@ private:
 #elif defined(__WXPM__)
     #undef wxHAS_3STATE_CHECKBOX
     #include "wx/os2/checkbox.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/checkbox.h"
 #endif
 
 #endif // wxUSE_CHECKBOX

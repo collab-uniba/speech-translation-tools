@@ -4,7 +4,6 @@
  * Author:      Julian Smart
  * Modified by:
  * Created:     01/02/97
- * RCS-ID:      $Id$
  * Copyright:   (c) Julian Smart
  * Licence:     wxWindows licence
  */
@@ -117,6 +116,27 @@
 
 
 /*
+ * Unfortunately we can't use compiler TLS support if the library can be used
+ * inside a dynamically loaded DLL under Windows XP, as this can result in hard
+ * to diagnose crashes due to the bugs in Windows TLS support, see #13116.
+ *
+ * So we disable it unless we can be certain that the code will never run under
+ * XP, as is the case if we're using a compiler which doesn't support XP such
+ * as MSVC 11+, unless it's used with the special "_xp" toolset, in which case
+ * _USING_V110_SDK71_ is defined.
+ *
+ * However defining wxUSE_COMPILER_TLS as 2 overrides this safety check, see
+ * the comments in wx/setup.h.
+ */
+#if wxUSE_COMPILER_TLS == 1
+    #if !wxCHECK_VISUALC_VERSION(11) || defined(_USING_V110_SDK71_)
+        #undef wxUSE_COMPILER_TLS
+        #define wxUSE_COMPILER_TLS 0
+    #endif
+#endif
+
+
+/*
  * disable the settings which don't work for some compilers
  */
 
@@ -154,12 +174,6 @@
 #    undef wxUSE_STACKWALKER
 #    define wxUSE_STACKWALKER 0
 #endif /* compiler doesn't support SEH */
-
-/* wxUSE_DEBUG_NEW_ALWAYS doesn't work with CodeWarrior */
-#if defined(__MWERKS__)
-#    undef wxUSE_DEBUG_NEW_ALWAYS
-#    define wxUSE_DEBUG_NEW_ALWAYS      0
-#endif
 
 #if defined(__GNUWIN32__)
     /* These don't work as expected for mingw32 and cygwin32 */

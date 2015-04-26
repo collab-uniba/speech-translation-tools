@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by: Vadim Zeitlin (wxMenuItem is now in separate file)
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +67,11 @@ public:
     // menu handle and will delete it when this object is destroyed.
     static wxMenu *MSWNewFromHMENU(WXHMENU hMenu) { return new wxMenu(hMenu); }
 
+#if wxABI_VERSION >= 30002
+    // Detaches HMENU so that it isn't deleted when this object is destroyed.
+    // Don't use this object after calling this method.
+    WXHMENU MSWDetachHMENU() { WXHMENU m = m_hMenu; m_hMenu = NULL; return m; }
+#endif
 
     // implementation only from now on
     // -------------------------------
@@ -197,6 +201,7 @@ public:
     virtual wxMenu *Remove(size_t pos);
 
     virtual void EnableTop( size_t pos, bool flag );
+    virtual bool IsEnabledTop(size_t pos) const;
     virtual void SetMenuLabel( size_t pos, const wxString& label );
     virtual wxString GetMenuLabel( size_t pos ) const;
 

@@ -4,7 +4,6 @@
 // Author:      Ryan Norton <wxprojects@comcast.net>
 // Modified by:
 // Created:     8/18/05
-// RCS-ID:      $Id$
 // Copyright:   (c) Ryan Norton
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,6 +168,7 @@ public:
     void OnSetFocus(wxFocusEvent&);
     void OnKillFocus(wxFocusEvent&);
     virtual bool MSWTranslateMessage(WXMSG* pMsg);
+    virtual bool QueryClientSiteInterface(REFIID iid, void **_interface, const char *&desc);
 
 protected:
     friend class FrameSite;

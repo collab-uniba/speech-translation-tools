@@ -3,7 +3,6 @@
 // Purpose:     Declaration of wxMouseState class
 // Author:      Vadim Zeitlin
 // Created:     2008-09-19 (extracted from wx/utils.h)
-// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,13 +99,11 @@ public:
 
             case wxMOUSE_BTN_NONE:
             case wxMOUSE_BTN_MAX:
-                wxFAIL_MSG(wxS("invalid parameter"));
-                return false;
-
-            default:
-                wxFAIL_MSG(wxS("unknown parameter"));
-                return false;
+                break;
         }
+
+        wxFAIL_MSG(wxS("invalid parameter"));
+        return false;
     }
 
 
@@ -128,7 +125,7 @@ public:
     // version of wxMouseState but their names are confusing as wxMouseEvent
     // has methods with the same names which do something quite different so
     // don't use them any more
-#ifdef WXWIN_COMPATIBILITY_2_8
+#if WXWIN_COMPATIBILITY_2_8
     wxDEPRECATED_INLINE(bool LeftDown() const, return LeftIsDown(); )
     wxDEPRECATED_INLINE(bool MiddleDown() const, return MiddleIsDown(); )
     wxDEPRECATED_INLINE(bool RightDown() const, return RightIsDown(); )

@@ -5,7 +5,6 @@
 // Author:      Joel Farley, Ove Kåven
 // Modified by: Vadim Zeitlin, Robert Roebling, Ron Lee
 // Created:     2007-02-19
-// RCS-ID:      $Id$
 // Copyright:   (c) 2007 REA Elektronik GmbH
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -150,12 +149,8 @@
             #define wxCRT_VsnprintfW    _vsnwprintf
         #endif
 
-        /*
-           All versions of CodeWarrior supported by wxWidgets apparently
-           have both snprintf() and vsnprintf()
-         */
         #if defined(HAVE_VSNPRINTF) \
-            || defined(__MWERKS__) || defined(__WATCOMC__)
+            || defined(__WATCOMC__)
             #ifdef HAVE_BROKEN_VSNPRINTF_DECL
                 #define wxCRT_VsnprintfA    wx_fixed_vsnprintf
             #else
@@ -207,10 +202,10 @@
    so on but not all systems have them so use our own implementations in this
    case.
  */
-#if wxUSE_UNICODE && !defined(wxHAVE_TCHAR_SUPPORT) && !defined(HAVE_WPRINTF)
+#if !defined(wxHAVE_TCHAR_SUPPORT) && !defined(HAVE_WPRINTF)
     #define wxNEED_WPRINTF
 #endif
-#if wxUSE_UNICODE && !defined(wxHAVE_TCHAR_SUPPORT) && !defined(HAVE_VSWSCANF)
+#if !defined(wxHAVE_TCHAR_SUPPORT) && !defined(HAVE_VSWSCANF) && defined(HAVE_VSSCANF)
     #define wxNEED_VSWSCANF
 #endif
 
@@ -243,7 +238,17 @@
 #define wxCRT_ScanfA     scanf
 #define wxCRT_SscanfA    sscanf
 #define wxCRT_FscanfA    fscanf
-#define wxCRT_VsscanfA   vsscanf
+
+/* vsscanf() may have a wrong declaration with non-const first parameter, fix
+ * this by wrapping it if necessary. */
+#if defined __cplusplus && defined HAVE_BROKEN_VSSCANF_DECL
+    inline int wxCRT_VsscanfA(const char *str, const char *format, va_list ap)
+    {
+        return vsscanf(const_cast<char *>(str), format, ap);
+    }
+#else
+    #define wxCRT_VsscanfA   vsscanf
+#endif
 
 #if defined(wxNEED_WPRINTF)
     int wxCRT_ScanfW(const wchar_t *format, ...);

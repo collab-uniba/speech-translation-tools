@@ -4,7 +4,6 @@
  * Author:      Vadim Zeitlin
  * Modified by:
  * Created:     09.08.00
- * RCS-ID:      $Id$
  * Copyright:   (c) 2000 Vadim Zeitlin <vadim@wxwidgets.org>
  * Licence:     wxWindows licence
  */
@@ -91,6 +90,14 @@
 #       define wxUSE_ANY 0
 #   endif
 #endif /* wxUSE_ANY */
+
+#ifndef wxUSE_COMPILER_TLS
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_COMPILER_TLS must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_COMPILER_TLS 0
+#   endif
+#endif /* !defined(wxUSE_COMPILER_TLS) */
 
 #ifndef wxUSE_CONSOLE_EVENTLOOP
 #   ifdef wxABORT_ON_CONFIG_ERROR
@@ -748,7 +755,7 @@
 #endif /* !defined(wxUSE_HTML) */
 
 #ifndef wxUSE_LIBMSPACK
-#   if !defined(__UNIX__) || defined(__WXPALMOS__)
+#   if !defined(__UNIX__)
         /* set to 0 on platforms that don't have libmspack */
 #       define wxUSE_LIBMSPACK 0
 #   else
@@ -927,6 +934,14 @@
 #       define wxUSE_POPUPWIN 0
 #   endif
 #endif /* !defined(wxUSE_POPUPWIN) */
+
+#ifndef wxUSE_PREFERENCES_EDITOR
+#   ifdef wxABORT_ON_CONFIG_ERROR
+#       error "wxUSE_PREFERENCES_EDITOR must be defined, please read comment near the top of this file."
+#   else
+#       define wxUSE_PREFERENCES_EDITOR 0
+#   endif
+#endif /* !defined(wxUSE_PREFERENCES_EDITOR) */
 
 #ifndef wxUSE_PRINTING_ARCHITECTURE
 #   ifdef wxABORT_ON_CONFIG_ERROR
@@ -1201,12 +1216,13 @@
    checks use wxUSE_XXX symbols in #if tests.
  */
 
-#if defined(__WXPALMOS__)
-#  include "wx/palmos/chkconf.h"
-#elif defined(__WXWINCE__)
+#if defined(__WXWINCE__)
 #  include "wx/msw/wince/chkconf.h"
-#elif defined(__WXMSW__)
+#elif defined(__WINDOWS__)
 #  include "wx/msw/chkconf.h"
+#  if defined(__WXGTK__)
+#      include "wx/gtk/chkconf.h"
+#  endif
 #elif defined(__WXGTK__)
 #  include "wx/gtk/chkconf.h"
 #elif defined(__WXCOCOA__)
@@ -1215,21 +1231,21 @@
 #  include "wx/osx/chkconf.h"
 #elif defined(__OS2__)
 #  include "wx/os2/chkconf.h"
-#elif defined(__WXMGL__)
-#  include "wx/mgl/chkconf.h"
 #elif defined(__WXDFB__)
 #  include "wx/dfb/chkconf.h"
 #elif defined(__WXMOTIF__)
 #  include "wx/motif/chkconf.h"
 #elif defined(__WXX11__)
 #  include "wx/x11/chkconf.h"
+#elif defined(__WXANDROID__)
+#  include "wx/android/chkconf.h"
 #endif
 
 /*
     __UNIX__ is also defined under Cygwin but we shouldn't perform these checks
-    there if we're building wxMSW.
+    there if we're building Windows ports.
  */
-#if defined(__UNIX__) && !defined(__WXMSW__)
+#if defined(__UNIX__) && !defined(__WINDOWS__)
 #   include "wx/unix/chkconf.h"
 #endif
 
@@ -1453,7 +1469,7 @@
  */
 #if wxUSE_GUI
 
-#if wxUSE_ACCESSIBILITY && !defined(__WXMSW__) && !defined(__GCCXML__)
+#if wxUSE_ACCESSIBILITY && !defined(__WXMSW__)
 #   ifdef wxABORT_ON_CONFIG_ERROR
 #       error "wxUSE_ACCESSIBILITY is currently only supported under wxMSW"
 #   else
@@ -1634,9 +1650,7 @@
 #ifndef wxUSE_NATIVE_STATUSBAR
 #   define wxUSE_NATIVE_STATUSBAR 0
 #elif wxUSE_NATIVE_STATUSBAR
-#   if defined(__WXUNIVERSAL__) || !( defined(__WXMSW__) || \
-                                      defined(__WXMAC__) || \
-                                      defined(__WXPALMOS__) )
+#   if defined(__WXUNIVERSAL__) || !(defined(__WXMSW__) || defined(__WXMAC__))
 #       undef wxUSE_NATIVE_STATUSBAR
 #       define wxUSE_NATIVE_STATUSBAR 0
 #   endif
@@ -1756,6 +1770,17 @@
 #        endif
 #   endif
 #endif /* wxUSE_CHOICEDLG */
+
+#if wxUSE_FILECTRL
+#   if !wxUSE_DATETIME
+#       ifdef wxABORT_ON_CONFIG_ERROR
+#           error "wxFileCtrl requires wxDateTime"
+#       else
+#           undef wxUSE_DATETIME
+#           define wxUSE_DATETIME 1
+#       endif
+#   endif
+#endif /* wxUSE_FILECTRL */
 
 #if wxUSE_HELP
 #   if !wxUSE_BMPBUTTON
@@ -1987,7 +2012,7 @@
 #endif /* wxUSE_FILEDLG */
 
 #if !wxUSE_GAUGE || !wxUSE_BUTTON
-#   if wxUSE_PROGRESSDLG && !defined(__WXPALMOS__)
+#   if wxUSE_PROGRESSDLG
 #       ifdef wxABORT_ON_CONFIG_ERROR
 #           error "Generic progress dialog requires wxUSE_GAUGE and wxUSE_BUTTON"
 #       else
@@ -2048,7 +2073,7 @@
 #            define wxUSE_RADIOBTN 1
 #        endif
 #   endif
-#   if !wxUSE_STATBOX && !defined(__WXPALMOS__)
+#   if !wxUSE_STATBOX
 #        ifdef wxABORT_ON_CONFIG_ERROR
 #            error "wxUSE_RADIOBOX requires wxUSE_STATBOX"
 #        else
@@ -2173,6 +2198,33 @@
 #       define wxUSE_WEBVIEW 0
 #   endif
 #endif /* wxUSE_WEBVIEW && !any web view backend */
+
+#if wxUSE_PREFERENCES_EDITOR
+    /*
+        We can use either a generic implementation, using wxNotebook, or a
+        native one under wxOSX/Cocoa but then we must be using the native
+        toolbar.
+    */
+#   if !wxUSE_NOTEBOOK
+#       ifdef __WXOSX_COCOA__
+#           if !wxUSE_TOOLBAR || !wxOSX_USE_NATIVE_TOOLBAR
+#               ifdef wxABORT_ON_CONFIG_ERROR
+#                   error "wxUSE_PREFERENCES_EDITOR requires native toolbar in wxOSX"
+#               else
+#                   undef wxUSE_PREFERENCES_EDITOR
+#                   define wxUSE_PREFERENCES_EDITOR 0
+#               endif
+#           endif
+#       else
+#           ifdef wxABORT_ON_CONFIG_ERROR
+#               error "wxUSE_PREFERENCES_EDITOR requires wxNotebook"
+#           else
+#               undef wxUSE_PREFERENCES_EDITOR
+#               define wxUSE_PREFERENCES_EDITOR 0
+#           endif
+#       endif
+#   endif
+#endif /* wxUSE_PREFERENCES_EDITOR */
 
 #endif /* wxUSE_GUI */
 

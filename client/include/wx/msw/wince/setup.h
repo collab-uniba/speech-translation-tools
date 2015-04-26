@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -151,7 +150,7 @@
 // In debug mode, causes new to be defined to be WXDEBUG_NEW (see object.h). If
 // this causes problems (e.g. link errors), set this to 0. You may need to set
 // this to 0 if using templates (at least for VC++). This switch is currently
-// ignored for mingw / cygwin / CodeWarrior
+// ignored for MinGW/Cygwin.
 //
 // Default is 0
 //
@@ -267,6 +266,24 @@
 // Recommended setting: 1 if you want to support multiple languages
 #define wxUSE_PRINTF_POS_PARAMS      1
 
+// Enable the use of compiler-specific thread local storage keyword, if any.
+// This is used for wxTLS_XXX() macros implementation and normally should use
+// the compiler-provided support as it's simpler and more efficient, but is
+// disabled under Windows in wx/msw/chkconf.h as it can't be used if wxWidgets
+// is used in a dynamically loaded Win32 DLL (i.e. using LoadLibrary()) under
+// XP as this triggers a bug in compiler TLS support that results in crashes
+// when any TLS variables are used.
+//
+// If you're absolutely sure that your build of wxWidgets is never going to be
+// used in such situation, either because it's not going to be linked from any
+// kind of plugin or because you only target Vista or later systems, you can
+// set this to 2 to force the use of compiler TLS even under MSW.
+//
+// Default is 1 meaning that compiler TLS is used only if it's 100% safe.
+//
+// Recommended setting: 2 if you want to have maximal performance and don't
+// care about the scenario described above.
+#define wxUSE_COMPILER_TLS 1
 
 // ----------------------------------------------------------------------------
 // Interoperability with the standard library.
@@ -1086,6 +1103,16 @@
 //
 // Recommended setting: 1
 #define wxUSE_NOTIFICATION_MESSAGE 1
+
+// wxPreferencesEditor provides a common API for different ways of presenting
+// the standard "Preferences" or "Properties" dialog under different platforms
+// (e.g. some use modal dialogs, some use modeless ones; some apply the changes
+// immediately while others require an explicit "Apply" button).
+//
+// Default is 1.
+//
+// Recommended setting: 1 (but can be safely disabled if you don't use it)
+#define wxUSE_PREFERENCES_EDITOR 1
 
 // wxRichToolTip is a customizable tooltip class which has more functionality
 // than the stock (but native, unlike this class) wxToolTip.
