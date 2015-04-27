@@ -387,11 +387,26 @@ void ClientTS::onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 			if (!recorder->isRecording()) return;
 			recorder->stopRecordingAudio();
 			writeWaveFile("recorded.wav", recorder->getAudioFormat(), recorder->getRecordedAudioData());
-
-			//if (strcmp(session->getLanguage(), "Italian") == 0) 
-			//	WinExec("java -jar ASR.jar -w recorded.wav -l it_IT", SW_HIDE);
-		//	if (strcmp(session->getLanguage(), "English") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l en_US", SW_HIDE);
-		//	if (strcmp(session->getLanguage(), "Portuguese") == 0) WinExec("java -jar ASR.jar -w recorded.wav -l pt_BR", SW_HIDE);
+			wxString tx(wxT("java -jar ASR.jar -w recorded.wav -l "));
+	
+			if (strcmp(session->getLanguage(), "Italian") == 0)
+			{
+				tx += wxT("it_IT -a ") + wxString::FromAscii(session->getAPPIDDragon()) + wxT(" -k ") +
+					wxString::FromAscii(session->getAPPKeyDragon()) + wxT(" -d ") + wxString::FromAscii(session->getAPPDeviceDragon());
+				WinExec(tx, SW_HIDE);
+			}
+			if (strcmp(session->getLanguage(), "English(Uk)") == 0)
+			{
+				tx += wxT("en_US -a ") + wxString::FromAscii(session->getAPPIDDragon()) + wxT(" -k ") +
+					wxString::FromAscii(session->getAPPKeyDragon()) + wxT(" -d ") + wxString::FromAscii(session->getAPPDeviceDragon());
+				WinExec(tx, SW_HIDE);
+			}
+			if (strcmp(session->getLanguage(), "Portuguese") == 0)
+			{
+				tx += wxT("pt_BR -a ") + wxString::FromAscii(session->getAPPIDDragon()) + wxT(" -k ") +
+					wxString::FromAscii(session->getAPPKeyDragon()) + wxT(" -d ") + wxString::FromAscii(session->getAPPDeviceDragon());
+				WinExec(tx, SW_HIDE);
+			}
 
 		}
 		/*else if (finish_ctrl_flag == true)
@@ -1207,7 +1222,7 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
-	wxLogError(wxT("Initializing clientlib"));
+
 	if ((error = ts3client_initClientLib(&cn->funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {

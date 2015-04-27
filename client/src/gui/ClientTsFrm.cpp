@@ -38,7 +38,8 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 {
 
 	this->nations = new NationList();
-	try{
+	try
+	{
 		this->nations->ReadFromFile(LOCALES_CODE_FILE);
 	}
 	catch (std::string &e)
@@ -127,33 +128,37 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	
 	tb3->Realize();
 
+
+	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
+
+	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+	wxLog::SetActiveTarget(this);
+
 	this->Connect(m_toolbar1_save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( ClientTsFrm::Save));
 	this->Connect(m_toolbar1_email->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::Mail));
 	this->Connect(m_toolbar2_sett->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::SettingMail));
 	this->Connect(m_toolbar2_mic->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::Wizard));
 
-	m_mgr.AddPane(tb1, wxAuiPaneInfo().
-		Name(wxT("tb1")).Caption(wxT("Sample Bookmark Toolbar")).
-		ToolbarPane().Top().Row(0));
+	m_mgr.AddPane(tb1, 
+		wxAuiPaneInfo().
+			Name(wxT("tb1")).Caption(wxT("Toolbar with actions")).
+			ToolbarPane().Top().Row(0));
 
-	m_mgr.AddPane(tb2, wxAuiPaneInfo().
-		Name(wxT("tb2")).Caption(wxT("Sample Bookmark Toolbar")).
-		ToolbarPane().Top().Row(0));
+	m_mgr.AddPane(tb2, 
+		wxAuiPaneInfo().
+			Name(wxT("tb2")).Caption(wxT("Toolbar with settings")).
+			ToolbarPane().Top().Row(0));
 
-	m_mgr.AddPane(tb3, wxAuiPaneInfo().
-		Name(wxT("tb3")).Caption(wxT("Nickname")).
-		ToolbarPane().Top().Row(0));
-		
-	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
-
-	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
-	wxLog::SetActiveTarget(this);
+	m_mgr.AddPane(tb3, 
+		wxAuiPaneInfo().
+			Name(wxT("tb3")).Caption(wxT("Nickname")).
+			ToolbarPane().Top().Row(0));
 	
 	m_mgr.AddPane(main_panel_chat,
 		wxAuiPaneInfo().
-		Name(wxT("TextMessages")).
-		Center().Layer(1).Position(1).CloseButton(false));
-	this->Connect(main_panel_chat->GetId(), wxEVT_CLOSE_WINDOW, wxCommandEventHandler(ClientTsFrm::Save));
+			Name(wxT("TextMessages")).
+			Center().Layer(1).Position(1).CloseButton(false));
+
 	m_mgr.AddPane(m_txtctrl,
 		wxAuiPaneInfo().
 			Name(wxT("Log Panel")).
@@ -168,11 +173,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	
 	/***********************************/
 
-	if (warnings->IsHostnameEmpty())
-		ts3client_logMessage("Hostname field is empty", LogLevel_WARNING, "Gui", _sclogID);
-	if (warnings->IsNicknameEmpty())
-		ts3client_logMessage("Nickname field is empty", LogLevel_WARNING, "Gui", _sclogID);
-	//TODO Completare la traduzione di ClientTsFrm usando le variabile statica labels
 	clientts->setFlagSave(true);
 
 	FILE * record;
@@ -207,15 +207,13 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	WxMenuBar1->Append(ID_MNU_OPZIONI_1004_Mnu_Obj, labels.options);
 
 	ID_MNU_OPZIONI_VIEW = new wxMenu();
-	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW, _("Save"), _(""))->Check(true);
-	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 1, _("sett email"), _(""))->Check(true);
-	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 2, _("nick"), _(""))->Check(true);
-	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 3, _("online"), _(""))->Check(true);
-	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 4, _("log"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW, _("Action toolbar"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 1, _("Settings toolbar"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 2, _("Show nickname/flag"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 3, _("Show users online"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 4, _("Show log panel"), _(""))->Check(true);
 
-	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_AllowFloating, _("Allow Floating"));
 	WxMenuBar1->Append(ID_MNU_OPZIONI_VIEW, "View");
-
 
 	SetMenuBar(WxMenuBar1);
 

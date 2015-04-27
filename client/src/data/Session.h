@@ -142,11 +142,9 @@ public:
 
 	void addMsgToLog(MessagePTR msg);
 
-
-/*	static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
-	static unsigned int curRow;			//Initialize Row index
-	static unsigned int curCol;			//Initialize Column index
-	static wxGrid *gridptr;					//Pointer to edit the chatptr grid*/
+	const char* getAPPIDDragon();
+	const char* getAPPKeyDragon();
+	const char* getAPPDeviceDragon();
 
 private:
 	Session* m_instance;

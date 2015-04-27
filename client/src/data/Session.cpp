@@ -192,3 +192,20 @@ void Session::setprotocol(bool sv)
 	ini->SetBoolValue("email", "protocol", sv);
 	ini->SaveFile(SETTING_FILE);
 }
+
+const char* Session::getAPPIDDragon()
+{
+	return ini->GetValue("dragon", "APP_ID", NULL);
+}
+
+const char* Session::getAPPKeyDragon()
+{
+	return ini->GetValue("dragon", "APP_KEY", NULL);
+}
+
+const char* Session::getAPPDeviceDragon()
+{
+	return ini->GetValue("dragon", "DEVICE_ID", NULL);
+}
+
+
