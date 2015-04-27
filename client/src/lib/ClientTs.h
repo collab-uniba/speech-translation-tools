@@ -149,8 +149,7 @@ public:
 	static bool getFlagSave(){ return flagSave; }
 
 	static void setFlagSave(bool flg){ flagSave = flg; }
-	template <typename Observer>
-	static void setCBClientTSMSG(Observer && fn){ notifyMSGcb = std::forward<Observer>(fn); }
+
 	static void speak(const char *LANG, const char*MSG);
 	static void Print(char*word);
 	static size_t read_callback(static void *ptr, size_t size, size_t nmemb, static void *userp);

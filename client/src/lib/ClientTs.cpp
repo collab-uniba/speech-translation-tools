@@ -779,6 +779,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	msg_text = make_shared<Message>(strNick == session->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, session->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
 		
 	session->addMsgToLog(msg_text);
+	flagSave = false;
 	m_instance->m_pQueue->AddJob(msg_text);
 	
 }

@@ -9,6 +9,7 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_BUTTON(ID_WXBITMAPBUTTON1, ClientTsFrm::WxBitmapButton1Click)
 	EVT_BUTTON(ID_WXBUTTON2, ClientTsFrm::btnsendClick)
 	EVT_TEXT_ENTER(ID_WXEDIT3, ClientTsFrm::txtmsgEnter)
+	
 	EVT_BUTTON(ID_WXBUTTON1, ClientTsFrm::WxButton1Click)
 	EVT_MENU(ID_MNU_MAIL_1004, ClientTsFrm::Mail)
 	EVT_MENU(ID_MNU_SETTINGMAIL_1007, ClientTsFrm::SettingMail)
@@ -16,12 +17,21 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 	EVT_MENU(ID_MNU_ESCI_1003, ClientTsFrm::Debug)
 	EVT_MENU(ID_MNU_AUDIO_1005, ClientTsFrm::Wizard)
 	EVT_MENU(ID_MNU_SPEECH_1006, ClientTsFrm::btnspeechClick)
+
+
+	EVT_MENU(ID_MNU_VIEW, ClientTsFrm::clickMenuToolbarsPane)
+	EVT_MENU(ID_MNU_VIEW + 1, ClientTsFrm::clickMenuToolbarsPane)
+	EVT_MENU(ID_MNU_VIEW + 2, ClientTsFrm::clickMenuToolbarsPane)
+	EVT_MENU(ID_MNU_VIEW + 3, ClientTsFrm::clickMenuToolbarsPane)
+	EVT_MENU(ID_MNU_VIEW + 4, ClientTsFrm::clickMenuToolbarsPane)
+
 	EVT_LIST_ITEM_SELECTED(ID_GRIDCHAT, ClientTsFrm::gridchatCellLeftClick)
 	EVT_THREAD(wxID_ANY, ClientTsFrm::updatePanelMsg)
+	EVT_AUI_PANE_CLOSE(ClientTsFrm::OnPaneClose)
 
 END_EVENT_TABLE()
 
-
+//EVT_MENU(ID_AllowFloating, ClientTsFrm::OnUpdateUI)
 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, wxSize(924, 600), style)
@@ -111,7 +121,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	if (naz != "false")
 	{
-		tb3->AddTool(ID_tool_bar + 7, session->getNick(), wxBitmap("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG))->SetSticky(true);
+		tb3->AddTool(ID_tool_bar + 7, session->getNick(), wxBitmap("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG)) ->SetSticky(true);
 		//tb3->AddTool(ID_SampleItem + 1, , bitmap);
 	}
 	
@@ -133,8 +143,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	m_mgr.AddPane(tb3, wxAuiPaneInfo().
 		Name(wxT("tb3")).Caption(wxT("Nickname")).
 		ToolbarPane().Top().Row(0));
-
-	
+		
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
 
 	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
@@ -142,15 +151,19 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	
 	m_mgr.AddPane(main_panel_chat,
 		wxAuiPaneInfo().
-		Name(wxT("Online")).
+		Name(wxT("TextMessages")).
 		Center().Layer(1).Position(1).CloseButton(false));
+	this->Connect(main_panel_chat->GetId(), wxEVT_CLOSE_WINDOW, wxCommandEventHandler(ClientTsFrm::Save));
 	m_mgr.AddPane(m_txtctrl,
 		wxAuiPaneInfo().
 			Name(wxT("Log Panel")).
 			Caption(wxT("Log Panel")).
 			Bottom().Layer(1).Position(1).MaximizeButton(true));
 	m_mgr.AddPane(txtclient,
-		wxAuiPaneInfo().Left().Layer(1).Position(1).MaximizeButton(false));// .BestSize(1100, 100));
+		wxAuiPaneInfo().
+			Name(wxT("Online")).
+			Left().Layer(1).Position(1).MaximizeButton(false));// .BestSize(1100, 100));
+
 	m_mgr.Update();
 	
 	/***********************************/
@@ -189,7 +202,21 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	ID_MNU_OPZIONI_1004_Mnu_Obj->Append(ID_MNU_AUDIO_1005, labels.audioMenu, _(""), wxITEM_NORMAL);
 
 	ID_MNU_OPZIONI_1004_Mnu_Obj->AppendCheckItem(ID_MNU_SPEECH_1006, _(enableSTTService), _(""));
+
+	ID_MNU_OPZIONI_1004_Mnu_Obj->AppendCheckItem(ID_AllowFloating, _("Allow Floating"));
 	WxMenuBar1->Append(ID_MNU_OPZIONI_1004_Mnu_Obj, labels.options);
+
+	ID_MNU_OPZIONI_VIEW = new wxMenu();
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW, _("Save"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 1, _("sett email"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 2, _("nick"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 3, _("online"), _(""))->Check(true);
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_MNU_VIEW + 4, _("log"), _(""))->Check(true);
+
+	ID_MNU_OPZIONI_VIEW->AppendCheckItem(ID_AllowFloating, _("Allow Floating"));
+	WxMenuBar1->Append(ID_MNU_OPZIONI_VIEW, "View");
+
+
 	SetMenuBar(WxMenuBar1);
 
 	/****MENU__END****/
@@ -275,6 +302,58 @@ void ClientTsFrm::ToolBarSaveClickevent(wxCloseEvent& event)
 
 }
 
+void ClientTsFrm::OnPaneClose(wxAuiManagerEvent& evt)
+{
+	wxMenuItemList lm = ID_MNU_OPZIONI_VIEW->GetMenuItems();
+
+	
+	if (evt.pane->name == wxT("tb1"))//toolbar with save and ? icons
+		lm[0]->Check(false);
+	
+	if (evt.pane->name == wxT("tb2"))  //toolbar with settings
+		lm[1]->Check(false);
+
+	if (evt.pane->name == wxT("tb3")) //toolbar with nickname
+		lm[2]->Check(false);	
+
+	if (evt.pane->name == wxT("Online")) //pane with online users
+		lm[3]->Check(false);
+	
+	if (evt.pane->name == wxT("Log Panel")) //pane with log
+		lm[4]->Check(false);
+	
+}
+
+
+void ClientTsFrm::clickMenuToolbarsPane(wxCommandEvent& evt)
+{	
+	wxMenuItem* itmen = ID_MNU_OPZIONI_VIEW->FindItemByPosition(evt.GetId() - ID_MNU_VIEW);
+	bool b = itmen->IsChecked();
+	bool j = itmen->IsCheck();
+	switch (evt.GetId())
+	{
+	case ID_MNU_VIEW:{
+		//bool b = !itmen2->IsCheck();
+		m_mgr.GetPane(wxT("tb1")).Show(itmen->IsChecked()); }
+		break;
+	case ID_MNU_VIEW + 1:
+		m_mgr.GetPane(wxT("tb2")).Show(itmen->IsChecked());
+		break;
+	case ID_MNU_VIEW + 2:
+		m_mgr.GetPane(wxT("tb3")).Show(itmen->IsChecked());
+		break;
+	case ID_MNU_VIEW + 3:
+		m_mgr.GetPane(wxT("Online")).Show(itmen->IsChecked());
+		break;
+	case ID_MNU_VIEW + 4:
+		m_mgr.GetPane(wxT("Log Panel")).Show(itmen->IsChecked());
+		break;
+	}
+
+
+	m_mgr.Update();
+}
+
 
 void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 {
@@ -329,6 +408,7 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
  */
 void ClientTsFrm::updateClientListTimer(wxTimerEvent& event)
 {
+	wxLogStatus(this, wxT("u threads total,  running."));
 	int			i			= 0;
 	UserListPTR luser		= Session::Instance()->getListUser();
 	wxUniChar   ch			= ':';
@@ -493,11 +573,11 @@ void ClientTsFrm::DoLogRecord(wxLogLevel level, const wxString& msg, const wxLog
 	DoLogLine
 		(
 		m_txtctrl,
-		wxDateTime(info.timestamp).FormatISOTime(),
+		 wxDateTime(info.timestamp).FormatISOTime(),
 		info.threadId == wxThread::GetMainId()
 		? wxString("main")
 		: wxString::Format("%lx", info.threadId),
-		msg + "\n"
+		msg 
 		);
 }
 
@@ -507,7 +587,7 @@ const wxString& timestr,
 const wxString& threadstr,
 const wxString& msg)
 {
-	text->AppendText(wxString::Format("%9s %10s %s", timestr, threadstr, msg));
+	text->AppendText(wxString::Format("\n%9s %10s %s", timestr, threadstr, msg));
 }
 
 void ClientTsFrm::askForSaving(){

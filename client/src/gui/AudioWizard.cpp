@@ -82,6 +82,7 @@ void AudioWizard::ConfermaClick(wxCommandEvent& event)
 {
 	Session::Instance()->setMicLevel(std::to_string(slideraudio->GetValue()).c_str());
 	//wxMessageBox(wxString::FromDouble(slideraudio->GetValue()));
+	Close(true);
 }
 
 void AudioWizard::WxTimer1Timer(wxTimerEvent& event)

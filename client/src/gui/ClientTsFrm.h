@@ -146,6 +146,13 @@ private:
 	void Save(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
 	void ToolBarSaveClickevent(wxCloseEvent &event);
+	void OnUpdateUI(wxUpdateUIEvent& event)
+	{
+		//if (tb3->IsShown())
+	}
+	void OnPaneClose(wxAuiManagerEvent& evt);
+
+	void clickMenuToolbarsPane(wxCommandEvent& event);
 
 	// logging helper
 	void DoLogLine(wxTextCtrl *text, const wxString& timestr, const wxString& threadstr, const wxString& msg);
@@ -187,6 +194,7 @@ private:
 	wxMenuBar *WxMenuBar1;
 	wxMenu *ID_MNU_FILE_1001_Mnu_Obj;
 	wxMenu *ID_MNU_OPZIONI_1004_Mnu_Obj;
+	wxMenu *ID_MNU_OPZIONI_VIEW;
 	wxBitmapButton *WxBitmapButton1;
 	std::unique_ptr<ClientTS> clientts;
 	ttListCtrl* chatbox;//wxListCtrl* chatbox;
@@ -223,11 +231,13 @@ private:
 		ID_MNU_OPZIONI_1004 = 1114,
 		ID_MNU_AUDIO_1005 = 1115,
 		ID_MNU_SPEECH_1006 = 1116,
+		ID_MNU_VIEW = 1120,
 		ID_WXBITMAPBUTTON1 = 1024,
 		////GUI Enum Control ID End
 		ID_DUMMY_VALUE_, //don't remove this value unless you have other enum values
 		ID_MESSAGEIO,
-		ID_tool_bar
+		ID_tool_bar,
+		ID_AllowFloating = 1150
 	};
 };
 
