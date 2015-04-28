@@ -115,13 +115,9 @@ public:
 };
 
 
-class ClientTsFrm : public wxFrame,
-	private wxLog
+class ClientTsFrm : public wxFrame
 {
-protected:
-	virtual void DoLogRecord(wxLogLevel level,
-		const wxString& msg,
-		const wxLogRecordInfo& info);
+
 private:
 	DECLARE_EVENT_TABLE();
 	void askForSaving();
@@ -154,8 +150,6 @@ private:
 
 	void clickMenuToolbarsPane(wxCommandEvent& event);
 
-	// logging helper
-	void DoLogLine(wxTextCtrl *text, const wxString& timestr, const wxString& threadstr, const wxString& msg);
 public:
 
 	ClientTsFrm(LoginWarnings *warn, wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("TeamTranslate"),

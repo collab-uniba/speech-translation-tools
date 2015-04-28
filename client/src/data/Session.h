@@ -58,13 +58,13 @@ public:
 	bool finish_ctrl_flag;		//Flag to recognize CTRL press button
 	bool automatic_stt_flag;
 	uint64 scHandlerID;
-	private:
+private:
 	Session();  // Private so that it can  not be called
 	Session(Session const&){};             // copy constructor is private
 	Session& operator=(Session const&){};  // assignment operator is private
 	static Session* m_pInstance;
  
-public:	
+public:
 	bool getsound_flag(){ return sound_flag; }
 	void setsound_flag(bool conf){ this->sound_flag = conf; }
 	
@@ -103,7 +103,6 @@ public:
 
 	const char* getTranslationEngine();
 	void setTranslationEngine(const char *sv);
-
 
 	const char* getsmtpservertxt();
 	void setsmtpservertxt(const char *sv);
@@ -152,6 +151,7 @@ private:
 	char* m_translationEngine;
 	MessageQueuePTR m_queue;
 	std::unique_ptr<CSimpleIniA> ini;
+	wxTextCtrl *m_TextCtrl;
 };
 
 

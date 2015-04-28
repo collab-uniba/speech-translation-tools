@@ -37,6 +37,17 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 : wxFrame(parent, id, title, position, wxSize(924, 600), style)
 {
 
+	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+	m_oldLogger = wxLog::SetActiveTarget(new wxLogTextCtrl(m_txtctrl));
+	/*************/
+
+	session = Session::Instance();
+	clientts = make_unique<ClientTS>(this, m_txtctrl);
+	colors = (COLORE*)malloc(10 * sizeof(COLORE));
+	curRow = 0;			//Initialize Row index
+	clientts->setFlagSave(true);
+
+
 	this->nations = new NationList();
 	try
 	{
@@ -48,13 +59,8 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 		wxMessageBox("This program will be closed.");
 		this->Close(true);
 	}
-	session = Session::Instance();
-	clientts = make_unique<ClientTS>(this);
-	colors = (COLORE*)malloc(10 * sizeof(COLORE));
-	curRow = 0;			//Initialize Row index
 
-
-	m_oldLogger = wxLog::GetActiveTarget();
+	//m_oldLogger = wxLog::GetActiveTarget();
 	m_mgr.SetManagedWindow(this);
 
 	wxPanel *main_panel_chat = new wxPanel(this, wxID_ANY);
@@ -131,8 +137,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
 
-	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
-	wxLog::SetActiveTarget(this);
 
 	this->Connect(m_toolbar1_save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( ClientTsFrm::Save));
 	this->Connect(m_toolbar1_email->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::Mail));
@@ -170,10 +174,9 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 			Left().Layer(1).Position(1).MaximizeButton(false));// .BestSize(1100, 100));
 
 	m_mgr.Update();
-	
-	/***********************************/
 
-	clientts->setFlagSave(true);
+
+	/***********************************/
 
 	FILE * record;
 	FILE * translate;
@@ -406,7 +409,7 @@ void ClientTsFrm::btnsendClick(wxCommandEvent& event)
  */
 void ClientTsFrm::updateClientListTimer(wxTimerEvent& event)
 {
-	wxLogStatus(this, wxT("u threads total,  running."));
+	
 	int			i			= 0;
 	UserListPTR luser		= Session::Instance()->getListUser();
 	wxUniChar   ch			= ':';
@@ -557,36 +560,6 @@ void ClientTsFrm::Save(wxCommandEvent& event)
 	askForSaving();
 }
 
-void ClientTsFrm::DoLogRecord(wxLogLevel level, const wxString& msg, const wxLogRecordInfo& info)
-{
-	// let the default GUI logger treat warnings and errors as they should be
-	// more noticeable than just another line in the log window and also trace
-	// messages as there may be too many of them
-	if (level <= wxLOG_Warning || level == wxLOG_Trace)
-	{
-		m_oldLogger->LogRecord(level, msg, info);
-		return;
-	}
-
-	DoLogLine
-		(
-		m_txtctrl,
-		 wxDateTime(info.timestamp).FormatISOTime(),
-		info.threadId == wxThread::GetMainId()
-		? wxString("main")
-		: wxString::Format("%lx", info.threadId),
-		msg 
-		);
-}
-
-void
-ClientTsFrm::DoLogLine(wxTextCtrl *text,
-const wxString& timestr,
-const wxString& threadstr,
-const wxString& msg)
-{
-	text->AppendText(wxString::Format("\n%9s %10s %s", timestr, threadstr, msg));
-}
 
 void ClientTsFrm::askForSaving(){
 	if (!clientts->getFlagSave()){

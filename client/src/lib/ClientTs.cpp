@@ -211,6 +211,7 @@ int recordSound = 0;
 void ClientTS::onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
 	/* Failed to connect ? */
 	if (newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
+		wxMessageBox(wxT("No server running. Open again this program and choose another server"));
 		ts3client_logMessage("No server running", LogLevel_ERROR, "Channel", session->scHandlerID);
 		exit(-1);
 	}
@@ -790,7 +791,7 @@ void ClientTS::onTextMessageEvent(uint64 serverConnectionHandlerID, anyID target
 	if (strMessage == ">") return;
 
 	/******* begin adding new entry to the log variable  ******/
-
+	wxLogStatus(wxT("A new message received from ") + strNick);
 	msg_text = make_shared<Message>(strNick == session->getNick() ? MSGDirection::out : MSGDirection::in, strNick, strMessage, session->getLanguage(), strMessageLang);// it's the same that Message* Message = new Message ();
 		
 	session->addMsgToLog(msg_text);
@@ -819,7 +820,6 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 	UserListPTR luser = make_shared<UserList>();
 
 
-	printf("\nList of all visible clients on virtual server %llu:\n", (unsigned long long)serverConnectionHandlerID);
 	if ((error = ts3client_getClientList(serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of client IDs */
 		printf("Error getting client list: %d\n", error);
 		return;
@@ -1226,76 +1226,77 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 	if ((error = ts3client_initClientLib(&cn->funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "..\\dll\\")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
-			//wxMessageBox("Error initialzing serverlib");
+			wxMessageBox(wxT("Error initialzing serverlib"));
 			ts3client_freeMemory(errormsg);
 		}
 		return 1;
 	}
 
-	wxLogError(wxT("Spawning a new server connection handler"));
+	wxLogStatus(wxT("Spawning a new server connection handler"));
 	/* Spawn a new server connection handler using the default port and store the server ID */
 	if ((error = ts3client_spawnNewServerConnectionHandler(0, &Session::Instance()->scHandlerID)) != ERROR_ok) {
-		wxMessageBox("Error spawning server connection handler");
+		wxMessageBox(wxT("Error spawning server connection handler"));
 		return 1;
 	}
 
 	/* Get default capture mode */
 	if ((error = ts3client_getDefaultCaptureMode(&mode)) != ERROR_ok) {
-		wxMessageBox("Error getting default capture mode");
+		wxMessageBox(wxT("Error getting default capture mode"));
 		return 1;
 	}
 	//printf("Default capture mode: %s\n", mode);
-	wxLogError(wxString::Format(wxT("Default capture mode: %s"), mode));
+	wxLogStatus(wxString::Format(wxT("Default capture mode: %s"), mode));
 
 	/* Get default capture device */
 	if ((error = ts3client_getDefaultCaptureDevice(mode, &device)) != ERROR_ok) {
-		wxMessageBox("Error getting default capture device");
+		wxMessageBox(wxT("Error getting default capture device"));
 		return 1;
 	}
-	//wxMessageBox("Default capture device");
-
+	wxLogStatus(wxT("Default capture device: ") + wxString::FromAscii(device[0]) + wxT(" ") + wxString::FromAscii(device[1]));
+	
 	/* Open default capture device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
 	error = ts3client_openCaptureDevice(Session::Instance()->scHandlerID, mode, device[1]);
 	if (error != ERROR_ok) {
-		wxMessageBox("Error opening capture device");
+		wxMessageBox(wxT("Error opening capture device"));
 	}
 
 	/* Get default playback mode */
 	if ((error = ts3client_getDefaultPlayBackMode(&mode)) != ERROR_ok) {
-		wxMessageBox("Error getting default playback mode");
+		wxMessageBox(wxT("Error getting default playback mode"));
 		return 1;
 	}
-
+	wxLogStatus(wxT("Default playback mode: ") + wxString::FromAscii(mode));
 	/* Get default playback device */
 	if ((error = ts3client_getDefaultPlaybackDevice(mode, &device)) != ERROR_ok) {
-		wxMessageBox("Error getting default playback device");
+		wxMessageBox(wxT("Error getting default playback device"));
 		return 1;
 	}
 
 	/* Open default playback device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
 	if ((error = ts3client_openPlaybackDevice(Session::Instance()->scHandlerID, mode, device[1])) != ERROR_ok) {
-		wxMessageBox("Error opening playback device");
+		wxMessageBox(wxT("Error opening playback device"));
 	}
-
+	wxLogStatus(wxT("Default playback device: ") + wxString::FromAscii(device[0]) + wxT(" ") +
+		wxString::FromAscii(device[1]));
 
 	/* Try reading identity from file, otherwise create new identity */
 	if (ClientTS::readIdentity(identity) != 0) {
 		char* id;
 		if ((error = ts3client_createIdentity(&id)) != ERROR_ok) {
-			wxMessageBox("Error creating identity");
+			wxMessageBox(wxT("Error creating identity"));
 			return 0;
 		}
 		if (strlen(id) >= IDENTITY_BUFSIZE) {
-			wxMessageBox("Not enough bufsize for identity string");
+			wxMessageBox(wxT("Not enough bufsize for identity string"));
 			return 0;
 		}
 		strcpy(identity, id);
 		ts3client_freeMemory(id);
 		ClientTS::writeIdentity(identity);
 	}
-
+	wxLogStatus(wxT("Using identity: ") + wxString::FromAscii(identity));
 
 	char final_nick[50];
 	strcpy(final_nick, Session::Instance()->getLanguage());
@@ -1305,17 +1306,18 @@ DWORD WINAPI ClientTS::ClientStart(LPVOID lpParameter)
 
 	/* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
 	if ((error = ts3client_startConnection(Session::Instance()->scHandlerID, identity, Session::Instance()->getServerAddress(), PORT, final_nick, NULL, "", "secret")) != ERROR_ok) {
-		wxMessageBox("Error connecting to server");
+		wxMessageBox(wxT("Error connecting to server"));
 		ts3client_logMessage("Error connecting to server", LogLevel_ERROR, "Channel", 10);
 		return 1;
 	}
 
+	wxLogStatus(wxT("Client lib initialized and running"));
 	/* Query and print client lib version */
 	if ((error = ts3client_getClientLibVersion(&version)) != ERROR_ok) {
-		wxMessageBox("Failed to get clientlib version");
+		wxMessageBox(wxT("Failed to get clientlib version"));
 		return 1;
 	}
-
+	wxLogStatus(wxT("Client TeamSpeak lib version: " ) + wxString::FromAscii(version));
 	ts3client_setChannelVariableAsInt(Session::Instance()->scHandlerID, 1, CHANNEL_CODEC_QUALITY, 7);
 	ts3client_freeMemory(version);  /* Release dynamically allocated memory */
 	version = NULL;

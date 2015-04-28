@@ -51,23 +51,15 @@ int hostname_to_ip(char * hostname, char* ip)
 
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
+	this->nations = new NationList();
 	try{
 		session = Session::Instance();
+		this->nations->ReadFromFile(LOCALES_CODE_FILE);
 	}
 	catch (ErrorSession &e){
 		wxMessageBox(e.what());
 		wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
 		Close(true);
-	}
-
-	const char* pr = session->getServerAddress();
-	
-
-	//config->setLanguage("English");
-
-	this->nations = new NationList(); 
-	try{
-		this->nations->ReadFromFile(LOCALES_CODE_FILE);
 	}
 	catch (std::string &e)
 	{
@@ -184,6 +176,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	cmdConfirm->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Login::btnloginClick), NULL, this);
 
 	ReadConfig();
+	this->Centre(wxBOTH);
 	Login::SetLabel();
 }
 

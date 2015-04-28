@@ -108,22 +108,17 @@ public:
 	wxFrame* msg_thread;
 	QueueMSG* m_pQueue;
 	std::list<int> m_Threads;
-
+	wxTextCtrl *m_wxLogCtrl;
+	wxLog         *m_logOld;
 public:
-	ClientTS(wxFrame * frame) : msg_thread(frame){
+	ClientTS(wxFrame * frame, wxTextCtrl *wxLogCtrl) : msg_thread(frame){
 		if (!m_instance){
 			m_instance = this;
+			m_logOld = wxLog::SetActiveTarget(new wxLogTextCtrl(wxLogCtrl));
 			ThreadsOnStart();
 		}
 		session = Session::Instance();
-		// draw the bitmap from a secondary thread
-		/*if (msg_thread.Create() != wxTHREAD_NO_ERROR ||
-			msg_thread.Run() != wxTHREAD_NO_ERROR)
-		{
-			wxLogError(wxT("Can't create/run thread!"));
-			return;
-		}*/
-		
+
 	}
 
 	void ThreadsOnStart() // start two workers thread
