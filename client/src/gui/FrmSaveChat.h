@@ -1,7 +1,10 @@
-#ifndef __FRMSAVECHAT_H__
-#define __FRMSAVECHAT__
+#pragma once 
+
+#include "../data/Session.h"
+#include "../data/Message.h"
 
 #include <wx/wx.h>
+#include <wx/compiler.h>
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/string.h>
@@ -25,8 +28,8 @@
 #include <wx/checkbox.h>
 #include <wx/filepicker.h>
 #include <stdio.h>
-#include "..\translateController\translateVariable.h"
-#include "..\GlobalVariables.h"
+#include "../translateController/translateVariable.h"
+#include "../GlobalVariables.h"
 
 class FrmSaveChat : public wxDialog
 {
@@ -34,8 +37,10 @@ private:
 	void OnClose(wxCloseEvent& event);
 	void saveChatCSV(const char* filename);
 	void saveChatTXT(const char* filename);
-	FILE*config;
+	FILE*configr;
 	char destination[3000];
+
+	Session* session;
 
 protected:
 	wxStaticText* lblTitle;
@@ -58,5 +63,3 @@ public:
 	~FrmSaveChat();
 
 };
-
-#endif

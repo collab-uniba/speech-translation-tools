@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     2005-01-09
-// RCS-ID:      $Id$
 // Copyright:   (c) 2005 Vadim Zeitlin <vadim@wxwindows.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,12 +75,12 @@ public:
     virtual bool GetRange(wxDateTime *dt1, wxDateTime *dt2) const = 0;
 };
 
-#if defined(__WXPALMOS__)
-    #include "wx/palmos/datectrl.h"
+#if defined(__WXMSW__) && !defined(__WXUNIVERSAL__)
+    #include "wx/msw/datectrl.h"
 
     #define wxHAS_NATIVE_DATEPICKCTRL
-#elif defined(__WXMSW__) && !defined(__WXUNIVERSAL__)
-    #include "wx/msw/datectrl.h"
+#elif defined(__WXOSX_COCOA__) && !defined(__WXUNIVERSAL__)
+    #include "wx/osx/datectrl.h"
 
     #define wxHAS_NATIVE_DATEPICKCTRL
 #else

@@ -1,3 +1,6 @@
+#ifndef __ARCHIVELOG_H__
+#define __ARCHIVELOG_H__
+
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
 #include <wx/txtstrm.h>
@@ -33,3 +36,5 @@ private:
 	int k = 0;
 	//wxTextOutputStream* txt;
 }; 
+
+#endif

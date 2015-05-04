@@ -6,7 +6,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,8 +43,6 @@ class WXDLLIMPEXP_FWD_CORE wxRenderer;
 #define wxWindowNative wxWindowMSW
 #elif defined(__WXGTK__)
 #define wxWindowNative wxWindowGTK
-#elif defined(__WXMGL__)
-#define wxWindowNative wxWindowMGL
 #elif defined(__WXX11__)
 #define wxWindowNative wxWindowX11
 #elif defined(__WXMAC__)

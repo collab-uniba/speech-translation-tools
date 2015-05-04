@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.09.01
-// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,6 +59,7 @@ public:
     virtual void RequestUserAttention(int flags = wxUSER_ATTENTION_INFO);
 
     virtual bool Show(bool show = true);
+    virtual void Raise();
 
     virtual void ShowWithoutActivating();
     virtual bool ShowFullScreen(bool show, long style = wxFULLSCREEN_ALL);
@@ -121,6 +121,22 @@ public:
     // returns true if the platform should explicitly apply a theme border
     virtual bool CanApplyThemeBorder() const { return false; }
 
+#if wxUSE_MENUS
+    bool HandleMenuSelect(WXWORD nItem, WXWORD nFlags, WXHMENU hMenu);
+
+    // handle WM_EXITMENULOOP message for Win95 only
+    bool HandleExitMenuLoop(WXWORD isPopup);
+
+    // handle WM_(UN)INITMENUPOPUP message to generate wxEVT_MENU_OPEN/CLOSE
+    bool HandleMenuPopup(wxEventType evtType, WXHMENU hMenu);
+
+    // Command part of HandleMenuPopup() and HandleExitMenuLoop().
+    bool DoSendMenuOpenCloseEvent(wxEventType evtType, wxMenu* menu, bool popup);
+
+    // Find the menu corresponding to the given handle.
+    virtual wxMenu* MSWFindMenuFromHMENU(WXHMENU hMenu);
+#endif // wxUSE_MENUS
+
 protected:
     // common part of all ctors
     void Init();
@@ -132,7 +148,7 @@ protected:
 
     // create a new dialog using the given dialog template from resources,
     // return false if it couldn't be created
-    bool CreateDialog_topLevel(const void *dlgTemplate,
+    bool CreateDialog(const void *dlgTemplate,
                       const wxString& title,
                       const wxPoint& pos,
                       const wxSize& size);
@@ -150,8 +166,6 @@ protected:
     // Top level windows have different freeze semantics on Windows
     virtual void DoFreeze();
     virtual void DoThaw();
-
-    virtual void DoEnable(bool enable);
 
     // helper of SetIcons(): calls gets the icon with the size specified by the
     // given system metrics (SM_C{X|Y}[SM]ICON) from the bundle and sets it
@@ -180,7 +194,16 @@ protected:
     bool                  m_fsIsMaximized;
     bool                  m_fsIsShowing;
 
-    // the last focused child: we restore focus to it on activation
+    // Save the current focus to m_winLastFocused if we're not iconized (the
+    // focus is always NULL when we're iconized).
+    void DoSaveLastFocus();
+
+    // Restore focus to m_winLastFocused if possible and needed.
+    void DoRestoreLastFocus();
+
+    // The last focused child: we remember it when we're deactivated and
+    // restore focus to it when we're activated (this is done here) or restored
+    // from iconic state (done by wxFrame).
     wxWindow             *m_winLastFocused;
 
 #if defined(__SMARTPHONE__) && defined(__WXWINCE__)
@@ -227,6 +250,10 @@ private:
     // The system menu: initially NULL but can be set (once) by
     // MSWGetSystemMenu(). Owned by this window.
     wxMenu *m_menuSystem;
+
+    // The number of currently opened menus: 0 initially, 1 when a top level
+    // menu is opened, 2 when its submenu is opened and so on.
+    int m_menuDepth;
 
     DECLARE_EVENT_TABLE()
     wxDECLARE_NO_COPY_CLASS(wxTopLevelWindowMSW);

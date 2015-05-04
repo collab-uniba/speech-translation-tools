@@ -1,9 +1,11 @@
 #include "FrmSaveChat.h"
 
+
+
 FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title, const wxPoint& position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
 	CenterOnScreen();
-
+	session = Session::Instance();
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer(wxVERTICAL);
 
@@ -71,12 +73,10 @@ FrmSaveChat::FrmSaveChat(wxWindow* parent, wxWindowID id, const wxString &title,
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer(wxHORIZONTAL);
 
-
 	bSizer4->Add(0, 0, 1, wxEXPAND, 5);
 
 	btnConfirm = new wxButton(this, wxID_ANY, labels.confirm, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer4->Add(btnConfirm, 0, wxALL, 5);
-
 
 	bSizer1->Add(bSizer4, 1, wxEXPAND, 5);
 
@@ -121,7 +121,7 @@ void FrmSaveChat::checkBoxSelection(wxCommandEvent& event){
 void FrmSaveChat::btnConfirmClick(wxCommandEvent& event)
 {
 	// to get timestamp
-	FILE *config = fopen("..\\bin\\conf\\directory.txt", "w");
+	FILE *configr = fopen("conf\\directory.txt", "w");
 	char timestamp[100];
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -138,62 +138,67 @@ void FrmSaveChat::btnConfirmClick(wxCommandEvent& event)
 	if (chkCSV->GetValue()){
 		saveChatCSV(path + ".csv");
 		strcpy(destination, fpkBrowse->GetPath() + "\\chatLog_" + timestamp + ".csv");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
 	else{
 		strcpy(destination, "NoFile");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
 	if (chkTXT->GetValue()){
 		saveChatTXT(path + ".txt");
 		strcpy(destination, fpkBrowse->GetPath() + "\\chatLog_" + timestamp + ".txt");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
 	else{
 		strcpy(destination, "NoFile");
-		fprintf(config, "%s\n", destination);
+		fprintf(configr, "%s\n", destination);
 	}
-	fclose(config);
+	fclose(configr);
 	this->EndModal(wxID_YES); // chat saved
 }
 
 void FrmSaveChat::saveChatCSV(const char* filename){
-	config = fopen(filename, "w");
+	configr = fopen(filename, "w");
 
-	list<MESSAGE>::iterator iter;
-	for (iter = diary.begin(); iter != diary.end(); iter++){
+	MessageQueuePTR msg_queue = Session::Instance()->getMessageQueue();
 
-		fprintf(config, "\"" + (*iter).nick + "\";");
-		fprintf(config, "\"" + (*iter).timestamp + "\";");
-		fprintf(config, "\"" + (*iter).msgDir + "\";");
+	std::vector<MessagePTR>::iterator iter;
+	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
-		if (strcmp((*iter).msgDir, "-->"))
-			fprintf(config, "\"" + (*iter).msgold + "\"\n");
-		else
-			fprintf(config, "\"" + (*iter).lang + ";\"" + (*iter).msgold + ";\"#orig#\";\"" + CURRENT_LANG + ";\"" + (*iter).msgnew + "\"\n");
+		fprintf(configr, "\"" + (*iter)->getFrom() + "\";");
+		fprintf(configr, "\"" + (*iter)->getTimeStamp()+ "\";");
+		if (MSGDirection::out == (*iter)->getIO())
+		{
+			fprintf(configr, "\" ---> " + (*iter)->getMSG() + "\"\n");
+		}else{
+			fprintf(configr, "\" <--- " + (*iter)->getLanguageOrig() + ";\"" + (*iter)->getMSG() + ";\"#orig#\";\"" + (*iter)->getLanguageSystem() + ";\"" + (*iter)->getTranslated() + "\"\n");
+		}  
 	}
 
-	fflush(config);
-	fclose(config);
+	fflush(configr);
+	fclose(configr);
 }
 
 void FrmSaveChat::saveChatTXT(const char* filename){
 
-	config = fopen(filename, "w");
+	MessageQueuePTR msg_queue = Session::Instance()->getMessageQueue();
+	configr = fopen(filename, "w");
 
-	list<MESSAGE>::iterator iter;
-	for (iter = diary.begin(); iter != diary.end(); iter++){
+	vector<MessagePTR>::iterator iter;
+	for (iter = msg_queue->begin(); iter != msg_queue->end(); iter++){
 
-		fprintf(config, (*iter).nick + " || ");
-		fprintf(config, (*iter).timestamp + "  || ");
-		fprintf(config, (*iter).msgDir + " ");
+		fprintf(configr, (*iter)->getFrom() + " || ");
+		fprintf(configr, (*iter)->getTimeStamp() + "  || ");
 
-		if (strcmp((*iter).msgDir, "-->") == 0)
-			fprintf(config, (*iter).msgold + "\n");
-		else
-			fprintf(config, "(" + (*iter).lang + ": " + (*iter).msgold + " #orig# " + CURRENT_LANG + ": " + (*iter).msgnew + ")\n");
+		if (MSGDirection::out == (*iter)->getIO())
+		{
+			fprintf(configr, " ---> " + (*iter)->getMSG() + "\n");
+		}
+		else{
+			fprintf(configr, "(%s: %s  #orig# %s: %s \n", (*iter)->getLanguageSystem(), (*iter)->getMSG(), (*iter)->getLanguageOrig(), (*iter)->getTranslated());
+		}			
 	}
 
-	fflush(config);
-	fclose(config);
+	fflush(configr);
+	fclose(configr);
 }

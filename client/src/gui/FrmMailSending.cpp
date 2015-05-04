@@ -3,6 +3,7 @@
 FrmMailSending::FrmMailSending(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
 	CenterOnScreen();
+	session = Session::Instance();
 
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer(wxVERTICAL);
@@ -160,51 +161,40 @@ void FrmMailSending::btnCancelMailClick(wxCommandEvent& event){
 }
 
 bool FrmMailSending::sendMail(char* subject, char* body, char* to, char* attachment, char* attachment2){
-	struct serverdata
+	/*
+	www.example-code.com/vcpp/smtp_simpleSend.asp
+	*/
+	/*struct serverdata
 	{
 		char smtpservertxt[100];
 		char serverporttxt[6];
 		char username[100];
 		char password[100];
 		char protocol[100];
-	} serversettings;
+	} serversettings;*/
 	int protocolint;
 	bool success;
 
 	CkMailMan mailman;
-	FILE *config = fopen("conf\\email.txt", "r");
 
-	if (config == NULL)
-	{
-		wxMessageBox("Impostazioni email non trovate.");
-		return false;
-	}
-
-	fscanf(config, "%s", &serversettings.smtpservertxt);
-	fscanf(config, "%s", &serversettings.serverporttxt);
-	fscanf(config, "%s", &serversettings.username);
-	fscanf(config, "%s", &serversettings.password);
-	fscanf(config, "%s", &serversettings.protocol);
-	fclose(config);
-	protocolint = atoi(serversettings.serverporttxt);
 	char source[100];
 
-	//  Any string argument automatically begins the 30-day trial.
+	//  Any string argument automatically begins the 30-day trial. http://www.example-code.com/csharp/htmlToXml_webPage.asp
 
 	success = mailman.UnlockComponent("30-day trial");
 	if (success != true)
 		return false;
 
 	//  Set the SMTP server.
-	mailman.put_SmtpHost(serversettings.smtpservertxt);
-	if (strcmp(serversettings.protocol, "true") == 0){ mailman.put_SmtpSsl(true); }
-	else { mailman.put_SmtpSsl(false); }
-	mailman.put_SmtpPort(protocolint);
+	mailman.put_SmtpHost(session->getsmtpservertxt());
+	mailman.put_SmtpSsl(session->getprotocol());
+
+	mailman.put_SmtpPort(atoi(session->getserverporttxt()));
 
 	// Set the SMTP login/password (if required)
 	// sender data
-	mailman.put_SmtpUsername(serversettings.username);
-	mailman.put_SmtpPassword(serversettings.password);
+	mailman.put_SmtpUsername(session->getusername());
+	mailman.put_SmtpPassword(session->getpassword());
 
 	success = mailman.VerifySmtpConnection();
 	if (success != true)
@@ -217,7 +207,7 @@ bool FrmMailSending::sendMail(char* subject, char* body, char* to, char* attachm
 	//  Create a new email object
 	CkEmail email;
 	strcpy(source, "TeamTranslate <");
-	strcat(source, serversettings.username);
+	strcat(source, session->getusername());
 	strcat(source, ">");
 	email.put_From(source);
 	email.put_Subject(subject);

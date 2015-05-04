@@ -1,7 +1,7 @@
-#ifndef _FRMMAILSENDING_H
-#define _FRMMAILSENDING_H
+#pragma once
 
 #include <wx/wx.h>
+#include <wx/compiler.h>
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/bitmap.h>
@@ -21,11 +21,14 @@
 #include <wx/dialog.h>
 #include <stdio.h>
 
-#include <ck\CkMailMan.h>
-#include <ck\CkEmail.h>
-#include "..\tinyxml2.h"
-#include "..\translateController\translateVariable.h"
-#include "..\..\res\sendemail.xpm"
+
+#include <ck/CkMailMan.h>
+#include <ck/CkEmail.h>
+#include "../tinyxml2.h"
+#include "../../res/sendemail.xpm"
+
+#include "../data/Session.h"
+#include "../translateController/translateVariable.h"
 
 using namespace std;
 
@@ -33,6 +36,7 @@ class FrmMailSending : public wxDialog
 {
 
 private:
+	Session *session;
 	void btnSendMailClick(wxCommandEvent& event);
 	void btnCancelMailClick(wxCommandEvent& event);
 	bool sendMail(char* subject, char* body, char* to, char*attachment, char* attachment2);
@@ -63,4 +67,3 @@ public:
 
 };
 
-#endif

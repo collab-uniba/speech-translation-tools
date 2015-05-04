@@ -1,10 +1,12 @@
-#ifndef _GLOBALVARIABLES_H_
-#define _GLOBALVARIABLES_H_
+#pragma once
 
-#include "utility.h"
 #include <windows.h>
 #include <atlbase.h>
 #include <sphelper.h>
+
+#include <list>
+#include <memory>
+
 #include <sapi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,17 +36,13 @@
 #include <wx/richtext/richtextstyledlg.h>
 #include <wx/richtext/richtextprint.h>
 #include <wx/richtext/richtextimagedlg.h>
-#include "rapidjson/document.h"		
-#include "rapidjson/prettywriter.h"	
-#include "rapidjson/filestream.h"
 #include <list>
 #include "../res/keyboard.xpm"
 #include "../res/microphone.xpm"
 #include "../res/italy.xpm"
 #include "../res/usa.xpm"
 #include "../res/brasil.xpm"
-
-
+ 
 
 #define MAX 30
 
@@ -57,6 +55,7 @@
 
 #ifdef _WIN32
 #define snprintf sprintf_s
+#define strdup _strdup
 #define SLEEP(x) Sleep(x)
 #else
 #define SLEEP(x) usleep(x*1000)
@@ -65,15 +64,16 @@
 using namespace audiere;
 using namespace std;
 using namespace ATL;
-using namespace rapidjson;
 using namespace irrklang;
+
+#define LOCALES_CODE_FILE "conf/locales_code.txt"
+#define SETTING_FILE "conf/config.ini"
 
 struct WaveHeader {
 	/* Riff chunk */
 	char riffId[4];
 	unsigned int len;
 	char riffType[4];
-
 	/* Format chunk */
 	char fmtId[4];  // 'fmt '
 	unsigned int fmtLen;
@@ -83,11 +83,12 @@ struct WaveHeader {
 	unsigned int avgBytesPerSec;
 	unsigned short blockAlign;
 	unsigned short bitsPerSample;
-
 	/* Data chunk */
 	char dataId[4];  // 'data'
 	unsigned int dataLen;
 };
+
+
 
 typedef struct color
 {
@@ -95,7 +96,7 @@ typedef struct color
 	unsigned short green;
 	unsigned short blue;
 } COLORE;
-
+/*
 struct user
 {
 	wxString name;
@@ -117,11 +118,10 @@ typedef struct message
 	wxString msgnew;
 	wxString lang;
 	wxString msgold;
-
 	wxString timestamp;
 	wxString msgDir;
 } MESSAGE;
-
+*/
 typedef struct header_file
 {
 	char chunk_id[4];
@@ -139,6 +139,7 @@ typedef struct header_file
 	int subchunk2_size;         // subchunk2_size denotes the number of samples.
 } header;
 
+
 typedef struct header_file* header_p;
 
 struct WriteThis {
@@ -146,13 +147,13 @@ struct WriteThis {
 	long sizeleft;
 };
 
-
-
 static DWORD myThreadID;
 static DWORD myThreadID2;
 static DWORD myThreadID3;
 static DWORD myThreadID4;
 
+#define PORT 9987
+/*
 static int iresult;
 static short flag = 0; //Flag to exit from client
 
@@ -164,16 +165,7 @@ static wxString oldStringTranslate = "";
 static wxString StringOriginal = "";
 static wxString strSpeak = "";
 
-static char SERVER_ADDRESS[20];
-static char NICK[50];
-static char SERVICE[20];
-static char LANG_MSG_SRC[20] = { "" };
-static char MSG_SRC[50] = { "" };
-static char GOOGLE_API_KEY[50] = { "" };
-static char url[256] = { "" };
-static char MSG_PARSE[1024] = { "" };
-static char translate_jar[512] = { "" };
-
+ 
 static unsigned short PORT = 9987;	//Number port of server
 static int cmbel = 0;				//Index of comboBox choose
 static int VAD_VALUE = 1;			//Minimum value to record audio
@@ -190,18 +182,14 @@ static bool tasto_stt_flag = false;		//Flag to activate Automatic SpeechToText
 static bool finish_ctrl_flag = false;		//Flag to recognize CTRL press button
 static bool automatic_stt_flag = false;
 static wxRichTextCtrl *chatptr;				//Pointer to edit the chatptr
-static unsigned int curRow = 0;			//Initialize Row index
+/*static unsigned int curRow = 0;			//Initialize Row index
 static unsigned int curCol = 0;			//Initialize Column index
 static wxGrid *gridptr;					//Pointer to edit the chatptr grid
-static uint64 _sclogID;
+static uint64 _sclogID;*/
 //uint64 _sclogID;
 //ArchiveLog * archivelog;
 //extern MESSAGE diary[MAXCHATSIZE];				//Structure to record log chatptr
 
 // DIARY LO FACCIO DIVENTARE LIST DI MESSAGE
 // RISOLVI FLAGSAVE
-extern list<MESSAGE> diary;
-
-
-extern wxString StringTranslate ;
-#endif /* _GLOBALVARIABLES_H_ */
+//extern list<MESSAGE> diary;

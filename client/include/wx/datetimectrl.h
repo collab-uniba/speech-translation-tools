@@ -3,7 +3,6 @@
 // Purpose:     Declaration of wxDateTimePickerCtrl class.
 // Author:      Vadim Zeitlin
 // Created:     2011-09-22
-// RCS-ID:      $Id: wxhead.h,v 1.12 2010-04-22 12:44:51 zeitlin Exp $
 // Copyright:   (c) 2011 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,10 +34,10 @@ public:
     virtual wxDateTime GetValue() const = 0;
 };
 
-// Only MSW currently has any code to share between wxDatePickerCtrl and
-// wxTimePickerCtrl, under the other platforms this class is trivial.
 #if defined(__WXMSW__) && !defined(__WXUNIVERSAL__)
     #include "wx/msw/datetimectrl.h"
+#elif defined(__WXOSX_COCOA__) && !defined(__WXUNIVERSAL__)
+    #include "wx/osx/datetimectrl.h"
 #else
     typedef wxDateTimePickerCtrlBase wxDateTimePickerCtrl;
 #endif

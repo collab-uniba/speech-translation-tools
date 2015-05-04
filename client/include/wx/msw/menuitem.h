@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     11.11.97
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,12 +118,26 @@ private:
     // helper function for draw std menu check mark
     void DrawStdCheckMark(WXHDC hdc, const tagRECT* rc, wxODStatus stat);
 
-#endif // wxUSE_OWNER_DRAWN
+#else // !wxUSE_OWNER_DRAWN
+    // Provide stubs for the public functions above to ensure that the code
+    // still compiles without wxUSE_OWNER_DRAWN -- it makes sense to just drop
+    // the bitmaps then instead of failing compilation.
+    void SetBitmaps(const wxBitmap& WXUNUSED(bmpChecked),
+                    const wxBitmap& WXUNUSED(bmpUnchecked) = wxNullBitmap) { }
+    void SetBitmap(const wxBitmap& WXUNUSED(bmp),
+                   bool WXUNUSED(bChecked) = true) { }
+    const wxBitmap& GetBitmap() const { return wxNullBitmap; }
+#endif // wxUSE_OWNER_DRAWN/!wxUSE_OWNER_DRAWN
 
 private:
     // common part of all ctors
     void Init();
 
+    // Return the item position in the menu containing it.
+    //
+    // Returns -1 if the item is not attached to a menu or if we can't find its
+    // position (which is not really supposed to ever happen).
+    int MSGetMenuItemPos() const;
 
 #if wxUSE_OWNER_DRAWN
     // item bitmaps

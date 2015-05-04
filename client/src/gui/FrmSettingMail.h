@@ -10,6 +10,7 @@
 
 #include <wx/artprov.h>
 #include <wx/wx.h>
+#include <wx/compiler.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
@@ -27,7 +28,8 @@
 #include <wx/radiobut.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
-#include "..\translateController\translateVariable.h"
+#include "../translateController/translateVariable.h"
+#include "../data/Session.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -35,10 +37,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class MyPanel2
 ///////////////////////////////////////////////////////////////////////////////
-class MyPanel2 : public wxDialog 
+class FrmSettingMail : public wxDialog 
 {
 	private:
-	
+		Session *session;
 	protected:
 		wxStaticBitmap* m_bitmap2;
 		wxStaticText* frmOptionsMail_lblServer;
@@ -65,8 +67,8 @@ class MyPanel2 : public wxDialog
 	
 	public:
 		
-		MyPanel2(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxString("Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500, 400), long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
-		~MyPanel2();
+		FrmSettingMail(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxString("Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500, 400), long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+		~FrmSettingMail();
 	
 };
 

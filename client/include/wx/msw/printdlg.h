@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -107,7 +106,7 @@ public:
     bool ConvertToNative( wxPageSetupDialogData &data );
     bool ConvertFromNative( wxPageSetupDialogData &data );
 
-    virtual wxPageSetupData& GetPageSetupDialogData() { return m_pageSetupData; }
+    virtual wxPageSetupDialogData& GetPageSetupDialogData() { return m_pageSetupData; }
 
 private:
     wxPageSetupDialogData   m_pageSetupData;

@@ -60,19 +60,9 @@ void AudioWizard::CreateGUIControls()
 	slideraudio->SetValue(1);
 	/*wxBitmap bmpfeed_BITMAP(ledrosso_xpm);
 	bmpfeed = new wxStaticBitmap(this, ID_WXSTATICBITMAP1, bmpfeed_BITMAP, wxPoint(216, 270), wxSize(32, 32));*/
-	if (mic = fopen("..\\conf\\mic.txt", "r"))
-	{
-		fscanf(mic, "%d", &valore);
-		slideraudio->SetValue(valore);
-	}
-	else
-	{
-		mic = fopen("..\\conf\\mic.txt", "w");
-		slideraudio->SetValue(1);
-	}
-	fflush(mic);
-	fclose(mic);
 
+	slideraudio->SetValue(atoi(Session::Instance()->getMicLevel()));
+	
 	SetTitle(_("AudioWizard"));
 	SetIcon(wxNullIcon);
 	SetSize(8,8,520,520);
@@ -90,10 +80,9 @@ void AudioWizard::OnClose(wxCloseEvent& /*event*/)
 
 void AudioWizard::ConfermaClick(wxCommandEvent& event)
 {
-	FILE *mic = fopen("..\\conf\\mic.txt","w");
-	fprintf(mic,"%d",slideraudio->GetValue());
-	fflush(mic);
+	Session::Instance()->setMicLevel(std::to_string(slideraudio->GetValue()).c_str());
 	//wxMessageBox(wxString::FromDouble(slideraudio->GetValue()));
+	Close(true);
 }
 
 void AudioWizard::WxTimer1Timer(wxTimerEvent& event)

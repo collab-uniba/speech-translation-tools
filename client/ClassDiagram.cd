@@ -1,0 +1,354 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MyApp" Collapsed="true">
+    <Position X="23.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>src\main.cpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MyFrame" Collapsed="true">
+    <Position X="16.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>src\main.cpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ArchiveLog" Collapsed="true">
+    <Position X="16.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAACEAACAAAAQAIAAACAAIgAACBEAAQgABgAIQEAAA=</HashCode>
+      <FileName>src\ArchiveLog.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ConnectionController" Collapsed="true">
+    <Position X="22" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAACAAAAAACAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\connectionController\connectionController.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TranslateController" Collapsed="true">
+    <Position X="20.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAEABAAQCAAAAAAAAABAAAAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>src\translateController\translateController.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioWizard" Collapsed="true">
+    <Position X="18.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAABAQAUAAIAAAAAAAACAAAAgoAAAIAAAAAAAg=</HashCode>
+      <FileName>src\GUI\AudioWizard.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ClientTsFrm" Collapsed="true">
+    <Position X="20.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>UQEAAogADAAAU4AABhYQIgAAAAAAQAEMBAOASUKBQwA=</HashCode>
+      <FileName>src\GUI\ClientTsFrm.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MyGridCellRenderer" Collapsed="true">
+    <Position X="18.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAgAAAAAAIAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GUI\ClientTsFrm.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FrmMailSending" Collapsed="true">
+    <Position X="16.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CQBAAAACQQAIAEECACAAAAAQAAAgAgiAAEAAAAAACAA=</HashCode>
+      <FileName>src\gui\FrmMailSending.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FrmSaveChat" Collapsed="true">
+    <Position X="18.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACQIAAAAgAAEAAgAAAAAAAAABAAGAIQBIABAABCAA=</HashCode>
+      <FileName>src\gui\FrmSaveChat.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MyPanel2" Collapsed="true">
+    <Position X="20.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAEAkAAAACIIGEQAoAAAAAAAAEAQBIAAAQgIAAAIEAA=</HashCode>
+      <FileName>src\gui\FrmSettingMail.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Login" Collapsed="true">
+    <Position X="20.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACCAQAAAEBBAMEgAAQACQAAAAAABAAiAAAIQAEABGAA=</HashCode>
+      <FileName>src\GUI\Login.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LoginWarnings" Collapsed="true">
+    <Position X="22" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAIAAQAAAAAACAAAASAAACIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\gui\LoginWarnings.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NationInfo" Collapsed="true">
+    <Position X="22" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAgAACCAAAAAAAAAAAAAAEAAIAAAAAAAgAACAACg=</HashCode>
+      <FileName>src\gui\NationInfo.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NationList" Collapsed="true">
+    <Position X="23.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQDAAAAAAAAAAAAAAAAAEAAQAEAhAAI=</HashCode>
+      <FileName>src\gui\NationList.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SplashScreen" Collapsed="true">
+    <Position X="16.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAQAAAAAAAACAAAABAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\gui\SplashScreen.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLDocument" Collapsed="true">
+    <Position X="14.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAggQYUQSAQAQDgABAgCAAEAAAQhAEkhAAgFRtEBEA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLElement" Collapsed="true">
+    <Position X="3" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AJAAAAYCACACQAEIQpCIILSRAQQAAAoAEACgQAAAgEA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLAttribute" Collapsed="true">
+    <Position X="22" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IhQAoAAAACBAABAEAAggAAQAABAAAEAgAAAgQAEQgAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLComment" Collapsed="true">
+    <Position X="5.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAQAAAAAAAAAAAAAAQACAAAAAAAAAAAgAAAAgAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLText" Collapsed="true">
+    <Position X="7.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAQAAEAAQAAAAEAAAAAAAABAAAAEAAAgAAEAgAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLDeclaration" Collapsed="true">
+    <Position X="9.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAQCAAAAAAAAAAAAAAAAAAAAAEAAAAIgAAAAgAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLUnknown" Collapsed="true">
+    <Position X="12" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AKAAAAQAAEAAAAAAAAAAAAAAAAAAAAAAAAggAAAAgAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLPrinter" Collapsed="true">
+    <Position X="2.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAGoQAggAAAAAgUAAAAEBAIAABAEgAAQoAEBAAUsghI=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::StrPair" Collapsed="true">
+    <Position X="18.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAiAAAAAhAAQCAIAAQgIAAAQAAAAAQAgAAQAAAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::DynArray&lt;T, INIT&gt;" Collapsed="true">
+    <Position X="23.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgBAAAkAABAAIAAAASAAGAAAAAAgAQEAJACAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::MemPool" Collapsed="true">
+    <Position X="5.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAAAAgAAEAAAAAAAAAAgAhAAAI=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::MemPoolT&lt;SIZE&gt;" Collapsed="true">
+    <Position X="5.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAQAAAAhAAAAAgAAFAAABAAYAEAAAhAEAo=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLVisitor" Collapsed="true">
+    <Position X="2.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAQAAAAACAAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLUtil" Collapsed="true">
+    <Position X="18.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAkAMAAABAAAABAAKAAAAAgBIABggAAAAAAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLNode" Collapsed="true">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ALAgAAaIAEAACgAAEEAAYQhUgBqAIAAgAIskAAhAhAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLHandle" Collapsed="true">
+    <Position X="16.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgEBAAAEAACAAAAEAAIAAAAAiAAAAAAIcgAABABAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tinyxml2::XMLConstHandle" Collapsed="true">
+    <Position X="23.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgEBAAAEAACAAAAEAAIAAAAAiAAAAAAIMgAABABAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="WaveHeader" Collapsed="true">
+    <Position X="23.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAABAQABAAAEAAACACAAKEAACAAAgAAAQAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="color" Collapsed="true">
+    <Position X="7.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="user" Collapsed="true">
+    <Position X="22" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAACAASAAQAQAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="stringa" Collapsed="true">
+    <Position X="20.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAACAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="message" Collapsed="true">
+    <Position X="9.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAgAAAAAACAAAAgAAAAAQAAAAAAQAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="header_file" Collapsed="true">
+    <Position X="3.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAABAAAhADAAAhAgAAgAAAAAAACAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="WriteThis" Collapsed="true">
+    <Position X="16.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Labels" Collapsed="true">
+    <Position X="18.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gEAQWBACQIgQQEkIEQWAICAACAgAACQoBEAIAOAAsAA=</HashCode>
+      <FileName>src\translateController\translateVariable.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="tinyxml2::Entity" Collapsed="true">
+    <Position X="16.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAEAAAAAAAAAAECAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\tinyxml2.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="COLORE" Collapsed="true">
+    <Position X="7.5" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="MESSAGE" Collapsed="true">
+    <Position X="9.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="header" Collapsed="true">
+    <Position X="0.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="header_p" Collapsed="true">
+    <Position X="3.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GlobalVariables.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Enum Name="__unnamed_enum_001c_1" Collapsed="true">
+    <Position X="16.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\main.cpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SEARCHPARAMETER" Collapsed="true">
+    <Position X="18.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAACgAAAAAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>src\gui\NationList.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="tinyxml2::XMLError" Collapsed="true">
+    <Position X="22" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AKABKCAAAEAEAgoAAACACAAAAEQBAAAAIEEgAAAgAIA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="tinyxml2::Whitespace" Collapsed="true">
+    <Position X="20.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\tinyxml2.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

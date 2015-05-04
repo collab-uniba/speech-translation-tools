@@ -3,7 +3,6 @@
 // Purpose:     includes all xh_*.h files
 // Author:      Vaclav Slavik
 // Created:     2000/03/05
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +56,7 @@
 #include "wx/xrc/xh_radbx.h"
 #include "wx/xrc/xh_scrol.h"
 #include "wx/xrc/xh_scwin.h"
+#include "wx/xrc/xh_simplebook.h"
 #include "wx/xrc/xh_sizer.h"
 #include "wx/xrc/xh_slidr.h"
 #include "wx/xrc/xh_spin.h"

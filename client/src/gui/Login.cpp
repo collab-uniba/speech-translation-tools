@@ -1,15 +1,26 @@
 #include "Login.h"
 
-FILE*config;
+ 
+
 char StringLoginServer[20];
 char StringLoginNick[50];
 char StringLoginLingua[20];
-char StringLoginServizio[20];
 int  cmbelement = 0;
 
-Labels labels;
-char CURRENT_LANG[20] = { "English" };
-wxString StringTranslate = "";
+Labels labels; 
+/*LanguageSetter Txto;
+Txto.setCurrentLang("English"); //this declaration has no storage class or type specifier*/
+
+// Session* session = Session::Instance();
+
+
+BEGIN_EVENT_TABLE(Login, wxDialog)
+	EVT_CLOSE(Login::OnClose)
+	EVT_BUTTON(ID_WXBUTTON1, Login::btnloginClick)
+	EVT_COMBOBOX(ID_WXCOMBOBOX1, Login::cmblingua_SelectionChange)
+END_EVENT_TABLE()
+//EVT_RADIOBUTTON(ID_GTRANSLATE, Login::Google_translate)
+
 
 int hostname_to_ip(char * hostname, char* ip)
 {
@@ -36,38 +47,41 @@ int hostname_to_ip(char * hostname, char* ip)
 	return 1;
 }
 
-BEGIN_EVENT_TABLE(Login, wxDialog)
-EVT_CLOSE(Login::OnClose)
-EVT_BUTTON(ID_WXBUTTON1, Login::btnloginClick)
-EVT_COMBOBOX(ID_WXCOMBOBOX1, Login::cmblingua_SelectionChange)
-END_EVENT_TABLE()
+
 
 Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style) : wxDialog(parent, id, title, position, size, style)
 {
 	this->nations = new NationList();
-	this->nations->ReadFromFile("..\\conf\\locales_code.txt");
+	try{
+		session = Session::Instance();
+		this->nations->ReadFromFile(LOCALES_CODE_FILE);
+	}
+	catch (ErrorSession &e){
+		wxMessageBox(e.what());
+		wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
+		Close(true);
+	}
+	catch (std::string &e)
+	{
+		wxMessageBox(e);
+		wxMessageBox("This program will be closed.");
+		this->Close(true);
+	}
 
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	this->Centre(wxBOTH);
-
 	this->SetSize(wxSize(600, 400));
 
-	wxBoxSizer* bSizer2;
-	bSizer2 = new wxBoxSizer(wxVERTICAL);
-
-	wxBoxSizer* bSizer5;
-	bSizer5 = new wxBoxSizer(wxHORIZONTAL);
-
+	wxBoxSizer* bSizer2 = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* bSizer5 = new wxBoxSizer(wxHORIZONTAL);
 	bSizer5->Add(0, 0, 1, wxEXPAND, 5);
 
 	m_bitmap1 = new wxStaticBitmap(this, wxID_ANY, wxBitmap(connect_xpm), wxDefaultPosition, wxSize(75, 75), 0);
 	bSizer5->Add(m_bitmap1, 0, wxALL, 5);
 
-
 	bSizer2->Add(bSizer5, 1, wxEXPAND, 5);
 
-	wxBoxSizer* bSizer3;
-	bSizer3 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bSizer3 = new wxBoxSizer(wxHORIZONTAL);
 
 	lblNameHost = new wxStaticText(this, wxID_ANY, wxT("Login"), wxDefaultPosition, wxSize(150, -1), 0);
 	lblNameHost->Wrap(-1);
@@ -76,11 +90,9 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	txtNameHost = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer3->Add(txtNameHost, 1, wxALL, 5);
 
-
 	bSizer2->Add(bSizer3, 0, wxALIGN_CENTER | wxEXPAND, 5);
 
-	wxBoxSizer* bSizer31;
-	bSizer31 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bSizer31  = new wxBoxSizer(wxHORIZONTAL);
 
 	lblNickName = new wxStaticText(this, wxID_ANY, wxT("Nickname:"), wxDefaultPosition, wxSize(150, -1), 0);
 	lblNickName->Wrap(-1);
@@ -92,8 +104,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 
 	bSizer2->Add(bSizer31, 0, wxEXPAND, 5);
 
-	wxBoxSizer* bSizer311;
-	bSizer311 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bSizer311  = new wxBoxSizer(wxHORIZONTAL);
 
 	lblLanguage = new wxStaticText(this, wxID_ANY, labels.language, wxDefaultPosition, wxSize(150, -1), 0);
 	lblLanguage->Wrap(-1);
@@ -122,15 +133,13 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 			bitmap.LoadFile("..\\res\\Default.png", wxBITMAP_TYPE_PNG);
 
 		cmbLingua->Append(language, bitmap);
-		strcpy(CURRENT_LANG, language);
+		//session->setLanguage(language);
 		
 	}
 	
 	bSizer311->Add(cmbLingua, 1, wxALL, 5);
 
-
 	bSizer2->Add(bSizer311, 0, wxEXPAND, 5);
-
 
 	bSizer2->Add(20, 20, 0, wxEXPAND, 5);
 
@@ -141,7 +150,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	wxBoxSizer* bSizer7;
 	bSizer7 = new wxBoxSizer(wxVERTICAL);
 
-	radGoogle = new wxRadioButton(this, wxID_ANY, wxT("Google Translate"), wxDefaultPosition, wxDefaultSize, 0);
+	radGoogle = new wxRadioButton(this, ID_GTRANSLATE, wxT("Google Translate"), wxDefaultPosition, wxDefaultSize, 0);
 	bSizer7->Add(radGoogle, 0, wxALL, 5);
 
 	radBing = new wxRadioButton(this, wxID_ANY, wxT("Bing Translate"), wxDefaultPosition, wxDefaultSize, 0);
@@ -152,15 +161,12 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	wxBoxSizer* bSizer6;
 	bSizer6 = new wxBoxSizer(wxHORIZONTAL);
 
-
 	bSizer6->Add(0, 0, 1, wxEXPAND, 5);
 
 	cmdConfirm = new wxButton(this, wxID_ANY, labels.confirm, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer6->Add(cmdConfirm, 0, wxALL, 5);
 
-
 	bSizer2->Add(bSizer6, 0, wxEXPAND, 5);
-
 
 	this->SetSizer(bSizer2);
 	this->Layout();
@@ -170,6 +176,7 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	cmdConfirm->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Login::btnloginClick), NULL, this);
 
 	ReadConfig();
+	this->Centre(wxBOTH);
 	Login::SetLabel();
 }
 
@@ -193,55 +200,52 @@ void Login::OnClose(wxCloseEvent& /*event*/)
 }
 
 void Login::ReadConfig()
-{
-	ifstream file("..\\bin\\conf\\config.txt", ios::in);
-	if (file.is_open()){
-		if (config = fopen("..\\bin\\conf\\config.txt", "r"))
-		{
-
-			fscanf(config, "%s", &StringLoginServer);
-			txtNameHost->SetValue(StringLoginServer);
-
-			fscanf(config, "%s", &StringLoginNick);
-			txtNickName->SetValue(StringLoginNick);
-
-			fscanf(config, "%d", &cmbelement);
-			cmbLingua->SetSelection(cmbelement);
-
-			fscanf(config, "%s", &StringLoginLingua);
-			cmbLingua->SetValue(StringLoginLingua);
-
-			fscanf(config, "%s", &StringLoginServizio);
-			if (strcmp(StringLoginServizio,"google")==0)
-			{
-				radGoogle->SetValue(true);
-				radBing->SetValue(false);
-			}
-			else
-			{
-				radGoogle->SetValue(false);
-				radBing->SetValue(true);
-			}
-
-			TranslateController::InitLanguageVariable(StringLoginLingua);
-			cmbLingua->SetSelection(cmbelement);
-
-			fclose(config);
-		}
+{ 
+	txtNameHost->SetValue(session->getServerAddress());
+	txtNickName->SetValue(session->getNick());
+	cmbLingua->SetSelection(session->getNumbLanguageSelected());
+	if (!strcmp(session->getTranslationEngine(), "google"))
+	{
+		radGoogle->SetValue(true);
+		radBing->SetValue(false);
+	}else
+	{
+		radGoogle->SetValue(false);
+		radBing->SetValue(true);
 	}
-	else{
-		cmbLingua->SetSelection(0);
-		TranslateController::InitLanguageVariable((char *)cmbLingua->GetString(cmbLingua->GetSelection()).mb_str(wxConvUTF8).data());
+	try
+	{
+		TranslateController::InitLanguageVariable((char*)session->getLanguage());
 	}
-
+	catch (exception& e)
+	{
+		wxMessageBox(e.what());
+		wxMessageBox("This program will be closed.");
+		this->Close(true);
+	}
+	
+	cmbLingua->SetSelection(session->getNumbLanguageSelected());
 }
 
 void Login::cmblingua_SelectionChange(wxCommandEvent& event)
 {
 	char lang[20] = { "" };
 	strcpy(lang, (char*)cmbLingua->GetStringSelection().mb_str().data());
+	try
+	{
+		TranslateController::InitLanguageVariable(lang);
+	}
+	catch (ErrorLabels &e)
+	{
+		session->setLanguage("English(Uk)");
+		session->setNumbLanguageSelected(20);
+		TranslateController::InitLanguageVariable((char*)session->getLanguage());
+		cmbLingua->SetSelection(session->getNumbLanguageSelected());
+		wxMessageBox(e.what());
+		wxMessageBox("setting up english by default");
+	}
 
-	TranslateController::InitLanguageVariable(lang);;
+	
 	Login::SetLabel();
 }
 
@@ -254,39 +258,66 @@ void Login::SetLabel(){
 
 void Login::btnloginClick(wxCommandEvent& event)
 {
-	LoginWarnings *warn = new LoginWarnings();
-	strncpy(StringLoginServer, (const char*)txtNameHost->GetValue().mb_str(wxConvUTF8), 20);
-	strncpy(StringLoginNick, (const char*)txtNickName->GetValue().mb_str(wxConvUTF8), 50);
-	strncpy(StringLoginLingua, (const char*)cmbLingua->GetStringSelection().mb_str(wxConvUTF8), 20);
+	if (!(txtNickName->GetValue().IsEmpty() || txtNickName->GetValue().IsEmpty())){
+		LoginWarnings *warn = new LoginWarnings();
+		strncpy(StringLoginServer, (const char*)txtNameHost->GetValue().mb_str(wxConvUTF8), 20);
+		strncpy(StringLoginNick, (const char*)txtNickName->GetValue().mb_str(wxConvUTF8), 50);
+		strncpy(StringLoginLingua, (const char*)cmbLingua->GetStringSelection().mb_str(wxConvUTF8), 20);
 
-	char ip[20];
-	hostname_to_ip(StringLoginServer, ip);
+		char ip[20];
+		hostname_to_ip(StringLoginServer, ip);
 
-	config = fopen("..\\bin\\conf\\config.txt", "w");
-	fprintf(config, "%s\n", ip);
-	fprintf(config, "%s\n", StringLoginNick);
-	fprintf(config, "%d\n", cmbLingua->GetSelection());
-	fprintf(config, "%s\n", StringLoginLingua);
+		session->setNumbLanguageSelected(cmbLingua->GetSelection());
+		session->setNick(StringLoginNick);
+		session->setLanguage(StringLoginLingua);
+		session->setServerAddress(ip);
+		if (radGoogle->GetValue()) session->setTranslationEngine("google");
+		if (radBing->GetValue()) session->setTranslationEngine("bing");
 
-	/*if (strncmp(StringLoginLingua, "English", 7) == 0)
-	{
+
+		/*if (strncmp(StringLoginLingua, "English", 7) == 0)
+		{
 		strcpy(CURRENT_LANG, "English");
 		wxMessageBox("Va bene " + wxString::FromUTF8(CURRENT_LANG));
 		fprintf(config, "%s\n", CURRENT_LANG);
-	}*/
+		}*/
 
-	//else fprintf(config, "%s\n", StringLoginLingua);
+		//else fprintf(config, "%s\n", StringLoginLingua);
 
-	if (radGoogle->GetValue() == true) fprintf(config, "%s", "google");
-	if (radBing->GetValue() == true)   fprintf(config, "%s", "bing");
-	fflush(config);
-	fclose(config);
+		try{
 
-	TranslateController::InitLanguageVariable(CURRENT_LANG);
+			if (radGoogle->GetValue())
+				Session::Instance()->getGoogleAPIKey();
+			else
+			{
+				Session::Instance()->getBingID();
+				Session::Instance()->getBingKey();
+			}
+					TranslateController::InitLanguageVariable((char*)session->getLanguage());
+			ClientTsFrm * frame = new ClientTsFrm(warn, NULL);
+			frame->Show();
+			this->Close(true);
+		}
 
-	ClientTsFrm* frame = new ClientTsFrm(warn,NULL);
-	frame->Show();
-	this->Close();
+		catch (ErrorSession &e){
+			wxMessageBox(e.what());
+			wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
+			Close(true);
+			//wxTheApp->OnExit();
+			//wxTheApp->CleanUp();
+		}
+	}
+	else{
+		wxMessageBox("Please, fill name and host fields.");
+	}
 }
 
+/*
+void Login::Google_translate(wxCommandEvent& event){
+	
+	wxMessageDialog *d = new wxMessageDialog(NULL, wxT("Google Translate is a paid service and for that reason is not available"), wxT("Info"), wxOK);
+	d->ShowModal();
+		radGoogle->SetValue(false);
+		radBing->SetValue(true);
 
+}*/

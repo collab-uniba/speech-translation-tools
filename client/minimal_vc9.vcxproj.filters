@@ -9,22 +9,34 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Source Files\connectionController">
-      <UniqueIdentifier>{3abff4cf-c017-482b-8a36-1955b87892a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\translateController">
       <UniqueIdentifier>{f90e4d02-27c1-4ef8-897d-9075937b8231}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{e7257350-8165-4d86-a32b-fd007d315096}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{f996a2bd-b5fb-4e24-9a5e-ca275414e56d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{ddca5419-5bbd-4811-94e9-1c45bc6f0c28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lib">
+      <UniqueIdentifier>{daa98457-1ca2-4d64-8a7c-92062f3c5362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\lib">
+      <UniqueIdentifier>{f2616b17-4370-41fb-9fae-cbf98695fdb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{b292fbeb-7f7f-40d9-b85a-e29ce2ee9f09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{78190e57-1315-45ee-9f55-64fc7e738d9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\connectionController\connectionController.cpp">
-      <Filter>Source Files\connectionController</Filter>
     </ClCompile>
     <ClCompile Include="src\translateController\translateController.cpp">
       <Filter>Source Files\translateController</Filter>
@@ -44,26 +56,44 @@
     <ClCompile Include="src\gui\FrmSaveChat.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="src\tinyxml2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui\FrmSettingMail.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\SplashScreen.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="src\gui\NationInfo.cpp">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\NationList.cpp">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ArchiveLog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui\LoginWarnings.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\NationInfo.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\NationList.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\ClientTs.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parseini\ConvertUTF.c">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ArchiveLog.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinyxml2.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Message.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\User.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\translateController\Translate.cpp">
+      <Filter>Source Files\translateController</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Session.cpp">
+      <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -75,50 +105,68 @@
     </ClInclude>
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\connectionController\connectionController.h">
-      <Filter>Source Files\connectionController</Filter>
-    </ClInclude>
     <ClInclude Include="src\translateController\translateController.h">
       <Filter>Source Files\translateController</Filter>
     </ClInclude>
     <ClInclude Include="src\translateController\translateVariable.h">
       <Filter>Source Files\translateController</Filter>
     </ClInclude>
-    <ClInclude Include="src\GUI\AudioWizard.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GUI\ClientTsFrm.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GUI\Login.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\FrmMailSending.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\FrmSaveChat.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tinyxml2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\FrmSettingMail.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\SplashScreen.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\NationInfo.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\NationList.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
     <ClInclude Include="src\ArchiveLog.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\gui\FrmMailSending.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\FrmSaveChat.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\FrmSettingMail.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\NationList.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\NationInfo.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\SplashScreen.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\Login.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
     <ClInclude Include="src\gui\LoginWarnings.h">
-      <Filter>Source Files\gui</Filter>
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\ClientTsFrm.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\AudioWizard.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\ClientTs.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Session.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Message.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\User.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parseini\ConvertUTF.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parseini\SimpleIni.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyxml2.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\translateController\Translate.h">
+      <Filter>Header Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +206,7 @@
     <None Include="res\Splash.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\sample.ico">

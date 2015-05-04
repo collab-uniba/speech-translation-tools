@@ -3,7 +3,6 @@
 // Purpose:     Declare all wxDataViewCtrl classes
 // Author:      Robert Roebling, Vadim Zeitlin
 // Created:     2009-11-08 (extracted from wx/dataview.h)
-// RCS-ID:      $Id$
 // Copyright:   (c) 2006 Robert Roebling
 //              (c) 2009 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
@@ -168,6 +167,15 @@ protected:
     // Called from {Cancel,Finish}Editing() to cleanup m_editorCtrl
     void DestroyEditControl();
 
+    // Return the alignment of this renderer if it's specified (i.e. has value
+    // different from the default wxDVR_DEFAULT_ALIGNMENT) or the alignment of
+    // the column it is used for otherwise.
+    //
+    // Unlike GetAlignment(), this always returns a valid combination of
+    // wxALIGN_XXX flags (although possibly wxALIGN_NOT) and never returns
+    // wxDVR_DEFAULT_ALIGNMENT.
+    int GetEffectiveAlignment() const;
+
     wxString                m_variantType;
     wxDataViewColumn       *m_owner;
     wxWeakRef<wxWindow>     m_editorCtrl;
@@ -289,6 +297,9 @@ public:
     // Retrieve the DC to use for drawing. This is implemented in derived
     // platform-specific classes.
     virtual wxDC *GetDC() = 0;
+
+    // To draw background use the background colour in wxDataViewItemAttr
+    virtual void RenderBackground(wxDC* dc, const wxRect& rect);
 
     // Prepare DC to use attributes and call Render().
     void WXCallRender(wxRect rect, wxDC *dc, int state);

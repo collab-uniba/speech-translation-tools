@@ -1,5 +1,4 @@
-#ifndef __LOGIN_H__
-#define __LOGIN_H__
+#pragma once
 
 #ifdef __BORLANDC__
 	#pragma hdrstop
@@ -12,6 +11,7 @@
 	#include <wx/wxprec.h>
 #endif
 
+#include <wx/compiler.h>
 #include <wx/radiobut.h>
 #include <wx/combobox.h>
 #include <wx/bmpcbox.h>
@@ -26,22 +26,28 @@
 #include <windows.h>
 #include <stdio.h>
 
-#include "..\GlobalVariables.h"
-#include "..\translateController\translateController.h"
-#include "..\translateController\translateVariable.h"
-#include "..\utility.h"
-#include "..\res\connect.xpm"
+#include "../translateController/translateController.h"
+#include "../GlobalVariables.h"
+#include "../translateController/translateVariable.h"
+#include "../res/connect.xpm"
 #include "ClientTsFrm.h"
 #include "AudioWizard.h"
 #include "NationList.h"
 
+#include "../data/Session.h"
+#include "ClientTsFrm.h"
+#include "AudioWizard.h"
+#include "NationList.h"
+
+#include "../data/Session.h"
+
 using namespace std;
+
 
 class Login : public wxDialog
 {
 	private:
 		DECLARE_EVENT_TABLE();
-		
 	public:
 		Login(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("Login"), 
 			const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, 
@@ -54,6 +60,7 @@ class Login : public wxDialog
 		void SetLabel();
 	
 	private:
+		Session* session;
 		NationList *nations;
 		wxStaticBitmap* m_bitmap1;
 		wxStaticText* lblNameHost;
@@ -87,13 +94,14 @@ class Login : public wxDialog
 			ID_WXEDIT1 = 1002,
 			ID_WXSTATICTEXT1 = 1001,
 			////GUI Enum Control ID End
-			ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values
+			ID_DUMMY_VALUE_ ,//don't remove this value unless you have other enum values
+			ID_GTRANSLATE = 1220
 		};
 	
 	private:
 		void OnClose(wxCloseEvent& event);
 		void CreateGUIControls();
 		void ReadConfig();
+		void Google_translate(wxCommandEvent& event);
 };
-
-#endif
+ 

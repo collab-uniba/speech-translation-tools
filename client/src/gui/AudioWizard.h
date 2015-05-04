@@ -8,8 +8,7 @@
 ///
 ///------------------------------------------------------------------
 
-#ifndef __AUDIOWIZARD_H__
-#define __AUDIOWIZARD_H__
+#pragma once
 
 #ifdef __BORLANDC__
 	#pragma hdrstop
@@ -22,14 +21,16 @@
 	#include <wx/wxprec.h>
 #endif
 
+#include <wx/compiler.h>
 #include <wx/button.h>
 #include <wx/stattext.h>
 #include <wx/slider.h>
 #include <wx/statbmp.h>
 
+#include "../data/Session.h"
 #include "../res/ledrosso.xpm"
 #include "../res/ledverde.xpm"
-#include "..\translateController\translateVariable.h"
+#include "../translateController/translateVariable.h"
 
 class AudioWizard : public wxDialog
 {
@@ -70,4 +71,3 @@ class AudioWizard : public wxDialog
 		void CreateGUIControls();
 };
 
-#endif

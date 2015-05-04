@@ -1,0 +1,45 @@
+<language>
+    <nameHostServer>Name</nameHostServer>
+    <language>Language</language>
+    <service>Service</service>
+    <confirm>Confirm</confirm>
+    <gridMessage>Message</gridMessage>
+    <send>Send</send>
+    <saveMenu>Save chat session</saveMenu>
+    <mailMenu>Send chat by e-mail</mailMenu>
+    <exitMenu>Exit</exitMenu>
+    <options>Options</options>
+    <audioMenu>Audio</audioMenu>
+    <enable>Enable</enable>
+    <disable>Disable</disable>
+    <microphone>Adjust the sensitivity of the microphone.</microphone>
+    <min>The lowest captures all the sounds from the mic without filters,</min>
+    <max>while the maximum value does not capture any sound</max>
+    <saveMessage>Do you want to save this chat session?</saveMessage>
+    <no>No</no>
+    <yes>Yes</yes>
+    <saveFormatMessage>In which format would you save it?</saveFormatMessage>
+    <formatCsv>CSV format</formatCsv>
+    <formatTxt>TXT format</formatTxt>
+    <saveIn>Save in</saveIn>
+    <saveSuccess>Chat session saved successfully!</saveSuccess>
+    <saveError>Chat session not saved! An error occurred during saving!</saveError>
+    <mailTo>To</mailTo>
+    <mailSubject>Subject</mailSubject>
+    <mailBody>Body</mailBody>
+    <mailAttachmentTxt>Attachment</mailAttachmentTxt>
+    <mailAttachmentCsv>Attachment</mailAttachmentCsv>
+    <fileSelect>Select attachment</fileSelect>
+    <dirSelect>Select directory</dirSelect>
+    <mailSuccess>E-mail sent succesfully</mailSuccess>
+    <mailError>E-mail not sent! An error occurred during sending!</mailError>
+    <emailSetting>Email Settings</emailSetting>
+    <serverName>SMTP Server</serverName>
+    <serverPort>Port</serverPort>
+    <messageSecure>Use secure connection</messageSecure>
+    <noSecure>No</noSecure>
+    <messageEmailSetting>Configuration Saved</messageEmailSetting>
+    <noSave>Nothing to save</noSave>
+    <btnBrowse>Browse</btnBrowse>
+    <btnCancel>Cancel</btnCancel>	
+</language>
