@@ -37,7 +37,7 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 : wxFrame(parent, id, title, position, wxSize(924, 600), style)
 {
 
-	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+	m_txtctrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
 	m_oldLogger = wxLog::SetActiveTarget(new wxLogTextCtrl(m_txtctrl));
 	/*************/
 
@@ -103,7 +103,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	inputtextchat->Add(WxBitmapButton1, 1, wxALL | wxEXPAND, 5);
 
 
-
 	tb1 = new wxAuiToolBar(this, ID_tool_bar, wxDefaultPosition, wxDefaultSize, wxAUI_TB_HORZ_LAYOUT);
 
 	tb1->SetToolBitmapSize(wxSize(16, 16));
@@ -127,16 +126,11 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	wxString naz = this->nations->Search(&wxString(session->getLanguage()), COUNTRY);
 
 	if (naz != "false")
-	{
 		tb3->AddTool(ID_tool_bar + 7, session->getNick(), wxBitmap("..\\res\\" + naz + ".png", wxBITMAP_TYPE_PNG)) ->SetSticky(true);
-		//tb3->AddTool(ID_SampleItem + 1, , bitmap);
-	}
 	
 	tb3->Realize();
 
-
 	txtclient = new wxRichTextCtrl(this, ID_WXRICHTEXTCTRL1, _("Loading... "), wxDefaultPosition, wxSize(200, -1), wxRE_READONLY, wxDefaultValidator, _("txtclient"));
-
 
 	this->Connect(m_toolbar1_save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( ClientTsFrm::Save));
 	this->Connect(m_toolbar1_email->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(ClientTsFrm::Mail));
@@ -258,7 +252,6 @@ ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id,
 	HANDLE myHandle4 = CreateThread(0, 0, ClientTS::CTRL_STT, NULL, 0, &myThreadID4);
 	clientts->SetupColor(colors);
 
-
 }
 
 ttListCtrl* ClientTsFrm::CreateChatBox(wxPanel *panel)
@@ -266,7 +259,6 @@ ttListCtrl* ClientTsFrm::CreateChatBox(wxPanel *panel)
 	chatbox = new ttListCtrl(panel, ID_GRIDCHAT, wxPoint(0, 0), wxSize(-1, -1),
 		wxLC_REPORT | wxLC_HRULES | wxLC_SINGLE_SEL);
 	chatbox->SetMinSize(wxSize(570, 300));
-
 
 	chatbox->Connect(wxEVT_MOTION, wxMouseEventHandler(ttListCtrl::OnMouseMotion));
 	il = new wxImageList(16, 16, false, 0);
@@ -300,13 +292,11 @@ ttListCtrl* ClientTsFrm::CreateChatBox(wxPanel *panel)
 void ClientTsFrm::ToolBarSaveClickevent(wxCloseEvent& event)
 {
 	Sleep(1);
-
 }
 
 void ClientTsFrm::OnPaneClose(wxAuiManagerEvent& evt)
 {
 	wxMenuItemList lm = ID_MNU_OPZIONI_VIEW->GetMenuItems();
-
 	
 	if (evt.pane->name == wxT("tb1"))//toolbar with save and ? icons
 		lm[0]->Check(false);
@@ -350,8 +340,6 @@ void ClientTsFrm::clickMenuToolbarsPane(wxCommandEvent& evt)
 		m_mgr.GetPane(wxT("Log Panel")).Show(itmen->IsChecked());
 		break;
 	}
-
-
 	m_mgr.Update();
 }
 
@@ -366,9 +354,7 @@ void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 	if (event.GetColumn() == 2){
 		tipWin = new wxTipWindow(o, "textazo");
 		// Bind() is only avail for 2.9.0 and later
-		//Bind(wxTimerEvent, ttListCtrl::destroyTip, wxID_ANY, wxID_ANY, this);
 		o->SetClientData(tipWin);
-	//	o->Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
 		killTip = new wxTimer(o, wxID_ANY);
 		killTip->Start(1000, true);
 	}
@@ -638,32 +624,6 @@ void ClientTsFrm::updatePanelMsg(wxThreadEvent& event){
 /* ttListCtrl.cpp */
 /* Ryan Day, http://www.ryanday.net/ */
 
-/*
-void ttListCtrl::SetTooltip(int row, int col, MessagePTR tip)
-{
-	int i, j;
-
-	// If we are placing a tooltip beyond our predefined matrix, 
-	// create a bigger matrix and copy the old matrix over. This
-	// lets us have a dynamic sized tooltip grid.
-	if ((row >= rows) || (col >= cols))
-	{
-		wxString* tmp = grid;
-		grid = new wxString[(row + 5) * (col + 5)];
-
-		for (i = 0; i<rows; i++)
-		for (j = 0; j<cols; j++)
-			grid[(i*cols) + j].Printf(wxT("%s"), tmp[(i*cols) + j]);
-		delete[] tmp;
-		rows = row + 5;
-		cols = col + 5;
-	}
-	// We don't want to store a pointer to the user supplied tooltip,
-	// we keep our own copy in the grid.
-	grid[(row*cols) + col].Printf(wxT("%s"), tip);
-}
-
-*/
 
 void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 {
@@ -716,19 +676,6 @@ void ttListCtrl::OnMouseMotion(wxMouseEvent& event)
 			m_simplePopup->Position(wxPoint(x, y), wxSize(200, 200));
 			m_simplePopup->Popup();
 		}
-	// If we have a tooltip, we want to show is for 1 second, and then disappear. 
-	// We use a timer for this.
-	
-		//tipWin = new wxTipWindow(o, toolTip);
-		
-
-		
-		// Bind() is only avail for 2.9.0 and later
-		//Bind(wxTimerEvent, ttListCtrl::destroyTip, wxID_ANY, wxID_ANY, this);
-		/*SetClientData(m_simplePopup);
-		Connect(wxEVT_TIMER, wxTimerEventHandler(ttListCtrl::destroyTip), NULL, this);
-		killTip = new wxTimer(this, wxID_ANY);
-		killTip->Start(1000, true);*/
 	}
 }
 
@@ -751,15 +698,6 @@ enum
 	PopUP_WXTIMER
 };
 
-
-/*
-EVT_SIZE(SimpleTransientPopup::OnSize)
-EVT_SET_FOCUS(SimpleTransientPopup::OnSetFocus)
-EVT_KILL_FOCUS(SimpleTransientPopup::OnKillFocus)
-EVT_BUTTON(Minimal_PopupButton, SimpleTransientPopup::OnButton)
-EVT_SPINCTRL(Minimal_PopupSpinctrl, SimpleTransientPopup::OnSpinCtrl)
-*/
-
 SimpleTransientPopup::SimpleTransientPopup(wxWindow *parent, MessagePTR msg)
 :wxPopupTransientWindow(parent)
 {
@@ -776,7 +714,6 @@ SimpleTransientPopup::SimpleTransientPopup(wxWindow *parent, MessagePTR msg)
 	// you're making a control like a combobox where the items are highlighted
 	// under the cursor, the m_panel is set focus in the Popup() function
 
-	//EVT_TIMER(PopUP_WXTIMER, SimpleTransientPopup::WxTimerPopUP)
 
 	Connect(wxEVT_TIMER,
 		wxTimerEventHandler(SimpleTransientPopup::WxTimerClose),
@@ -808,6 +745,7 @@ SimpleTransientPopup::SimpleTransientPopup(wxWindow *parent, MessagePTR msg)
 
 SimpleTransientPopup::~SimpleTransientPopup()
 {
+	Disconnect(wxEVT_TIMER, wxTimerEventHandler(SimpleTransientPopup::WxTimerClose), NULL, this);
 }
 
 void SimpleTransientPopup::Popup(wxWindow* WXUNUSED(focus))

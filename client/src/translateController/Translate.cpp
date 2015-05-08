@@ -91,11 +91,13 @@ void Translation::BingTranslate::translateThis(MessagePTR msg)
 		//else manage error?
 
 		curl_global_cleanup();
-
+		free(response.memory);
+		delete nations;
 	}
 	else{
 		msg->setSrtTranslate(msg->getMSG());
 	}
+
 
 }
 
@@ -181,19 +183,6 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 			res = curl_easy_perform(curl);
 
-			/* Check for errors 
-			if (res != CURLE_OK)
-			{
-			char errormessage[60];
-			strcpy(errormessage, "curl_easy_perform() failed");
-			strcat(errormessage, curl_easy_strerror(res));
-			ts3client_logMessage(errormessage, LogLevel_ERROR, "Google translate", Session::Instance()->scHandlerID);
-			}*/
-
-			/* always cleanup */
-			
-			/*if (responseText.Matches(response.memory))
-			{*/
 			text_convUTF8 = wxString::FromUTF8(response.memory);
 		
 			wxRegEx		responseText = "\"translatedText\": \"(.*)\"";
@@ -206,6 +195,8 @@ void Translation::GoogleTranslate::translateThis(MessagePTR msg)
 			curl_easy_cleanup(curl);
 			curl_global_cleanup();
 		}			
+
+		delete nations;
 	}
 	else{
 		msg->setSrtTranslate(msg->getMSG());

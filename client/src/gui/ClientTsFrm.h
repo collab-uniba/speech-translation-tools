@@ -112,6 +112,9 @@ public:
 	void destroyTip(wxTimerEvent& event);
 	/*void SetTooltip(int row, int col, MessagePTR tip);
 	MessagePTR GetTooltip(int row, int col);*/
+	~ttListCtrl(){
+
+	}
 };
 
 
@@ -156,7 +159,11 @@ public:
 		const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
 		long style = wxCAPTION | wxSYSTEM_MENU | wxCLOSE_BOX | wxRESIZE_BORDER);
 
-	virtual ~ClientTsFrm(){};
+	virtual ~ClientTsFrm(){
+		chatbox->Disconnect(wxEVT_MOTION, wxMouseEventHandler(ttListCtrl::OnMouseMotion), NULL, this);
+		free(colors);
+		m_mgr.UnInit();
+	};
 	void updatePanelMsg(wxThreadEvent& event);
 
 private:
@@ -236,24 +243,7 @@ private:
 };
 
 
-/*
-class MyWorkerThread : public wxThread
-{
-public:
-	MyWorkerThread(ClientTsFrm *frame);
 
-	// thread execution starts here
-	virtual void *Entry();
-
-	// called when the thread exits - whether it terminates normally or is
-	// stopped with Delete() (but not when it is Kill()ed!)
-	virtual void OnExit();
-
-public:
-	ClientTsFrm *m_frame;
-	unsigned m_count;
-};
-*/
 
 
 class SimpleTransientPopup : public wxPopupTransientWindow

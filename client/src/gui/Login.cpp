@@ -58,13 +58,13 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 	}
 	catch (ErrorSession &e){
 		wxMessageBox(e.what());
-		wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
+		wxMessageBox(wxT("Please, read the \"README\" attached  and add the keys in order to continue"));
 		Close(true);
 	}
 	catch (std::string &e)
 	{
 		wxMessageBox(e);
-		wxMessageBox("This program will be closed.");
+		wxMessageBox(wxT("This program will be closed."));
 		this->Close(true);
 	}
 
@@ -183,9 +183,21 @@ Login::Login(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoi
 Login::~Login()
 {
 	// Disconnect Events
-	free(this->nations);
+
 	cmbLingua->Disconnect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(Login::cmblingua_SelectionChange), NULL, this);
 	cmdConfirm->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Login::btnloginClick), NULL, this);
+	free(this->nations);
+	delete m_bitmap1;
+	delete lblNameHost;
+	delete txtNameHost;
+	delete lblNickName;
+	delete txtNickName;
+	delete lblLanguage;
+	delete cmbLingua;
+	delete lblService;
+	delete radGoogle;
+	delete radBing;
+	delete cmdConfirm;
 }
 
 std::ifstream::pos_type filesize(const char* filename)
@@ -220,7 +232,7 @@ void Login::ReadConfig()
 	catch (exception& e)
 	{
 		wxMessageBox(e.what());
-		wxMessageBox("This program will be closed.");
+		wxMessageBox(wxT("This program will be closed."));
 		this->Close(true);
 	}
 	
@@ -242,7 +254,7 @@ void Login::cmblingua_SelectionChange(wxCommandEvent& event)
 		TranslateController::InitLanguageVariable((char*)session->getLanguage());
 		cmbLingua->SetSelection(session->getNumbLanguageSelected());
 		wxMessageBox(e.what());
-		wxMessageBox("setting up english by default");
+		wxMessageBox(wxT("setting up english by default"));
 	}
 
 	
@@ -301,14 +313,14 @@ void Login::btnloginClick(wxCommandEvent& event)
 
 		catch (ErrorSession &e){
 			wxMessageBox(e.what());
-			wxMessageBox("Please, read the \"README\" attached  and add the keys in order to continue");
+			wxMessageBox(wxT("Please, read the \"README\" attached  and add the keys in order to continue"));
 			Close(true);
 			//wxTheApp->OnExit();
 			//wxTheApp->CleanUp();
 		}
 	}
 	else{
-		wxMessageBox("Please, fill name and host fields.");
+		wxMessageBox(wxT("Please, fill name and host fields."));
 	}
 }
 

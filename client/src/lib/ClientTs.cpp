@@ -1,21 +1,6 @@
 #include "ClientTs.h"
 
 
-//struct user* person = (struct user*) malloc(sizeof(struct user));			//Array of user to record client's information
-
-
-/*cbClientTsFrm callbckFrmGUI;*/
-
-/* ClientTsFrm* Observer;
-void setClientFRM(ClientTsFrm* ob){
-}
-void registercb(cbClientTsFrm fn){
-callbckFrmGUI = fn;
-}
-
-struct user*  getPerson(){
-	return person;
-}*/
 /*
 This procedure allows the use of TextToSpeech offered by Microsoft
 it has two parameters: the language of message and body of message
@@ -51,7 +36,7 @@ void ClientTS::speak(const char *LANG, const char*MSG)
 	wcscpy(voice, L"Gender=Female;Language=");
 	hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
 	if (strcmp(LANG, "Italian") == 0) wcscat(voice, L"410");
-	if (strncmp(LANG, "English", 7) == 0) wcscat(voice, L"809");
+	if (strncmp(LANG, "English(Uk)", 7) == 0) wcscat(voice, L"809");
 	if (strcmp(LANG, "Portuguese") == 0) wcscat(voice, L"416");
 	if (strncmp(LANG, "Spanish", 7) == 0) wcscat(voice, L"C0A");
 	if (strncmp(LANG, "French", 6) == 0) wcscat(voice, L"40C");
@@ -889,7 +874,6 @@ void ClientTS::showClients(uint64 serverConnectionHandlerID) {
 		}
 
 		if (!findit){
-			//User(wxString name, unsigned short color, unsigned short used, unsigned short speak, unsigned short write, wxString lang) 
 			UserPTR uptr = make_shared<User>(name2, i, 1, 0, (talkStatus == STATUS_TALKING ? 1 : 0), lang);
 			luser->push_back(uptr);
 		}
