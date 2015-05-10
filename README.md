@@ -19,11 +19,14 @@ Speech to text requirements
 For the speech to text to work properly in your language of choice, make sure that you have installed:
 * Java 7+ 
 * The Microsoft Speech API package for your language. In Windows 8.1 the package for your current language is typically installed already. To add more or to configure earlier Windows version (< 8.1), go to _Control Panel > Language_ and pick yours to download.
+* Fill out the `config.ini` file located in `PATH\to\client\bin\conf`.
 
 Machine translation configuration
 --------------------
-In order to use the machine tranlsation services, you need to obtain the proper API keys and edit the configuration files stored in the `PATH\to\client\conf` dir.
+In order to use the machine tranlsation services, you need to obtain the proper API keys and edit the configuration files stored in the `PATH\to\client\bin\conf` dir.
 
-As per Google Translate, this is a ***paid*** service. A valid API key can be obtained from the [Google developer console](https://console.developers.google.com), enabling the Translate API and providing correct billing info. Then, paste the valid key in the `GOOGLE.txt` file.
+As per Google Translate, this is a ***paid*** service. A valid API key can be obtained from the [Google developer console](https://console.developers.google.com), enabling the Translate API and providing correct billing info. Then, paste the valid key in the `config.ini` file.
 
-As per Microsoft Bing Translator, instead, this is a ***free*** service (up to 2M characters per month). A valid API key can be obtained for free upon registering your app on [Windows Azure Marketplace](https://datamarket.azure.com/dataset/bing/microsofttranslator). Then, paste the obtained _clientID_ and _clientSecret_ into the `BING.txt` file.
+As per Microsoft Bing Translator, instead, this is a ***free*** service (up to 2M characters per month). A valid API key can be obtained for free upon registering your app on [Windows Azure Marketplace](https://datamarket.azure.com/dataset/bing/microsofttranslator). Then, paste the obtained _clientID_ and _clientSecret_ into the `config.ini` file.
+
+In order to enable the speech to text tool, it is necessary to get an API key at the [Nuance website] (https://dragonmobile.nuancemobiledeveloper.com/public/index.php?task=home). Then, paste the obtained _AppID_ and _AppKey_ into the `config.ini` file.

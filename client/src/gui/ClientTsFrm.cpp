@@ -31,7 +31,6 @@ BEGIN_EVENT_TABLE(ClientTsFrm, wxFrame)
 
 END_EVENT_TABLE()
 
-//EVT_MENU(ID_AllowFloating, ClientTsFrm::OnUpdateUI)
 
 ClientTsFrm::ClientTsFrm(LoginWarnings*warnings,wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &position, const wxSize& size, long style)
 : wxFrame(parent, id, title, position, wxSize(924, 600), style)
@@ -352,7 +351,7 @@ void ClientTsFrm::gridchatCellLeftClick(wxListEvent& event)
 	wxTimer *killTip;
 
 	if (event.GetColumn() == 2){
-		tipWin = new wxTipWindow(o, "textazo");
+		tipWin = new wxTipWindow(o, "");
 		// Bind() is only avail for 2.9.0 and later
 		o->SetClientData(tipWin);
 		killTip = new wxTimer(o, wxID_ANY);

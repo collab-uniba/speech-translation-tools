@@ -145,10 +145,7 @@ private:
 	void Save(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
 	void ToolBarSaveClickevent(wxCloseEvent &event);
-	void OnUpdateUI(wxUpdateUIEvent& event)
-	{
-		//if (tb3->IsShown())
-	}
+
 	void OnPaneClose(wxAuiManagerEvent& evt);
 
 	void clickMenuToolbarsPane(wxCommandEvent& event);
