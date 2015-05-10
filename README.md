@@ -1,6 +1,6 @@
 TeamTranslate
 ========================
-A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Microsoft Bing Translator, speech conversion by Nuance Dragon. The tool is intended to support multilanguage group communcation and collaboration. 
+A real-time speech to speech translation tool. Real-time translation is provided by Google Translate or Microsoft Bing Translator, speech conversion by Nuance Dragon. The tool is intended to support multilanguage group communication  and collaboration. 
 
 TeamTranslate is written in C/C++ and uses WxWidgets for the UI. You can download the client installer from [here](https://github.com/xandros90/speech-translation-tools/blob/teamspeak/client/installer/TeamTranslate.msi?raw=true).
 
@@ -23,7 +23,7 @@ For the speech to text to work properly in your language of choice, make sure th
 
 Machine translation configuration
 --------------------
-In order to use the machine tranlsation services, you need to obtain the proper API keys and edit the configuration files stored in the `PATH\to\client\bin\conf` dir.
+In order to use the machine translation  services, you need to obtain the proper API keys and edit the configuration files stored in the `PATH\to\client\bin\conf` dir.
 
 As per Google Translate, this is a ***paid*** service. A valid API key can be obtained from the [Google developer console](https://console.developers.google.com), enabling the Translate API and providing correct billing info. Then, paste the valid key in the `config.ini` file.
 
