@@ -51,14 +51,16 @@ namespace UnitTest1
 		{
 			NationList* nat = new NationList();
 			nat->ReadFromFile("..//conf//locales_code.txt");
-			Assert::AreEqual(nat->Search("Spanish(Ar)", COUNTRY), "Argentina");
+			wxString* wxs = new wxString(0, "Spanish(Ar)");				
+			Assert::AreEqual(nat->Search(wxs, COUNTRY), "Argentina");
 		}
 
 		TEST_METHOD(TEST_NATION_LIST_SEARCH_PARAMETERS_WRONG)
 		{
 			NationList* nat = new NationList();
 			nat->ReadFromFile("..//conf//locales_code.txt");
-			Assert::AreEqual(nat->Search("gravinese(Gr)", COUNTRY), "true");
+			wxString* wxs = new wxString(0, "gravinese(Gr)");
+			Assert::AreEqual(nat->Search(wxs, COUNTRY), "true");
 		}
 
 	};
