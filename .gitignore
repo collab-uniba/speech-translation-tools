@@ -1,7 +1,12 @@
 # Custom project setting 
-bin/*
-bin/minimal/*
-bin/TeamTranslate.tlog/*
+server/bin
+server/Release
+server/Debug
+client/bin/TeamTranslate.tlog/*
+client/Release
+client/Debug
+MyTest/Release
+MyTest/Debug
 *.swp
 .~
 
